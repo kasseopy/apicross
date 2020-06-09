@@ -1,0 +1,50 @@
+{{!-- DataModelSchema --}}
+{{#unless nullable}}
+    @NotNull
+{{/unless}}
+{{#if object}}
+    @Valid
+{{else if array}}
+    {{#if arrayLengthConstrained}}
+        @Size(
+        {{#if minItemsDefined}}
+            min = {{minItems}}
+        {{/if}}
+        {{#if maxItemsDefined}}
+            {{#if minItemsDefined}},{{/if}}
+            max = {{maxItems}}
+        {{/if}}
+        )
+    {{/if}}
+    {{#if uniqueItems}}
+        @org.hibernate.validator.constraints.UniqueElements
+    {{/if}}
+{{else if primitive}}
+    {{#eq type 'string'}}
+        {{#if constrainedStringLength}}
+            @Size(
+            {{#if minLengthDefined}}
+                min = {{minLength}}
+            {{/if}}
+            {{#if maxLengthDefined}}
+                {{#if minLengthDefined}},{{/if}}
+                max = {{maxLength}}
+            {{/if}}
+            )
+        {{/if}}
+        {{#if pattern}}
+            @Pattern(regexp = "{{{pattern}}}")
+        {{/if}}
+        {{#if enumValues}}
+            @Pattern(regexp = "({{{join enumValues '|'}}})")
+        {{/if}}
+    {{/eq}}
+    {{#eq type 'integer'}}
+        {{#if minimumDefined}}
+            @DecimalMin(value = "{{minimum}}" {{#if exclusiveMinimum}}, inclusive = false{{/if}})
+        {{/if}}
+        {{#if maximumDefined}}
+            @DecimalMax(value = "{{maximum}}" {{#if exclusiveMaximum}}, inclusive = false{{/if}})
+        {{/if}}
+    {{/eq}}
+{{/if}}

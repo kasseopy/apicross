@@ -1,0 +1,33 @@
+{{#eq type 'string'}}
+    {{#eq format 'date'}}
+        java.time.LocalDate
+    {{else eq format 'date-time'}}
+        java.time.ZonedDateTime
+    {{else eq format 'byte'}}
+        byte[]
+    {{else eq format 'binary'}}
+        java.io.InputStream
+    {{else}}
+        String
+    {{/eq}}
+{{else eq type 'integer'}}
+    {{#eq format 'int32'}}
+        Integer
+    {{else eq format 'int64'}}
+        Long
+    {{else}}
+        java.math.BigInteger
+    {{/eq}}
+{{else eq type 'number'}}
+    {{#eq format 'float'}}
+        Float
+    {{else eq format 'double'}}
+        Double
+    {{else}}
+        java.math.BigDecimal
+    {{/eq}}
+{{else eq type 'boolean'}}
+    Boolean
+{{else}}
+    Object
+{{/eq}}

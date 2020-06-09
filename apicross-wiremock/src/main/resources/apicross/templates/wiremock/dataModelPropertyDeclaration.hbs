@@ -1,0 +1,30 @@
+{{!-- ObjectDataModelSchemaProperty --}}
+{{> documentation }}
+{{#with type}}{{> dataModelPropertyConstraints}}{{/with}}
+{{#if optional}}
+    {{#with type}}
+        private JsonNullable< {{> type}} > {{../resolvedName}}
+        {{#if defaultValueNotNull}}
+            {{#if string}}
+                = JsonNullable.of("{{{defaultValue}}}")
+            {{else}}
+                = JsonNullable.of({{{defaultValue}}})
+            {{/if}}
+        {{else}}
+            = JsonNullable.undefined()
+        {{/if}};
+    {{/with}}
+
+{{else}}
+    {{#with type}}
+        private {{> type}} {{../resolvedName}}
+        {{#if defaultValueNotNull}}
+            {{#if string}}
+                = "{{{defaultValue}}}"
+            {{else}}
+                = {{{defaultValue}}}
+            {{/if}}
+        {{/if}};
+    {{/with}}
+
+{{/if}}

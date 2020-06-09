@@ -1,0 +1,220 @@
+openapi: 3.0.1
+info:
+  version: '1.0'
+  title: BNet.TradeOffers.Placement.API.v2
+
+paths: {}
+
+components:
+  schemas:
+    TradeOfferDescription:
+      description: Модель данных Торгового предложения (для включения в другие модели в качестве компонента)
+      type: object
+      required:
+        - priceListId
+        - product
+        - termsOfSale
+      properties:
+        priceListId:
+          description: Идентификатор Прайс-листа, в который добавляется Торговое предложение
+          type: string
+          maxLength: 36
+        product:
+          $ref: "#/components/schemas/Product"
+        offerDescription:
+          $ref: "#/components/schemas/OfferDescription"
+        termsOfSale:
+          $ref: "#/components/schemas/TermsOfSale"
+        stock:
+          $ref: "#/components/schemas/StockInformation"
+        externalCode:
+          description: Внешний код Торгового предложения, присвоенный Поставщиком
+          type: string
+          maxLength: 200
+
+    Product:
+      description: >
+        Описание товара Торгового предложения.
+        Должно быть выполнено либо в терминах описания номенклатуры Поставщика, либо в терминах идентификаторов сервиса "1С:Номенклатура"
+      type: object
+      properties:
+        ref1cNomenclature:
+          $ref: "#/components/schemas/Product1cNomenclature"
+        refSupplierNomenclature:
+          $ref: "#/components/schemas/ProductSupplierNomenclature"
+      minProperties: 1
+
+    Product1cNomenclature:
+      description: >
+        Описание товара Торгового предложения в схеме сервиса "1С:Номенклатура".
+        Описание дролжно быть выполнено либо через эталонную Номенклатуру (карточку товара) сервиса "1С:Номенклатура", либо через Номенклатуру сервиса "Номенклатура Поставщика" (для каждого Торгового предложения возможно использовать один вариант описания из двух)
+      type: object
+      required:
+        - productSpecificationId
+      properties:
+        productSpecificationId:
+          description: Значение идентификатора ссылки на номенклатурное описание (идентификатор категории "1С:Номенклатуры" или эталонной Номенклатурной карточки товара)
+          type: string
+          maxLength: 36
+        productCharacteristicId:
+          description: Значение идентификатора Характеристики эталонной Номенклатурной карточки товара из "1С:Номенклатура" (опционально)
+          type: string
+          maxLength: 36
+
+    ProductSupplierNomenclature:
+      description: Описание товара Торгового предложения в схеме сервиса "Номенклатура Поставщика".
+      type: object
+      required:
+        - productSpecificationId
+      properties:
+        productSpecificationId:
+          description: Значение идентификатора ссылки на номенклатурное описание товара в сервисе "Номенклатура Поставщика"
+          type: string
+          maxLength: 36
+
+    OfferDescription:
+      description: Маркетинговое описание Торгового Предложения
+      type: object
+      properties:
+        title:
+          description: Заголовок Торгового Предложения
+          type: string
+          maxLength: 200
+        description:
+          description: Описание Торгового Предложения
+          type: string
+          maxLength: 5000
+      minProperties: 1
+
+    TermsOfSale:
+      description: Условия продажи Торгового предложения
+      type: object
+      required:
+        - packaging
+        - price
+        - packageMultiplicity
+      properties:
+        packaging:
+          $ref: '#/components/schemas/TermsOfSalePackaging'
+        price:
+          $ref: '#/components/schemas/TermsOfSalePrice'
+        packageMultiplicity:
+          description: >-
+            Кратность кол-ва логистических упаковок в торговом предложении. Например, "продается с кратностью 5 палет: 5, 10, 15, ...". По умолчанию - 1
+          type: integer
+          minimum: 1
+        maxDaysForShipment:
+          description: Максимальное количество дней, необходимых Поставщику на отгрузку товара со склада
+          type: integer
+          minimum: 1
+
+    TermsOfSalePackaging:
+      description: >-
+        Описание логистической упаковки. Описывается дробью с числителем и знаменателем. Например, бутылка объемом
+        0,33 л может быть описана дробью 33/100, а бутылка объемом 0,75 л - дробью 3/4.
+      type: object
+      required:
+        - unitsNumerator
+        - unitsDenominator
+      properties:
+        description:
+          description: Наименование упаковки товара
+          type: string
+          maxLength: 100
+        unitsNumerator:
+          description: Количество единиц товара в упаковке (в базовых единицах измерения по ОКЕИ). Числитель.
+          type: integer
+          minimum: 1
+        unitsDenominator:
+          description: Количество единиц товара в упаковке (в базовых единицах измерения по ОКЕИ). Знаменатель.
+          type: integer
+          minimum: 1
+
+    TermsOfSalePrice:
+      description: Ценовые условия продажи за одну логистическую упаковку.
+      type: object
+      required:
+        - vat
+      properties:
+        vat:
+          description: Процентная ставка НДС
+          type: string
+          nullable: false
+          enum:
+            - VAT_10
+            - VAT_20
+            - VAT_WITHOUT
+        includesVAT:
+          description: >
+            Цена за логистическую упаковку включает в себя НДС.
+            Должно быть указано одновременно с матрицей цен.
+          type: boolean
+        matrix:
+          description: Матрица цен. Должно быть указано одновременно с признаком включения НДС в цену (includesVAT).
+          type: array
+          items:
+            $ref: '#/components/schemas/PriceMatrixRow'
+
+    PriceMatrixRow:
+      type: object
+      description: Строка матрицы цен. Описывает цену одной логистической упаковки ТП при приобретении указанного объема товара.
+      required:
+        - price
+      properties:
+        fromPackages:
+          description: При покупке заданного количества логистических упаковок, от
+          type: integer
+          minimum: 0
+        price:
+          description: Цена в валюте Прайс-листа Торгового предложения, в минимальных единицах соответствующей валюты (копейки, центы, пенни и т.п.).
+          type: integer
+          format: int64
+          minimum: 0
+        notes:
+          description: Текстовое описание данного ценового условия.
+          type: string
+          maxLength: 200
+
+    StockInformation:
+      description: Описание складских остатков
+      type: object
+      required:
+        - stockBalanceSummary
+      properties:
+        stockBalanceSummary:
+          description: Описание остатков в целом по Поставщику (без привязки к его складам)
+          type: object
+          required:
+            - level
+          properties:
+            level:
+              description: Статус (уровень) остатков
+              type: string
+              enum:
+                - OUT_OF_STOCK
+                - LOW
+                - MEDIUM
+                - HIGH
+
+
+    PlaceTradeOfferRequest:
+      description: Модель тела запроса на публикацию Торгового предложения
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/TradeOfferDescription'
+
+    UpdateTradeOfferRequest:
+      description: Модель тела запроса на полное изменение Торгового предложения
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/TradeOfferDescription'
+
+    UpdateTradeOfferSetOutOfSaleRequest:
+      description: Модель тела запроса на временное снятие торгового предложения
+      type: object
+      required:
+        - outOfSale
+      properties:
+        outOfSale:
+          description: Признак временного снятия с продажи товара
+          type: boolean
