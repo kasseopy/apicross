@@ -1,0 +1,855 @@
+openapi: 3.0.1
+info:
+  version: '1.0'
+  title: BNet.TradeOffers.Placement.API
+  description: >
+    API для размещения Торговых предложений и Прайс-листов в сервисе "1С:Бизнес сеть"
+servers:
+  - url: https://api.1cbn.ru/trade-offers/placement
+tags:
+  - name: PlacePriceLists
+    description: Управление Прайс-листами Поставщика
+  - name: PlaceTradeOffers
+    description: Управление Торговыми предложениями Поставщика
+paths:
+  /price-lists:
+    post:
+      tags:
+        - PlacePriceLists
+      summary: Создание Прайс-листа
+      operationId: placePriceList
+      requestBody:
+        required: true
+        content:
+          'application/vnd.1cbn-rsc.v1+json':
+            schema:
+              $ref: "#/components/schemas/CreatePriceListV1"
+      responses:
+        201:
+          description: Прайс-лист успешно создан
+        422:
+          $ref: '#/components/responses/RequestBodyValidationError'
+
+    get:
+      tags:
+        - PlacePriceLists
+      summary: Список всех Прайс-листов Абонента
+      operationId: getPriceLists
+      parameters:
+        - $ref: "common/common-models.yaml#/components/parameters/PageParameter"
+        - $ref: "common/common-models.yaml#/components/parameters/PageSizeParameter"
+        - $ref: "#/components/parameters/Sorting"
+      responses:
+        200:
+          description: Список Прайс-листов Абонента в теле ответа
+          content:
+            'application/vnd.1cbn-rsc.v1+json':
+              schema:
+                $ref: "#/components/schemas/PriceListPageV1"
+
+  /price-lists/search/by-external-code:
+    get:
+      tags:
+        - PlacePriceLists
+      summary: Список Прайс-листов Абонента по внешнему коду, присвоенному Поставщиком
+      operationId: searchPriceListsBuExternalCode
+      parameters:
+        - in: query
+          name: code
+          description: Внешний код Прайс-листа, присвоенный Поставщиком
+          schema:
+            type: string
+          required: true
+        - $ref: "common/common-models.yaml#/components/parameters/PageParameter"
+        - $ref: "common/common-models.yaml#/components/parameters/PageSizeParameter"
+        - $ref: "#/components/parameters/Sorting"
+      responses:
+        200:
+          description: Список Прайс-листов в теле ответа
+          content:
+            'application/vnd.1cbn-rsc.v1+json':
+              schema:
+                $ref: "#/components/schemas/PriceListPageV1"
+
+  /price-lists/{id}:
+    parameters:
+      - in: path
+        schema:
+          type: string
+        required: true
+        name: id
+        description: Идентификатор Прайс-листа
+    get:
+      tags:
+        - PlacePriceLists
+      summary: Получение Прайс-листа по идентификатору сервиса "1С:Бизнес сеть"
+      operationId: getPriceListById
+      responses:
+        200:
+          description: Прайс-лист в теле ответа
+          content:
+            'application/vnd.1cbn-rsc.v1+json':
+              schema:
+                $ref: "#/components/schemas/PriceListV1"
+          headers:
+            'ETag':
+              description: Номер версии Прайс-листа
+              schema:
+                type: string
+
+    patch:
+      tags:
+        - PlacePriceLists
+      summary: Частичное обновление Прайс-листа.
+      operationId: patchPriceList
+      description: Частичное обновление Прайс-листа. Возможность смены организации в Прайс-листе запрещена
+      deprecated: true
+      requestBody:
+        required: true
+        content:
+          'application/merge-patch+json':
+            schema:
+              $ref: "#/components/schemas/PatchPriceListV1"
+      responses:
+        204:
+          description: Прайс-листа успешно обновлено
+        422:
+          $ref: '#/components/responses/RequestBodyValidationError'
+
+    put:
+      tags:
+        - PlacePriceLists
+      summary: Полное обновление Прайс-листа.
+      operationId: putPriceList
+      description: Полное обновление Прайс-листа. Возможность смены организации в Прайс-листе запрещена
+      requestBody:
+        required: true
+        content:
+          'application/vnd.1cbn.v1+json':
+            schema:
+              $ref: "#/components/schemas/UpdatePriceListV1"
+      responses:
+        204:
+          description: Прайс-лист успешно обновлен
+        422:
+          $ref: '#/components/responses/RequestBodyValidationError'
+
+    delete:
+      tags:
+        - PlacePriceLists
+      summary: Удаление прайс-листа
+      operationId: deletePriceList
+      description: Удаление подразумевает удаление (снятие с публикации) всех включённых в данный прайс-лист Торговых предложений
+      parameters:
+        - $ref: '#/components/parameters/IfMatchHeader'
+      responses:
+        204:
+          description: Прайс-лист успешно удалён
+
+  /offers:
+    post:
+      tags:
+        - PlaceTradeOffers
+      summary: Размещение нового Торгового предложения в "1С:Бизнес сеть"
+      operationId: placeTradeOffer
+      requestBody:
+        required: true
+        content:
+          'application/vnd.1cbn-rsc.v1+json':
+            schema:
+              $ref: "#/components/schemas/PlaceTradeOfferV1"
+          'application/vnd.1cbn.v1+json':
+            schema:
+              $ref: "trade-offers-publisher-trade-offer-model-v2.yaml#/components/schemas/PlaceTradeOfferRequest"
+      responses:
+        201:
+          description: Торговое предложение успешно создано и передано на публикацию
+        422:
+          $ref: '#/components/responses/RequestBodyValidationError'
+    get:
+      summary: Получение всех списка Торговых предложений Абонента
+      operationId: getTradeOffers
+      tags:
+        - PlaceTradeOffers
+      deprecated: true
+      parameters:
+        - $ref: "common/common-models.yaml#/components/parameters/PageParameter"
+        - $ref: "common/common-models.yaml#/components/parameters/PageSizeParameter"
+        - $ref: "#/components/parameters/Sorting"
+      responses:
+        200:
+          description: Список Торговых предложений в теле ответа
+          content:
+            'application/vnd.1cbn-rsc.v1+json':
+              schema:
+                $ref: "#/components/schemas/TradeOffersPageV1"
+
+  /offers/search/by-price-list:
+    get:
+      summary: Получение списка Торговых предложений Абонента по Прайс-листу
+      operationId: getTradeOffersByPriceListExternalCode
+      tags:
+        - PlaceTradeOffers
+      parameters:
+        - in: query
+          name: priceListExternalCode
+          description: Внешний код Прайс-листа, уникальный в рамках Абонента "1С:Бизнес сеть", присваиваемый Поставщиком при создании Прайс-листа
+          schema:
+            type: string
+          required: true
+        - $ref: "common/common-models.yaml#/components/parameters/PageParameter"
+        - $ref: "common/common-models.yaml#/components/parameters/PageSizeParameter"
+        - $ref: "#/components/parameters/Sorting"
+      responses:
+        200:
+          description: Список Торговых предложений в теле ответа
+          content:
+            'application/vnd.1cbn-rsc.v1+json':
+              schema:
+                $ref: "#/components/schemas/TradeOffersPageV1"
+
+  /offers/search/by-external-code:
+    get:
+      summary: Получение списка Торговых предложений Абонента по внешнему коду
+      operationId: getTradeOffersByExternalCode
+      tags:
+        - PlaceTradeOffers
+      parameters:
+        - in: query
+          name: code
+          description: Внешний код Торгового предложения, присваиваемый Поставщиком при создании Торгового предложения
+          schema:
+            type: string
+          required: true
+        - $ref: "common/common-models.yaml#/components/parameters/PageParameter"
+        - $ref: "common/common-models.yaml#/components/parameters/PageSizeParameter"
+        - $ref: "#/components/parameters/Sorting"
+      responses:
+        200:
+          description: Список Торговых предложений в теле ответа
+          content:
+            'application/vnd.1cbn-rsc.v1+json':
+              schema:
+                $ref: "#/components/schemas/TradeOffersPageV1"
+
+  /offers/{id}:
+    parameters:
+      - $ref: '#/components/parameters/TradeOfferIdPathParameter'
+    get:
+      tags:
+        - PlaceTradeOffers
+      summary: Получение Торгового предложения по идентификатору "1С:Бизнес сети"
+      operationId: getTradeOfferById
+      responses:
+        200:
+          description: Описание Торгового предложения в теле ответа
+          content:
+            'application/vnd.1cbn-rsc.v1+json':
+              schema:
+                $ref: "#/components/schemas/TradeOfferV1"
+    put: # TODO: Применять этот метод следует с осторожностью!!! Вообще обсудить его необходимость, возможно, правильнее использовать более гранулярные методы!
+      summary: Замена данных торгового предложения
+      operationId: putTradeOffer
+      description: >
+        Данные торгового предложения полностью заменяются новыми.
+        "1С:Бизнес-сеть" не контроллирует замену товара в предложении (т.е. предложение по сути - то же, но товар - другой).
+      tags:
+        - PlaceTradeOffers
+      requestBody:
+        content:
+          'application/vnd.1cbn.v1+json':
+            schema:
+              $ref: 'trade-offers-publisher-trade-offer-model-v2.yaml#/components/schemas/UpdateTradeOfferRequest'
+      responses:
+        204:
+          description: Торговое предложение успешно обновлено
+        422:
+          $ref: '#/components/responses/RequestBodyValidationError'
+    patch:
+      tags:
+        - PlaceTradeOffers
+      summary: Частичное обновление Торгового предложения
+      operationId: patchTradeOffer
+      deprecated: true
+      requestBody:
+        required: true
+        content:
+          'application/merge-patch+json':
+            schema:
+              $ref: "#/components/schemas/PatchTradeOfferV1"
+          'application/json-patch+json':
+            schema:
+              $ref: '#/components/schemas/JsonPatch'
+
+      responses:
+        204:
+          description: Торговое предложение успешно обновлено
+        422:
+          $ref: '#/components/responses/RequestBodyValidationError'
+    delete:
+      tags:
+        - PlaceTradeOffers
+      summary: Удаление Торгового предложения
+      operationId: deleteTradeOffer
+      responses:
+        204:
+          description: Торговое предложение успешно удалено
+
+  /offers/{id}/temporarily-out-of-sale:
+    put:
+      summary: Временное снятие предложения с продаж
+      operationId: markTradeOfferTemporarilyOutOfSales
+      description: Поставщик может временно отозвать ТП - оно не будет доступно потенциальным покупателям для заказа
+      tags:
+        - PlaceTradeOffers
+      parameters:
+        - $ref: '#/components/parameters/TradeOfferIdPathParameter'
+      requestBody:
+        content:
+          'application/vnd.1cbn.v1+json':
+            schema:
+              $ref: 'trade-offers-publisher-trade-offer-model-v2.yaml#/components/schemas/UpdateTradeOfferSetOutOfSaleRequest'
+      responses:
+        204:
+          description: Торговое предложение успешно обновлено
+        422:
+          $ref: '#/components/responses/RequestBodyValidationError'
+
+  /offers/{id}/refresh:
+    parameters:
+      - $ref: '#/components/parameters/TradeOfferIdPathParameter'
+    post:
+      tags:
+        - PlaceTradeOffers
+      summary: Обновление Торгового предложения
+      operationId: refreshTradeOffer
+      description: >
+        Например ТП обновится в части описания товара в случае если ранее было обновлено описание товара в номенклатуре Поставщика
+        или карточке товара эталонной Номенклатуры сервиса "1С:Номенклатура"
+      responses:
+        204:
+          description: Торговое предложение успешно обновлено
+        400:
+          description: Сервис не может обработать запрос. Смотреть детализацию ошибки в теле ответа
+
+
+components:
+  parameters:
+    TradeOfferIdPathParameter:
+      in: path
+      name: id
+      description: Идентификатор Торгового предложения в "1С:Бизнес сеть"
+      required: true
+      schema:
+        type: string
+        maxLength: 36
+        example: 7c1cbc76-3a3d-4770-b049-d683c3cfd854
+    Sorting:
+      in: query
+      name: sort
+      description: Поля для сортировки, например, ..sort=name,asc&sort=dateCreated,desc
+      schema:
+        type: string
+      required: false
+    IfMatchHeader:
+      in: header
+      name: If-Match
+      schema:
+        type: string
+      required: false
+
+  schemas:
+    PageParameters:
+      description: Параметры "страницы" данных
+      type: object
+      properties:
+        page:
+          $ref: 'common/common-models.yaml#/components/schemas/Page'
+
+    # -------------------------------------------------------------------------
+
+
+    PriceListDescriptionV1:
+      description: Модель данных Прайс-листа (компонент для включения в другие модели описания данных)
+      type: object
+      required:
+        - dateActualFrom
+        - dateActualTo
+        - currencyCode
+      properties:
+        dateActualFrom:
+          description: Дата начала периода актуальности Торговых предложений в данном Прайс-листе (включительно, MSK)
+          type: string
+          format: date
+        dateActualTo:
+          description: Дата окончания периода актуальности Торговых предложений, в данном Прайс-листе (включительно, MSK)
+          type: string
+          format: date
+        name:
+          description: Наименование Прайс-листа (присваивается Поставщиком)
+          type: string
+          maxLength: 200
+        currencyCode:
+          description: 3-х значный числовой код валюты Прайс-листа по ОКВ (https://ru.wikipedia.org/wiki/Общероссийский_классификатор_валют)
+          type: string
+          maxLength: 3
+        externalCode:
+          description: Внешний код прайс-листа, присвоенный Поставщиком
+          type: string
+          maxLength: 200
+        contacts:
+          description: Контактная информация сотрудника Организации, для связи по вопросам приобретения опубликованных товаров. Обязательно должно быть заполнено phone или email.
+          type: object
+          properties:
+            personName:
+              type: string
+              maxLength: 200
+            phone:
+              type: string
+              maxLength: 100
+            email:
+              type: string
+              maxLength: 100
+        orderRestrictions:
+          description: Ограничения для заказа
+          type: object
+          required:
+            - sum
+          properties:
+            sum:
+              description: Ограничение на сумму заказа
+              type: object
+              nullable: false
+              required:
+                - minimum
+                - includesVAT
+              properties:
+                minimum:
+                  description: Минимальная сумма заказа в валюте прайс-листа, в минимальных единицах соответствующей валюты (копейки, центы, пенни и т.п.)
+                  type: integer
+                  format: int64
+                  nullable: false
+                includesVAT:
+                  description: Ограничения суммы заказа включают в себя НДС
+                  type: boolean
+                  nullable: false
+        deliveryDescription:
+          description: Адреса с местоположением Складов самовывоза и Регионов доставки.
+          type: object
+          properties:
+            deliveryRegions:
+              description: Список адресов регионов, куда возможна доставка товара
+              type: array
+              minItems: 1
+              items:
+                $ref: "#/components/schemas/PlaceDescription"
+            pickupFrom:
+              description: Список адресов складов, откуда возможен самовывоз товара
+              type: array
+              minItems: 1
+              items:
+                $ref: "#/components/schemas/PlaceDescription"
+        audience:
+          description: Описание потенциальных контрагентов, которым будут доступны для поиска и просмотра Торговые предложения этого Прайс-листа.
+          type: object
+          required:
+            - whiteList
+          properties:
+            whiteList:
+              description: Список ИНН+КПП Организаций, которым доступны Торговые предложения данного Прайс-листа
+              type: array
+              minItems: 1
+              items:
+                type: object
+                required:
+                  - inn
+                  - kpp
+                properties:
+                  inn:
+                    description: ИНН Организации
+                    type: string
+                    maxLength: 12
+                  kpp:
+                    description: КПП Организации. Для Индивидуальных предпринимателей устанавливается значение 0
+                    type: string
+                    maxLength: 9
+                    pattern: 0|[0-9]{9}
+
+    PriceListEditV1:
+      description: Модель данных Прайс-листа (для редактирования)
+      type: object
+      required:
+        - supplierPartyId
+      allOf:
+        - $ref: "#/components/schemas/PriceListDescriptionV1"
+        - type: object
+          properties:
+            supplierPartyId:
+              description: Идентификатор Организации Поставщика в "1С:Бизнес сеть", присвоенный при регистрации Организации в "1С:Бизнес сеть"
+              type: string
+              maxLength: 36
+
+    CreatePriceListV1:
+      description: Модель данных Прайс-листа (для создания)
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/PriceListEditV1"
+
+    PatchPriceListV1:
+      description: Модель данных Прайс-листа (для частичного изменения)
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/PriceListDescriptionV1"
+
+    UpdatePriceListV1:
+      description: Модель данных Прайс-листа (для полного изменения)
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/PriceListDescriptionV1"
+
+    PriceListV1:
+      description: Модель данных представления Прайс-листа (возвращается в результатах запросов)
+      type: object
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              description: Внутренний идентификатор Прайс-листа в "1С:Бизнес сеть"
+            supplierPartyId:
+              description: Идентификатор Организации Поставщика в "1С:Бизнес сеть", присвоенный при регистрации Организации в "1С:Бизнес сеть"
+              type: string
+        - $ref: "#/components/schemas/PriceListDescriptionV1"
+
+    PriceListPageV1:
+      description: Модель страницы списка Прайс-листов
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/PageParameters"
+        - type: object
+          properties:
+            _embedded:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/PriceListV1"
+
+    PlaceDescription:
+      description: Адрес содержащий код страны и GUID ФИАС
+      type: object
+      required:
+        - countryOksmCode
+      properties:
+        countryOksmCode:
+          type: string
+          description: Числовой код страны по ОКСМ
+          minLength: 3
+          maxLength: 3
+        fiasCode:
+          description: Идентификаторы GUID адресных объектов РФ по ФИАС
+          type: string
+
+    # -------------------------------------------------------------------------
+
+    TradeOfferDescriptionV1:
+      description: Модель данных Торгового предложения (для включения в другие модели в качестве компонента)
+      type: object
+      required:
+        - priceListId
+        - product
+        - termsOfSale
+      properties:
+        priceListId:
+          description: Идентификатор Прайс-листа, в который добавляется Торговое предложение
+          type: string
+          maxLength: 36
+        product:
+          $ref: "#/components/schemas/TradeOfferDescriptionV1_Product"
+        offerDescription:
+          $ref: "#/components/schemas/TradeOfferDescriptionV1_OfferDescription"
+        termsOfSale:
+          $ref: "#/components/schemas/TradeOfferDescriptionV1_TermsOfSale"
+        stock:
+          $ref: "#/components/schemas/TradeOfferDescriptionV1_Stock"
+        externalCode:
+          description: Внешний код Торгового предложения, присвоенный Поставщиком
+          type: string
+          maxLength: 200
+
+    TradeOfferDescriptionV1_Product:
+      description: Описание товара Торгового предложения. Должно быть выполнено либо в терминах описания номенклатуры Поставщика, либо в терминах идентификаторов сервиса "1С:Номенклатура"
+      type: object
+      properties:
+        ref1cNomenclature:
+          $ref: "#/components/schemas/TradeOfferDescriptionV1_Product_1CNomenclature"
+        refSupplierNomenclature:
+          $ref: "#/components/schemas/TradeOfferDescriptionV1_Product_SupplierNomenclature"
+
+    TradeOfferDescriptionV1_Product_1CNomenclature:
+      description: >
+        Описание товара Торгового предложения в схеме сервиса "1С:Номенклатура".
+        Описание дролжно быть выполнено либо через эталонную Номенклатуру (карточку товара) сервиса "1С:Номенклатура", либо через Номенклатуру сервиса "Номенклатура Поставщика" (для каждого Торгового предложения возможно использовать один вариант описания из двух)
+      type: object
+      required:
+        - productSpecificationId
+      properties:
+        productSpecificationId:
+          description: Значение идентификатора ссылки на номенклатурное описание (идентификатор категории "1С:Номенклатуры" или эталонной Номенклатурной карточки товара)
+          type: string
+          maxLength: 36
+        productCharacteristicId:
+          description: Значение идентификатора Характеристики эталонной Номенклатурной карточки товара из "1С:Номенклатура" (опционально)
+          type: string
+          maxLength: 36
+
+    TradeOfferDescriptionV1_Product_SupplierNomenclature:
+      description: Описание товара Торгового предложения в схеме сервиса "Номенклатура Поставщика".
+      type: object
+      required:
+        - productSpecificationId
+      properties:
+        productSpecificationId:
+          description: Значение идентификатора ссылки на номенклатурное описание товара в сервисе "Номенклатура Поставщика"
+          type: string
+          maxLength: 36
+
+    TradeOfferDescriptionV1_OfferDescription:
+      description: Маркетинговое описание Торгового Предложения
+      type: object
+      properties:
+        title:
+          description: Заголовок Торгового Предложения
+          type: string
+          maxLength: 200
+        description:
+          description: Описание Торгового Предложения
+          type: string
+          maxLength: 5000
+
+    TradeOfferDescriptionV1_TermsOfSale:
+      description: Условия продажи Торгового предложения
+      type: object
+      required:
+        - packaging
+        - packageMultiplicity
+      properties:
+        packaging:
+          description: >-
+            Описание логистической упаковки. Описывается дробью с числителем и знаменателем. Например, бутылка объемом
+            0,33 л может быть описана дробью 33/100, а бутылка объемом 0,75 л - дробью 3/4.
+          type: object
+          required:
+            - unitsNumerator
+            - unitsDenominator
+          properties:
+            description:
+              description: Наименование упаковки товара
+              type: string
+              maxLength: 100
+            unitsNumerator:
+              description: Количество единиц товара в упаковке (в базовых единицах измерения по ОКЕИ). Числитель.
+              type: integer
+              minimum: 1
+            unitsDenominator:
+              description: Количество единиц товара в упаковке (в базовых единицах измерения по ОКЕИ). Знаменатель.
+              type: integer
+              minimum: 1
+        price:
+          description: Ценовые условия (матрица цен) за одну логистическую упаковку.
+          type: object
+          required:
+            - vat
+            - includesVAT
+            - matrix
+          properties:
+            vat:
+              description: Процентная ставка НДС
+              type: string
+              enum:
+                - VAT_10
+                - VAT_20
+                - VAT_WITHOUT
+            includesVAT:
+              description: Цена за логистическую упаковку включает в себя НДС
+              type: boolean
+            matrix:
+              description: Матрица цен
+              type: array
+              items:
+                $ref: '#/components/schemas/TradeOfferDescriptionV1_TermsOfSale_PriceMatrixRow'
+
+        packageMultiplicity:
+          description: >-
+            Кратность кол-ва логистических упаковок в торговом предложении. Например, "продается с кратностью 5 палет: 5, 10, 15, ...". По умолчанию - 1
+          type: integer
+          minimum: 1
+
+        maxDaysForShipment:
+          description: Максимальное количество дней, необходимых Поставщику на отгрузку товара со склада
+          type: integer
+          minimum: 1
+
+        temporarilyOutOfSales:
+          description: Торговое Предложение временно снято с продаж
+          type: boolean
+
+    TradeOfferDescriptionV1_TermsOfSale_PriceMatrixRow:
+      type: object
+      description: Строка матрицы цен. Описывает цену одной логистической упаковки ТП при приобретении указанного объема товара.
+      required:
+        - price
+      properties:
+        fromPackages:
+          description: При покупке заданного количества логистических упаковок, от
+          type: integer
+          minimum: 0
+        price:
+          description: Цена в валюте Прайс-листа Торгового предложения, в минимальных единицах соответствующей валюты (копейки, центы, пенни и т.п.).
+          type: integer
+          format: int64
+          minimum: 0
+        notes:
+          description: Текстовое описание данного ценового условия.
+          type: string
+          maxLength: 200
+
+    TradeOfferDescriptionV1_Stock:
+      description: Описание складских остатков
+      type: object
+      required:
+        - stockBalanceSummary
+      properties:
+        stockBalanceSummary:
+          description: Описание остатков в целом по Поставщику (без привязки к его складам)
+          type: object
+          required:
+            - level
+          properties:
+            level:
+              description: Статус (уровень) остатков
+              type: string
+              enum:
+                - OUT_OF_STOCK
+                - LOW
+                - MEDIUM
+                - HIGH
+
+    TradeOfferV1:
+      description: Полное представление (описание) Торгового предложения
+      allOf:
+        - $ref: '#/components/schemas/TradeOfferDescriptionV1'
+        - type: object
+          properties:
+            id:
+              description: Идентификатор Торгового предложения в "1С:Бизнес сеть"
+              type: string
+              maxLength: 36
+
+
+    PlaceTradeOfferV1:
+      description: Модель тела запроса на публикацию Торгового предложения
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/TradeOfferDescriptionV1'
+
+    PatchTradeOfferV1:
+      description: Модель тела запроса на частичное обновление Торгового предложения
+      type: object
+      deprecated: true
+      allOf:
+        - $ref: '#/components/schemas/TradeOfferDescriptionV1'
+
+    TradeOffersPageV1:
+      description: Представление страницы списка Торговых предложений
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/PageParameters"
+        - type: object
+          properties:
+            _embedded:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/TradeOffersPageV1_ListItem"
+
+    TradeOffersPageV1_ListItem:
+      description: Представление Торгового предложения, которое содержит только описание товара
+      required:
+        - id
+        - product
+        - termsOfSale
+      properties:
+        id:
+          description: Идентификатор Торгового предложения
+          type: string
+        product:
+          $ref: "#/components/schemas/TradeOfferDescriptionV1_Product"
+        termsOfSale:
+          $ref: "#/components/schemas/TradeOfferDescriptionV1_TermsOfSale"
+
+    RequestBodyValidationErrors:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          description: Идентификатор типа ошибки
+        title:
+          type: string
+          description: Человеко-читаемое название ошибки
+        detail:
+          type: string
+          description: Человеко-читаемое описание ошибки
+        httpMethod:
+          type: string
+          description: HTTP метод выполняемого запроса
+        instance:
+          type: string
+          description: URI ресурса выполняемого запроса
+        extendedStatus:
+          type: string
+          description: Расширенный статус ошибки
+        internalCode:
+          type: string
+          description: Внутренний код ошибки для службы поддержки
+        validationErrors:
+          type: array
+          description: Список ошибок валидации полей тела запроса (для 422 HTTP статусов)
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: Имя поля (JSON Path)
+              message:
+                type: string
+                description: Сообщение об ошибке
+        requestTraceId:
+          type: object
+
+    JsonPatch:
+      type: array
+      description: |
+        См. https://tools.ietf.org/html/rfc6902
+      items:
+        type: object
+        properties:
+          op:
+            type: string
+          path:
+            type: string
+          value:
+            type: object
+
+  responses:
+    RequestBodyValidationError:
+      description: Тело запроса содержит ошибки валидации
+      content:
+        'application/problem+json':
+          schema:
+            $ref: '#/components/schemas/RequestBodyValidationErrors'
