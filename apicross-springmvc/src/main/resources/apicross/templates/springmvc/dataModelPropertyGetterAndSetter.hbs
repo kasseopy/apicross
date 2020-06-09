@@ -1,0 +1,47 @@
+{{!-- ObjectDataModelSchemaProperty --}}
+{{#if optional}}
+    {{#unless writeOnly}}
+        {{#if deprecated}}@Deprecated{{/if}}
+        @JsonGetter("{{{name}}}")
+        protected JsonNullable< {{#with type}}{{> type}}{{/with}} > {{resolvedName}}Json() {
+        return this.{{resolvedName}};
+        }
+    {{/unless}}
+
+    {{> documentation }}
+    @JsonIgnore
+    {{#if deprecated}}@Deprecated{{/if}}
+    public Optional< {{#with type}}{{> type}}{{/with}} > get{{capitalizeFirst resolvedName}}() {
+    return this.{{resolvedName}}.isPresent() ? Optional.of(this.{{resolvedName}}.get()) : Optional.empty();
+    }
+{{else}}
+    {{> documentation }}
+    {{#if deprecated}}@Deprecated{{/if}}
+    {{#if writeOnly}}
+        @JsonIgnore
+    {{else}}
+        @JsonGetter("{{{name}}}")
+    {{/if}}
+    public {{#with type}}{{> type}}{{/with}} get{{capitalizeFirst resolvedName}}() {
+    return this.{{resolvedName}};
+    }
+{{/if}}
+
+{{!-- Setters --}}
+{{#if deprecated}}@Deprecated{{/if}}
+{{#if readOnly}}
+    @JsonIgnore
+{{else}}
+    @JsonSetter("{{{name}}}")
+{{/if}}
+public void set{{capitalizeFirst resolvedName}}({{#with type}}{{> type}}{{/with}} value) {
+this.$specifiedProperties.add("{{name}}");
+this.{{resolvedName}} = {{#if optional}}JsonNullable.of(value){{else}}value{{/if}};
+}
+
+{{#if deprecated}}@Deprecated{{/if}}
+public {{../typeName}} {{resolvedName}}({{#with type}}{{> type}}{{/with}} value) {
+this.$specifiedProperties.add("{{name}}");
+this.{{resolvedName}} = {{#if optional}}JsonNullable.of(value){{else}}value{{/if}};
+return this;
+}
