@@ -175,10 +175,10 @@ For example, generated interface:
 ```java
 public interface MyApiHandler  {
     @RequestMapping(path = "/my", method = RequestMethod.POST, consumes = "application/json")
-    ResponseEntity<Void> create(@RequestBody MyModel model);
+    ResponseEntity<Void> create(@RequestBody(required = true) MyModel model, @RequestHeader HttpHeaders headers);
 
     @RequestMapping(path = "/my/{id}", method = RequestMethod.GET, produces = "application/json")
-    ResponseEntity<MyModel> get(@PathVariable("id") String id);
+    ResponseEntity<MyModelRepresentation> get(@PathVariable("id") String id, @RequestHeader HttpHeaders headers);
 }
 ```
 
@@ -194,13 +194,13 @@ public class MyApiHandlerController implements MyApiHandler {
     }
 
     @Override
-    public ResponseEntity<Void> create(@RequestBody MyModel model) {
+    public ResponseEntity<Void> create(MyModel model, HttpHeaders headers) {
         CreateMyModelResult result = myAppService.create(new CreateModelCommand(model));
         return created(result);
     }
 
     @Override
-    public ResponseEntity<MyModelRepresentation> get(@PathVariable("id") String id) {
+    public ResponseEntity<MyModelRepresentation> get(String id, HttpHeaders headers) {
         ModelObject model = myAppService.get(id);
         return ResponseEntity.ok(new MyModelRepresentation(model));
     }
