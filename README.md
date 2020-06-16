@@ -7,7 +7,7 @@ APICROSS is a tool to generate source code from OpenAPI 3.0 API specification.
 - Maven plugin
 
 # Dependencies
-* OpenAPI model [`io.swagger.v3.oas.models.*`](https://github.com/swagger-api/swagger-core/tree/master/modules/swagger-models/src/main/java/io/swagger/v3/oas/models)
+* [OpenAPI model](https://github.com/swagger-api/swagger-core/tree/master/modules/swagger-models/src/main/java/io/swagger/v3/oas/models)
 * Spring MVC
 * Spring Cloud Feign
 * Jackson JSON
@@ -54,15 +54,15 @@ APICROSS is a tool to generate source code from OpenAPI 3.0 API specification.
 # OpenAPI Specification processing features
 ## Optional data model fields
 By default OpenAPI specification states all model fields are not nullable (`nullable: false`). 
-Required fields - are fields must be present in JSON valid document representing API data models (requests/responses).
-So field may not be required to be in JSON document, but it's value must not be null. For example, following schema
+Required fields are fields must be present in a valid JSON  document representing API data models (request/response payloads).
+So field may be not required to be in JSON document, but it's value must not be null. For example, consider following schema
 ```yaml
 MyModel:
     type: object
     properties:
         a: string
 ```
-JSON document like
+Then JSON document like
 ```json
 {
   "a": null
@@ -79,8 +79,8 @@ And following JSON is valid:
 }
 ```
 
-Optional (which are not required) fields become `JsonNullable<Type>` fields for internal data model and Jackson serialization/deserialization.
-But for public API `java.utils.Optional` used. For example, for schema above generated Java class will be:
+Optional fields (which are not required) become `JsonNullable<Type>` fields for internal data model and Jackson serialization/deserialization.
+But for public getters `java.utils.Optional` type is used. For example, for the schema above generated Java class will be:
 ```java
 public class MyModel {
     private JsonNullable<String> a = JsonNullable.undefined();
@@ -131,7 +131,7 @@ Validating such features within java code is tricky because JSON and Java are di
 OpenAPI specification states:
 - minProperties - minimum number of fields must present in JSON document
 - maxProperties - maximun number of fields must present in JSON document
-- required - list of fields nust present in JSON document (it doesn't matter what value fields have, nulls or not) 
+- required - such fields must present in JSON document (it doesn't matter what value fields have, nulls or not) 
 
 But after JSON deserialization into Java object there is no information about field's presence in the JSON document.
 APICROSS has simple toolkit to handle that. Every generated Java class has a setter to keep populated fields 
@@ -166,7 +166,7 @@ public class MyModel implements HasPopulatedProperties {
 ```
 So it can be used to perform validation of objects of such class (min/maxProperties/required). 
 APICROSS toolkit has JSR380 validators to handle that. Take a look at the `apicross.beanvalidation.*` 
-classes for the `apicross-support` module.
+classes within `apicross-support` module.
 
 ## API handler
 API Handler is an object handling API requests. For SpringWebMVC - handlers are `@Controller`-s.
@@ -200,7 +200,7 @@ public class MyApiHandlerController implements MyApiHandler {
     }
 
     @Override
-    public ResponseEntity<MyModel> get(@PathVariable("id") String id) {
+    public ResponseEntity<MyModelRepresentation> get(@PathVariable("id") String id) {
         ModelObject model = myAppService.get(id);
         return ResponseEntity.ok(new MyModelRepresentation(model));
     }
