@@ -1,11 +1,13 @@
 # Purpose
-APICROSS generates source code from OpenAPI 3.0 API specification.
-# Features for Java
-- Maven plugin
+APICROSS is a tool to generate source code from OpenAPI 3.0 API specification.
+
+# Features
 - Generates API Models
-- Generates API Requests Handlers (SpringMVC, SpringCloud Feign, WireMock server, RestAssured)
+- Generates API Requests Handlers (SpringMVC, SpringCloud Feign)
+- Maven plugin
+
 # Dependencies
-* OpenAPI model `io.swagger.v3.oas.models.*`
+* OpenAPI model [`io.swagger.v3.oas.models.*`](https://github.com/swagger-api/swagger-core/tree/master/modules/swagger-models/src/main/java/io/swagger/v3/oas/models)
 * Spring MVC
 * Spring Cloud Feign
 * Jackson JSON
@@ -167,7 +169,7 @@ APICROSS toolkit has JSR380 validators to handle that. Take a look at the `apicr
 classes for the `apicross-support` module.
 
 ## API handler
-API Handler is the object handling API requests. For SpringWebMVC - handlers are `@Controller`-s.
+API Handler is an object handling API requests. For SpringWebMVC - handlers are `@Controller`-s.
 APICROSS generated Java interfaces with spring MVC metadata. So application's `@Controller`-s have to implement these.
 For example, generated interface:
 ```java
