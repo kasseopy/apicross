@@ -11,7 +11,7 @@ APICROSS is a tool to generate source code from OpenAPI 3.0 API specification.
 * Spring MVC
 * Spring Cloud Feign
 * Jackson JSON
-* JsonNullable Jackson module
+* [JsonNullable Jackson module](https://github.com/OpenAPITools/jackson-databind-nullable)
 
 # Minimal Maven Plugin setup
 ```xml
