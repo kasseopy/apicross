@@ -194,7 +194,7 @@ public class MyApiHandlerController implements MyApiHandler {
     }
 
     @Override
-    public ResponseEntity<Void> create(MyModel model, HttpHeaders headers) {
+    public ResponseEntity<Void> create(@RequestBody MyModel model, HttpHeaders headers) {
         CreateMyModelResult result = myAppService.create(new CreateModelCommand(model));
         return created(result);
     }
