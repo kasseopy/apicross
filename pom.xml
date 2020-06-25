@@ -138,6 +138,13 @@
     </repositories>
 
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>apicross-snapshots</id>
+            <url>${apicross-snapshots-repo}</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <build>
         <plugins>
             <plugin>
