@@ -1,12 +1,15 @@
 package apicross.utils;
 
 import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Helper;
+import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.helper.ConditionalHelpers;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.CompositeTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +29,12 @@ public class HandlebarsFactory {
         handlebars.registerHelper("lower", StringHelpers.lower);
         handlebars.registerHelper("eq", ConditionalHelpers.eq);
         handlebars.registerHelper("or", ConditionalHelpers.or);
+        handlebars.registerHelper("javaBackSlashEscape", new Helper<Object>() {
+            @Override
+            public Object apply(Object value, Options options) throws IOException {
+                return value.toString().replace("\\", "\\\\");
+            }
+        });
 
         return handlebars;
     }

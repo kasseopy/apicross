@@ -33,7 +33,7 @@
             )
         {{/if}}
         {{#if pattern}}
-            @Pattern(regexp = "{{{pattern}}}")
+            @Pattern(regexp = "{{{javaBackSlashEscape pattern}}}")
         {{/if}}
         {{#if enumValues}}
             @Pattern(regexp = "({{{join enumValues '|'}}})")
