@@ -8,7 +8,6 @@ import apicross.demo.myspace.app.dto.WpPlaceWorkRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.InputStream;
@@ -38,7 +37,17 @@ public class WorksRequestsHandlerAdapter implements WorksRequestsHandler {
     }
 
     @Override
+    public ResponseEntity<?> deleteWork(String workId, HttpHeaders headers) {
+        return null;
+    }
+
+    @Override
     public ResponseEntity<WpGetWorkResponse> getWorkDescriptionProduceVndDemoappV1Json(String workId, HttpHeaders headers) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<?> publishWork(String workId, HttpHeaders headers) {
         return null;
     }
 
@@ -54,6 +63,16 @@ public class WorksRequestsHandlerAdapter implements WorksRequestsHandler {
 
     @Override
     public ResponseEntity<?> addWorkFileConsumeVideoMp4(String workId, HttpHeaders headers, InputStream requestEntity) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<?> listWorkFiles(String workId, HttpHeaders headers) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<?> deleteWorkFile(String fileId, HttpHeaders headers) {
         return null;
     }
 

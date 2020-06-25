@@ -6,12 +6,14 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
+@Slf4j
 class DefaultOperationRequestAndResponseResolver implements OperationRequestAndResponseResolver {
     private final OpenApiComponentsIndex componentsSchemas;
 
@@ -81,6 +83,16 @@ class DefaultOperationRequestAndResponseResolver implements OperationRequestAndR
                         .setResponseDescription(null)
                         .setRequestDescription(requestDescription));
             }
+        } else if (resultResponse != null) {
+            result.add(new OperationRequestAndResponse()
+                    .setRequestMediaType(null)
+                    .setRequestContentSchema(null)
+                    .setRequestBodyRequired(false)
+                    .setRequestDescription(null)
+                    .setResponseMediaType(null)
+                    .setResponseDescription(resultResponse.getDescription())
+                    .setResponseContentSchema(null)
+            );
         }
 
         return result;

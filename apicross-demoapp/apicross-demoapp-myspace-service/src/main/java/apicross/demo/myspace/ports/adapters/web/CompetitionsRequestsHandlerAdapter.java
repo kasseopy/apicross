@@ -40,6 +40,11 @@ public class CompetitionsRequestsHandlerAdapter implements CompetitionsRequestsH
     }
 
     @Override
+    public ResponseEntity<?> deleteCompetition(String competitionId, HttpHeaders headers) {
+        return null;
+    }
+
+    @Override
     public ResponseEntity<CmGetCompetitionResponse> getCompetitionDescriptionProduceVndDemoappV1Json(String competitionId, HttpHeaders headers) {
         ResourceObjectWithTag<CmGetCompetitionResponse> response = manageCompetitionsService.getCompetition(competitionId, new GetCompetitionResponseViewAssembler());
         return ResponseEntity.status(HttpStatus.OK)
@@ -60,6 +65,16 @@ public class CompetitionsRequestsHandlerAdapter implements CompetitionsRequestsH
 
     @Override
     public ResponseEntity<?> openCompetitionConsumeVndDemoappV1Json(String competitionId, HttpHeaders headers, CmOpenCompetitionRequest requestEntity) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<?> startCompetitionVoting(String competitionId, HttpHeaders headers) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<?> closeCompetition(String competitionId, HttpHeaders headers) {
         return null;
     }
 }

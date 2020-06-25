@@ -12,7 +12,7 @@ ResponseEntity<{{> requestsHandlerMethodResponseBodyType}}> {{methodName}}(
     {{#if requestBody.customAttributes.avoidRequestBodyAnnotation}}
         {{> requestsHandlerMethodRequestBodyType}} requestEntity
     {{else}}
-        @RequestBody(required = {{requestBodyRequired}}) {{> requestsHandlerMethodRequestBodyType}} requestEntity
+        @RequestBody(required = {{requestBodyRequired}}) {{> requestsHandlerMethodRequestBodyType}} requestBody
     {{/if}}
 {{/if}}
-);
+) throws Exception;

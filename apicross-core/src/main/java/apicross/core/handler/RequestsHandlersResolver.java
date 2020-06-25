@@ -1,7 +1,6 @@
 package apicross.core.handler;
 
 import io.swagger.v3.oas.models.Paths;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
@@ -52,6 +51,7 @@ public class RequestsHandlersResolver {
         List<RequestsHandlerMethod> methods = new ArrayList<>();
 
         for (HttpOperation httpOperation : requestsHandlerOperationsGroup.operations()) {
+            log.info("Resolve methods for: {}", httpOperation);
             List<RequestsHandlerMethod> operationMethods =
                     requestsHandlerMethodsResolver.resolve(httpOperation, this.requestsHandlerMethodNameResolver);
             methods.addAll(operationMethods);
