@@ -10,10 +10,8 @@ import apicross.core.handler.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -65,7 +63,7 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
                 if (method.hasQueryParameters() && !handledOperations.contains(operationId)) {
                     File sourceFile = new File(modelsPackageDir, StringUtils.capitalize(operationId) + "Query.java");
                     try (FileOutputStream out = new FileOutputStream(sourceFile)) {
-                        PrintWriter sourcePrintWriter = new PrintWriter(out);
+                        PrintWriter sourcePrintWriter = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
                         String iface = queryObjectsInterfacesMap != null ? queryObjectsInterfacesMap.get(operationId) : null;
                         Set<String> ifaces = new LinkedHashSet<>();
                         if (iface != null) {

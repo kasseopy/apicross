@@ -15,10 +15,8 @@ import com.google.googlejavaformat.java.FormatterException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Function;
 
@@ -282,7 +280,7 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         for (RequestsHandler handler : handlers) {
             File handlerInterfaceSourceFile = new File(handlersPackageDir, fileNameFactory.apply(handler));
             try (FileOutputStream out = new FileOutputStream(handlerInterfaceSourceFile)) {
-                PrintWriter sourcePrintWriter = new PrintWriter(out);
+                PrintWriter sourcePrintWriter = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
                 writeRequestsHandler(handler, sourcePrintWriter);
             }
         }
@@ -294,7 +292,7 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         for (ObjectDataModel model : models) {
             File sourceFile = new File(modelsPackageDir, fileNameFactory.apply(model));
             try (FileOutputStream out = new FileOutputStream(sourceFile)) {
-                PrintWriter sourcePrintWriter = new PrintWriter(out);
+                PrintWriter sourcePrintWriter = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
                 writeDataModel(model, sourcePrintWriter);
             }
         }
