@@ -18,18 +18,17 @@ public class UpdateCompetitionCommand extends AbstractConditionalUpdateEntityCom
 
     @Override
     protected void doUpdate(Competition entityToBeUpdated) {
-        request.getTitle().ifPresent(entityToBeUpdated::setTitle);
-        request.getDescription().ifPresent(entityToBeUpdated::setDescription);
-        request.getParticipantReqs().ifPresent(participantRequirements -> {
+        request.ifTitlePresent(entityToBeUpdated::setTitle);
+        request.ifDescriptionPresent(entityToBeUpdated::setDescription);
+        request.ifParticipantReqsPresent(participantRequirements -> {
             CompetitionParticipantRequirements originReqs = entityToBeUpdated.getParticipantRequirements();
             if (originReqs == null) {
                 originReqs = new CompetitionParticipantRequirements();
             }
-            participantRequirements.getMaxAge().ifPresent(originReqs::setMaxAge);
-            participantRequirements.getMinAge().ifPresent(originReqs::setMinAge);
+            participantRequirements.ifMaxAgePresent(originReqs::setMaxAge);
+            participantRequirements.ifMinAgePresent(originReqs::setMinAge);
             entityToBeUpdated.setParticipantRequirements(originReqs);
         });
-        request.getVotingType().map(VotingTypeFactory::detectVotingType)
-                .ifPresent(entityToBeUpdated::setVotingType);
+        request.ifVotingTypePresent(votingTypeAsString -> entityToBeUpdated.setVotingType(VotingTypeFactory.detectVotingType(votingTypeAsString)));
     }
 }

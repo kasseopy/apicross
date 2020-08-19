@@ -24,7 +24,7 @@ class CompetitionFactory {
     private CompetitionParticipantRequirements createParticipantRequirements(CmRegisterCompetitionRequest request) {
         ParticipantRequirements participantReqs = request.getParticipantReqs();
         return new CompetitionParticipantRequirements()
-                .setMaxAge(participantReqs.getMaxAge().isPresent() ? participantReqs.getMaxAge().get() : null)
-                .setMinAge(participantReqs.getMinAge().isPresent() ? participantReqs.getMinAge().get() : null);
+                .setMaxAge(participantReqs.isMaxAgePresent() ? participantReqs.getMaxAge() : null)
+                .setMinAge(participantReqs.isMinAgePresent() ? participantReqs.getMinAge() : null);
     }
 }
