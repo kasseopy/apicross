@@ -3,17 +3,13 @@ package apicross.core.data;
 import apicross.CodeGeneratorException;
 import apicross.utils.OpenApiComponentsIndex;
 import apicross.utils.SchemaHelper;
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import io.swagger.v3.oas.models.media.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.annotation.Nonnull;
 import java.util.*;
-
-import static java.util.stream.Collectors.toMap;
 
 @Slf4j
 public class DataModelResolver {
@@ -59,7 +55,7 @@ public class DataModelResolver {
 
         if (schema$ref != null) {
             return resolveFrom$ref(schema$ref);
-        } else if (SchemaHelper.isPrimitiveTypeSchema(schema)) {
+        } else if (SchemaHelper.isPrimitiveTypeSchema(schema) || SchemaHelper.isAnonymousObjectSchemaWithoutProperties(schema)) {
             return DataModel.newPrimitiveType(schema);
         } else if (schema instanceof ArraySchema) {
             return resolveArraySchema((ArraySchema) schema);

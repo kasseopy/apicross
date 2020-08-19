@@ -11,6 +11,10 @@ public class SchemaHelper {
         return !((schema instanceof ArraySchema) || SchemaHelper.isPrimitiveTypeSchema(schema));
     }
 
+    public static boolean isAnonymousObjectSchemaWithoutProperties(Schema<?> schema) {
+        return (schema instanceof ObjectSchema) && schema.getName() == null && schema.getProperties() == null;
+    }
+
     public static boolean isPrimitiveTypeSchema(Schema<?> schema) {
         return (schema instanceof StringSchema) || (schema instanceof BooleanSchema)
                 || (schema instanceof NumberSchema) || (schema instanceof IntegerSchema)
