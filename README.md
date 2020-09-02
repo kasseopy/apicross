@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/kasseopy/apicross.svg?branch=master)](https://travis-ci.com/kasseopy/apicross)
+
 # Purpose
 APICROSS is a tool to generate source code from OpenAPI 3.0 API specification.
 
