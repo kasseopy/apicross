@@ -183,7 +183,7 @@ For example, generated interface looks like:
 ```java
 public interface MyApiHandler  {
     @RequestMapping(path = "/my", method = RequestMethod.POST, consumes = "application/json")
-    ResponseEntity<Void> create(@RequestBody(required = true) MyModel model, @RequestHeader HttpHeaders headers);
+    ResponseEntity<Void> create(@RequestBody(required = true) CreateMyModelRepresentation model, @RequestHeader HttpHeaders headers);
 
     @RequestMapping(path = "/my/{id}", method = RequestMethod.GET, produces = "application/json")
     ResponseEntity<MyModelRepresentation> get(@PathVariable("id") String id, @RequestHeader HttpHeaders headers);
