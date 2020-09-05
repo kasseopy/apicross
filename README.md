@@ -150,15 +150,7 @@ public class MyModel implements HasPopulatedProperties {
 
     private JsonNullable<String> a = JsonNullable.undefined();
 
-    @JsonIgnore
-    public Optional<String> getA() {
-        return a.isPresent() ? Optional.of(this.a.get()) : Optional.empty();
-    }
-
-    @JsonGetter("a")
-    protected JsonNullable<String> aJson() {
-        return this.a;
-    }
+    //...
 
     @JsonSetter("a")
     public void setA(String a) {
@@ -177,9 +169,38 @@ APICROSS toolkit has JSR380 validators to handle that. Take a look at the `apicr
 classes within `apicross-support` module.
 
 ## API handler
-API Handler is an object handling API requests. For SpringWebMVC - handlers are `@Controller`-s.
-APICROSS generated Java interfaces with spring MVC metadata. So application's `@Controller`-s have to implement these interfaces.
-For example, generated interface looks like:
+API Handler is an object handling API requests. For SpringWebMVC - handlers are `@Controller`s.
+APICROSS generated Java interfaces with spring MVC metadata. So application's `@Controller`s have to implement these interfaces.
+Consider API specification fragment bellow:
+```yaml
+  '/my':
+    post:
+      operationId: create
+      tags:
+        - MyApi
+      requestBody:
+        required: true
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/CreateMyModelRepresentation'
+  '/my/{id}':
+    get:
+      operationId: get
+      tags:
+        - MyApi
+      parameters:
+        - $ref: '#/components/parameters/IdPathParameter'
+      responses:
+        '200':
+          description: Success. Resource representation in the response body.
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/MyModelRepresentation'          
+          
+```
+Generated interface will looks like:
 ```java
 public interface MyApiHandler  {
     @RequestMapping(path = "/my", method = RequestMethod.POST, consumes = "application/json")
