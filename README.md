@@ -183,14 +183,16 @@ For example, generated interface looks like:
 ```java
 public interface MyApiHandler  {
     @RequestMapping(path = "/my", method = RequestMethod.POST, consumes = "application/json")
-    ResponseEntity<Void> create(@RequestBody(required = true) CreateMyModelRepresentation model, @RequestHeader HttpHeaders headers);
+    ResponseEntity<Void> create(@RequestBody(required = true) CreateMyModelRepresentation model, 
+                                                        @RequestHeader HttpHeaders headers) throws Exception;
 
     @RequestMapping(path = "/my/{id}", method = RequestMethod.GET, produces = "application/json")
-    ResponseEntity<MyModelRepresentation> get(@PathVariable("id") String id, @RequestHeader HttpHeaders headers);
+    ResponseEntity<MyModelRepresentation> get(@PathVariable("id") String id, 
+                                                        @RequestHeader HttpHeaders headers) throws Exception;
 }
 ```
 
-and Spring MVC controller (manually developed):
+and Spring MVC controller (manually coded):
 ```java
 @RestController
 public class MyApiHandlerController implements MyApiHandler {
@@ -202,7 +204,7 @@ public class MyApiHandlerController implements MyApiHandler {
     }
 
     @Override
-    public ResponseEntity<Void> create(@RequestBody CreateMyModelRepresentation model, HttpHeaders headers) {
+    public ResponseEntity<Void> create(CreateMyModelRepresentation model, HttpHeaders headers) {
         CreateMyModelResult result = myAppService.create(new CreateModelCommand(model));
         return created(result);
     }
