@@ -212,7 +212,7 @@ public class MyApiHandlerController implements MyApiHandler {
     @Override
     public ResponseEntity<MyModelRepresentation> get(String id, HttpHeaders headers) {
         ModelObject model = myAppService.get(id);
-        return ResponseEntity.ok(new MyModelRepresentation(model));
+        return ResponseEntity.ok(MyModelRepresentationFactory.create(model));
     }
 }
 ```
