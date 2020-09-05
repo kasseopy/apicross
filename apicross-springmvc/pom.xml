@@ -11,24 +11,26 @@
     </parent>
 
     <artifactId>apicross-springmvc</artifactId>
-    <version>1.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
             <groupId>itroadlabs.toolkits</groupId>
             <artifactId>apicross-core</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
             <version>5.2.2.RELEASE</version>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.openapitools</groupId>
             <artifactId>jackson-databind-nullable</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>itroadlabs.toolkits</groupId>
             <artifactId>apicross-support</artifactId>

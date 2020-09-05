@@ -11,7 +11,6 @@
     </parent>
 
     <artifactId>apicross-spring-cloud-feign</artifactId>
-    <version>1.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

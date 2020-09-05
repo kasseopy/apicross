@@ -1,0 +1,770 @@
+openapi: 3.0.1
+info:
+  version: '1.0'
+  title: EShop Catalog API
+  description: |
+    This API provides ability to manage catalog
+tags:
+  - name: CatalogContent
+  - name: ShopCatalog
+  - name: ShoppingCart
+  - name: Orders
+
+paths:
+  '/catalog-products':
+    post:
+      summary: Add an item to the catalog
+      operationId: addCatalogItem
+      tags:
+        - CatalogContent
+      requestBody:
+        required: true
+        content:
+          'application/vnd.eshop.v1+json':
+            schema:
+              $ref: '#/components/schemas/CatAddItemRequest'
+      responses:
+        '201':
+          description: Item added
+    get:
+      summary: List catalog items
+      operationId: listCatalogItems
+      tags:
+        - CatalogContent
+      parameters:
+        - $ref: '#/components/parameters/QueryParamOffset'
+        - $ref: '#/components/parameters/QueryParamLimit'
+      responses:
+        '200':
+          description: Catalog items in the response body
+          content:
+            'application/vnd.eshop.v1+json':
+              schema:
+                $ref: '#/components/schemas/CatListItemsResponse'
+
+  '/catalog-products/{sku}':
+    parameters:
+      - $ref: '#/components/parameters/PathParamSku'
+    get:
+      summary: Get catalog item description
+      operationId: getCatalogItem
+      tags:
+        - CatalogContent
+      responses:
+        '200':
+          description: Catalog item representation in the response body
+          content:
+            'application/vnd.eshop.v1+json':
+              schema:
+                $ref: '#/components/schemas/CatGetItemResponse'
+    patch:
+      summary: Update catalog item
+      operationId: updateCatalogItem
+      tags:
+        - CatalogContent
+      requestBody:
+        required: true
+        content:
+          'application/vnd.eshop.patch.v1+json':
+            schema:
+              $ref: '#/components/schemas/CatUpdateItemRequest'
+      responses:
+        '204':
+          description: Catalog item updated
+
+    delete:
+      summary: Remove item from catalog
+      operationId: removeCatalogItem
+      tags:
+        - CatalogContent
+      responses:
+        '204':
+          description: Catalog item removed
+
+  '/catalog/search':
+    post:
+      summary: Search products in the catalog
+      operationId: searchProducts
+      tags:
+        - ShopCatalog
+      requestBody:
+        required: true
+        content:
+          'application/vnd.eshop.v1+json':
+            schema:
+              $ref: '#/components/schemas/CatSearchRequest'
+      responses:
+        '201':
+          description: Get response location from the 'Location' header
+          headers:
+            Location:
+              required: true
+              schema:
+                type: string
+
+  '/catalog/search/{search_results_key}':
+    get:
+      summary: Get search results
+      operationId: getSearchResults
+      tags:
+        - ShopCatalog
+      parameters:
+        - $ref: '#/components/parameters/PathParamSearchResultsKey'
+        - $ref: '#/components/parameters/QueryParamOffset'
+        - $ref: '#/components/parameters/QueryParamLimit'
+      responses:
+        '200':
+          description: Search results in the response body
+          content:
+            'application/vnd.eshop.v1+json':
+              schema:
+                $ref: '#/components/schemas/CatSearchResults'
+
+  '/catalog/{sku}':
+    get:
+      summary: Get product description
+      operationId: getProductDescription
+      tags:
+        - ShopCatalog
+      parameters:
+        - $ref: '#/components/parameters/PathParamSku'
+      responses:
+        '200':
+          description: Product description in the response body
+          content:
+            'application/vnd.eshop.v1+json':
+              schema:
+                $ref: '#/components/schemas/CatProduct'
+
+  '/categories':
+    get:
+      summary: List categories
+      operationId: listCategories
+      tags:
+        - ShopCatalog
+      responses:
+        '200':
+          description: Categories list in the response body
+          content:
+            'application/vnd.eshop.v1+json':
+              schema:
+                $ref: '#/components/schemas/ListCategoriesResponse'
+
+  '/shopping-cart':
+    post:
+      summary: Add product to shopping cart
+      operationId: addProductToShoppingCart
+      tags:
+        - ShoppingCart
+      requestBody:
+        required: true
+        content:
+          'application/vnd.eshop.v1+json':
+            schema:
+              $ref: '#/components/schemas/CartAddProductToCartRequest'
+      responses:
+        '201':
+          description: Product added to shopping cart
+    get:
+      summary: Get shopping cart content
+      operationId: getShoppingCartContent
+      tags:
+        - ShoppingCart
+      responses:
+        '200':
+          description: Shopping cart content
+          content:
+            'application/vnd.eshop.v1+json':
+              schema:
+                $ref: '#/components/schemas/CartGetContentResponse'
+    delete:
+      summary: Clean shopping cart
+      operationId: cleanShoppingCart
+      tags:
+        - ShoppingCart
+      responses:
+        '204':
+          description: Shopping cart is clear
+
+  '/shopping-cart/{sku}':
+    delete:
+      summary: Remove product from shopping cart
+      operationId: removeProdutFromShoppingCart
+      tags:
+        - ShoppingCart
+      parameters:
+        - $ref: '#/components/parameters/PathParamSku'
+      responses:
+        '204':
+          description: Product removed from shopping cart
+
+  '/orders/{orderId}':
+    get:
+      summary: Get order information
+      operationId: getOrder
+      tags:
+        - Orders
+      parameters:
+        - $ref: '#/components/parameters/PathParamOrderId'
+      responses:
+        '200':
+          description: Order information in the response body
+          content:
+            'application/vnd.eshop.v1+json':
+              schema:
+                $ref: '#/components/schemas/OrdGetOrderInfoResponse'
+
+components:
+  parameters:
+    QueryParamOffset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+
+    QueryParamLimit:
+      in: query
+      name: limit
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100
+        default: 20
+
+    PathParamSku:
+      in: path
+      name: sku
+      required: true
+      schema:
+        $ref: '#/components/schemas/SKU'
+
+    PathParamSearchResultsKey:
+      in: path
+      name: search_results_key
+      required: true
+      schema:
+        type: string
+
+    PathParamOrderId:
+      in: path
+      name: orderId
+      required: true
+      schema:
+        type: string
+
+  schemas:
+    PaginatedCollection:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int32
+        page_size:
+          type: integer
+          format: int32
+        total_elements:
+          type: integer
+          format: int32
+        _links:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Link'
+          example:
+            next:
+              href: ''
+            last:
+              href: ''
+            previous:
+              href: ''
+            first:
+              href: ''
+      required:
+        - page
+        - page_size
+        - total_elements
+        - _links
+
+    Product:
+      type: object
+      properties:
+        sku:
+          $ref: '#/components/schemas/SKU'
+        product_name:
+          $ref: '#/components/schemas/ProductName'
+        product_description:
+          $ref: '#/components/schemas/ProductDescription'
+        bar_codes_gs1:
+          type: array
+          items:
+            $ref: '#/components/schemas/BarCodeGS1'
+        category_ref:
+          $ref: '#/components/schemas/CategoryRef'
+        price:
+          $ref: '#/components/schemas/ProductPrice'
+        features:
+          $ref: '#/components/schemas/ProductFeaturesList'
+      required:
+        - sku
+        - product_name
+        - category_ref
+
+    CatAddItemRequest:
+      type: object
+      properties:
+        sku:
+          $ref: '#/components/schemas/SKU'
+        product_name:
+          $ref: '#/components/schemas/ProductName'
+        product_description:
+          $ref: '#/components/schemas/ProductDescription'
+        bar_code:
+          $ref: '#/components/schemas/BarCodeGS1'
+        category_ref:
+          $ref: '#/components/schemas/CategoryRef'
+        price:
+          $ref: '#/components/schemas/ProductPrice'
+        features:
+          $ref: '#/components/schemas/ProductFeaturesList'
+      required:
+        - sku
+        - product_name
+        - category_ref
+        - price
+
+    CatListItemsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatItem'
+        total_items:
+          type: integer
+          example: 1
+        _links:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Link'
+          example:
+            self:
+              href: 'https://api.eshop.com/catalog-items'
+            'https://eshop.com/rels/scroll-results:next':
+              href: 'https://api.eshop.com/catalog-items;p=7ab23c567a'
+
+    CatGetItemResponse:
+      allOf:
+        - $ref: '#/components/schemas/CatItem'
+        - type: object
+          properties:
+            features:
+              $ref: '#/components/schemas/ProductFeaturesList'
+
+    CatUpdateItemRequest:
+      type: object
+      properties:
+        product_name:
+          $ref: '#/components/schemas/ProductName'
+        product_description:
+          $ref: '#/components/schemas/ProductDescription'
+        bar_code:
+          $ref: '#/components/schemas/BarCodeGS1'
+        category_ref:
+          $ref: '#/components/schemas/CategoryRef'
+        price:
+          $ref: '#/components/schemas/ProductPrice'
+        features:
+          $ref: '#/components/schemas/ProductFeaturesList'
+      minProperties: 1
+
+    CatItem:
+      type: object
+      properties:
+        sku:
+          $ref: '#/components/schemas/SKU'
+        product_name:
+          $ref: '#/components/schemas/ProductName'
+        product_description:
+          $ref: '#/components/schemas/ProductDescription'
+        bar_code:
+          $ref: '#/components/schemas/BarCodeGS1'
+        category_ref:
+          $ref: '#/components/schemas/CategoryRef'
+        price:
+          $ref: '#/components/schemas/ProductPrice'
+        _links:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Link'
+          example:
+            self:
+              href: 'https://api.eshop.com/catalog-items/0001115000001'
+      required:
+        - sku
+        - product_name
+        - product_description
+        - bar_code
+        - category_ref
+        - price
+
+    CatSearchRequest:
+      type: object
+      properties:
+        query:
+          $ref: '#/components/schemas/CatSearchQuery'
+        sort:
+          type: string
+          enum:
+            - price_asc
+            - price_desc
+          default: 'price_asc'
+        ttl:
+          type: string
+          pattern: '(+d)(m|h)'
+          default: '5m'
+          example: '1h'
+        page_size:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+      required:
+        - query
+
+    CatSearchQuery:
+      type: object
+      properties:
+        q:
+          type: string
+          minLength: 3
+          maxLength: 30
+          description: |
+            Full-text search query.
+            Is used to search within product name and description
+          example: 'iPh'
+        category:
+          $ref: '#/components/schemas/CategoryRef'
+        priceFrom:
+          type: number
+          minimum: 0
+          format: float
+          example: 100.0
+        priceTo:
+          type: number
+          minimum: 0
+          format: float
+          example: 500.0
+      minProperties: 1
+
+    CatSearchResults:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatSearchResultsItem'
+        _links:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Link'
+          example:
+            self:
+              href: 'https://api.eshop.com/catalog/search/stg3sbsgd34shds'
+            'https://eshop.com/rels/scroll-results:next':
+              href: 'https://api.eshop.com/catalog/search/stg3sbsgd34shds?p=shd34dshfs6sss'
+      required:
+        - results
+        - _links
+
+    CatSearchResultsItem:
+      type: object
+      properties:
+        product_name:
+          $ref: '#/components/schemas/ProductName'
+        product_description:
+          $ref: '#/components/schemas/ProductDescription'
+        category:
+          $ref: '#/components/schemas/CategoryName'
+        price:
+          $ref: '#/components/schemas/ProductPrice'
+        _links:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Link'
+          example:
+            self:
+              href: 'https://api.eshop.com/catalog/0001115000001'
+      required:
+        - product_name
+        - product_description
+        - category
+        - price
+
+    CatProduct:
+      type: object
+      properties:
+        product_name:
+          $ref: '#/components/schemas/ProductName'
+        product_description:
+          $ref: '#/components/schemas/ProductDescription'
+        category:
+          $ref: '#/components/schemas/CategoryName'
+        category_ref:
+          $ref: '#/components/schemas/CategoryRef'
+        price:
+          $ref: '#/components/schemas/ProductPrice'
+        features:
+          $ref: '#/components/schemas/ProductFeaturesList'
+        _links:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Link'
+          example:
+            self:
+              href: 'https://api.eshop.com/catalog/0001115000001'
+            'shopping-cart:add':
+              href: 'https://api.eshop.com/shopping-cart'
+      required:
+        - product_name
+        - product_description
+        - bar_code
+        - category
+        - category_ref
+        - price
+
+    CartAddProductToCartRequest:
+      type: object
+      properties:
+        sku:
+          $ref: '#/components/schemas/SKU'
+        qty:
+          type: integer
+          minimum: 1
+          maximum: 100
+      required:
+        - sku
+        - qty
+
+    CartGetContentResponse:
+      type: object
+      properties:
+        items:
+          description: Products in the shopping cart
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+        total:
+          type: number
+          format: float
+        _links:
+          type: object
+          x-hal-links: true
+          additionalProperties:
+            $ref: '#/components/schemas/Link'
+          example:
+            'shopping-cart:clean':
+              href: 'https://api.eshop.com/shopping-cart'
+            'orders:make-order':
+              href: 'https://api.eshop.com/orders'
+      required:
+        - content
+        - price
+
+    CartItem:
+      type: object
+      properties:
+        product_name:
+          $ref: '#/components/schemas/ProductName'
+        product_description:
+          $ref: '#/components/schemas/ProductDescription'
+        price:
+          $ref: '#/components/schemas/ProductPrice'
+        qty:
+          description: Quantity of product in shopping cart
+          type: integer
+        _links:
+          type: object
+          x-hal-links: true
+          additionalProperties:
+            $ref: '#/components/schemas/Link'
+          example:
+            'shopping-cart:delete-item':
+              href: 'https://api.eshop.com/shopping-cart/0001115000001'
+            'shopping-cart:update-item-quantity':
+              href: 'https://api.eshop.com/shopping-cart/0001115000001'
+            'catalog:product':
+              href: 'https://api.eshop.com/catalog/0001115000001'
+      required:
+        - product_name
+        - price
+        - qty
+
+    OrdGetOrderInfoResponse:
+      type: object
+
+    ListCategoriesResponse:
+      type: object
+      properties:
+        categories:
+          type: array
+          items:
+            type: object
+            properties:
+              ref:
+                $ref: '#/components/schemas/CategoryRef'
+              name:
+                $ref: '#/components/schemas/CategoryName'
+            required:
+              - ref
+              - name
+    SKU:
+      description: SKU of the product
+      type: string
+      maxLength: 20
+      minLength: 10
+      example: '0001115000001'
+
+    ProductName:
+      description: Product name
+      type: string
+      maxLength: 100
+      minLength: 5
+      example: 'iPhone 10s'
+
+    ProductDescription:
+      description: Product description
+      type: string
+      maxLength: 1000
+      example: 'Most interesting iPhone model'
+      nullable: true
+
+    BarCodeGS1:
+      description: GS1 bar code
+      type: integer
+      format: int64
+      minimum: 100000000
+      maximum: 999999999
+      nullable: true
+      example: '18222000111'
+
+    CategoryRef:
+      description: Reference to some products category
+      type: string
+      example: '00111003344'
+
+    CategoryName:
+      description: Products category name
+      type: string
+      example: 'Smartphones'
+
+    ProductPrice:
+      description: Product price
+      type: number
+      format: float
+      minimum: 0
+      example: 440.12
+
+    _ProductFeature:
+      description: Base properties for product feature
+      type: object
+      properties:
+        '@type':
+          type: string
+          enum:
+            - string
+            - number
+            - boolean
+            - enum
+        name:
+          type: string
+        description:
+          type: string
+      required:
+        - name
+        - description
+        - '@type'
+
+    NumberProductFeature:
+      description: Product feature with number value
+      allOf:
+        - $ref: '#/components/schemas/_ProductFeature'
+        - type: object
+          properties:
+            value:
+              type: number
+              format: float
+          required:
+            - value
+      example:
+        '@type': number
+        name: RAM-MB
+        description: RAM Size in MB
+        value: 64000
+
+    StringProductFeature:
+      description: Product feature with string value-
+      allOf:
+        - $ref: '#/components/schemas/_ProductFeature'
+        - type: object
+          properties:
+            value:
+              type: string
+          required:
+            - value
+      example:
+        '@type': string
+        name: OSVer
+        description: Version of the operation system
+        value: iOS-GrennHood
+
+    BooleanProductFeature:
+      description: Product feature with boolean value
+      allOf:
+        - $ref: '#/components/schemas/_ProductFeature'
+        - type: object
+          properties:
+            value:
+              type: boolean
+          required:
+            - value
+      example:
+        '@type': boolean
+        name: Wi-Fi
+        description: Ability to work with Wi-Fi
+        value: true
+
+    ProductFeature:
+      description: Product feature (e.q. shoes size, phone screen size, ...)
+      oneOf:
+        - $ref: '#/components/schemas/StringProductFeature'
+        - $ref: '#/components/schemas/BooleanProductFeature'
+        - $ref: '#/components/schemas/NumberProductFeature'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          string: '#/components/schemas/StringProductFeature'
+          boolean: '#/components/schemas/BooleanProductFeature'
+          number: '#/components/schemas/NumberProductFeature'
+
+    ProductFeaturesList:
+      description: List of product features
+      type: array
+      items:
+        $ref: '#/components/schemas/ProductFeature'
+      minItems: 1
+      maxItems: 40
+      uniqueItems: true
+
+    Link:
+      description: link to some other resource or state transition
+      type: object
+      properties:
+        title:
+          type: string
+        href:
+          type: string
+      required:
+        - href

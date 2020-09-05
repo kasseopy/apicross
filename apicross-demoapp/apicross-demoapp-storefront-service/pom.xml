@@ -10,13 +10,17 @@
     </parent>
 
     <artifactId>apicross-demoapp-storefront-service</artifactId>
-    <version>1.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
             <groupId>itroadlabs.toolkits</groupId>
+            <artifactId>apicross-support</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>itroadlabs.toolkits</groupId>
             <artifactId>apicross-demoapp-common</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -26,10 +30,12 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>itroadlabs.toolkits</groupId>
-            <artifactId>apicross-support</artifactId>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.openapitools</groupId>
             <artifactId>jackson-databind-nullable</artifactId>
