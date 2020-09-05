@@ -54,7 +54,7 @@ APICROSS is a tool to generate source code from OpenAPI 3.0 API specification.
 ```
 
 # OpenAPI Specification processing features
-## Optional data model fields
+## Optional fields in data model
 By default OpenAPI specification states all model fields are not nullable (`nullable: false`). 
 Required fields are fields must be present in a valid JSON  document representing API data models (request/response payloads).
 So field may be not required to be in JSON document, but it's value must not be null. For example, consider following schema
@@ -82,15 +82,21 @@ And following JSON is valid:
 ```
 
 Optional fields (which are not required) become `JsonNullable<Type>` fields for internal data model and Jackson serialization/deserialization.
-But for public getters `java.utils.Optional` type is used. For example, for the schema above generated Java class will be:
+But for public getters code generator creates two methods: to get value and to check value was presnt in JSON representation. For example, for the schema above generated Java class will be:
 ```java
 public class MyModel {
     private JsonNullable<String> a = JsonNullable.undefined();
 
     @JsonIgnore
-    public Optional<String> getA() {
-        return a.isPresent() ? Optional.of(this.a.get()) : Optional.empty();
+    public String getA() throws NoSuchElementException {
+        return this.a.get();
     }
+   
+    @JsonIgnore
+    public boolean isAPresent() {
+        return this.a.isPresent();
+    }
+
 
     @JsonGetter("a")
     protected JsonNullable<String> aJson() {
@@ -131,12 +137,12 @@ public class MyModel {
 ## Min/Max/Required properties validation
 Validating such features within java code is tricky because JSON and Java are different.
 OpenAPI specification states:
-- minProperties - minimum number of fields must present in JSON document
-- maxProperties - maximun number of fields must present in JSON document
-- required - such fields must present in JSON document (it doesn't matter what value fields have, nulls or not) 
+- minProperties - minimum number of fields must present in JSON document,
+- maxProperties - maximun number of fields must present in JSON document,
+- required - such fields must present in JSON document (it doesn't matter what value fields have, nulls or not).
 
 But after JSON deserialization into Java object there is no information about field's presence in the JSON document.
-APICROSS has simple toolkit to handle that. Every generated Java class has a setter to keep populated fields 
+APICROSS has simple toolkit to handle that. Every generated Java class has a setters those keep populated fields 
 into collection. For example:
 ```java
 public class MyModel implements HasPopulatedProperties {
@@ -172,8 +178,8 @@ classes within `apicross-support` module.
 
 ## API handler
 API Handler is an object handling API requests. For SpringWebMVC - handlers are `@Controller`-s.
-APICROSS generated Java interfaces with spring MVC metadata. So application's `@Controller`-s have to implement these.
-For example, generated interface:
+APICROSS generated Java interfaces with spring MVC metadata. So application's `@Controller`-s have to implement these interfaces.
+For example, generated interface looks like:
 ```java
 public interface MyApiHandler  {
     @RequestMapping(path = "/my", method = RequestMethod.POST, consumes = "application/json")
@@ -196,7 +202,7 @@ public class MyApiHandlerController implements MyApiHandler {
     }
 
     @Override
-    public ResponseEntity<Void> create(@RequestBody MyModel model, HttpHeaders headers) {
+    public ResponseEntity<Void> create(@RequestBody CreateMyModelRepresentation model, HttpHeaders headers) {
         CreateMyModelResult result = myAppService.create(new CreateModelCommand(model));
         return created(result);
     }
