@@ -184,6 +184,9 @@ Consider API specification fragment bellow:
           'application/json':
             schema:
               $ref: '#/components/schemas/CreateMyModelRepresentation'
+      responses:
+        '201':
+          description: Success. Resource created.
   '/my/{id}':
     get:
       operationId: get
