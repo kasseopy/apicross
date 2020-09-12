@@ -7,6 +7,7 @@ import apicross.utils.OpenApiComponentsIndex;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import org.apache.commons.lang3.BooleanUtils;
@@ -60,7 +61,7 @@ public class DefaultRequestsHandlerMethodsResolver implements RequestsHandlerMet
                                                               RequestsHandlerMethodNameResolver methodNameResolver) {
         Operation operation = httpOperation.getOperation();
         String uriPath = httpOperation.getUriPath();
-        String httpMethod = httpOperation.getHttpMethod();
+        PathItem.HttpMethod httpMethod = httpOperation.getHttpMethod();
         String methodName = methodNameResolver.resolve(operation, uriPath, requestAndResponse.getRequestMediaType(),
                 requestAndResponse.getResponseMediaType());
 
@@ -69,7 +70,7 @@ public class DefaultRequestsHandlerMethodsResolver implements RequestsHandlerMet
         return new RequestsHandlerMethod()
                 .setOperation(operation)
                 .setUriPath(uriPath)
-                .setHttpMethod(httpMethod)
+                .setHttpMethod(httpMethod.name())
                 .setMethodName(methodName)
                 .setDocumentation(operation.getSummary())
                 .setRequestDocumentation(requestAndResponse.getRequestDescription())

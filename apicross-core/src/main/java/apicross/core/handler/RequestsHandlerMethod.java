@@ -1,6 +1,6 @@
 package apicross.core.handler;
 
-import apicross.core.HasCustomAttribures;
+import apicross.core.HasCustomModelAttributes;
 import io.swagger.v3.oas.models.Operation;
 import apicross.core.NamedDatum;
 import apicross.core.data.DataModel;
@@ -9,7 +9,7 @@ import apicross.core.data.ObjectDataModel;
 import java.util.Map;
 import java.util.Set;
 
-public class RequestsHandlerMethod extends HasCustomAttribures {
+public class RequestsHandlerMethod extends HasCustomModelAttributes {
     private String httpMethod;
     private MediaTypeContentModel responseBody;
     private MediaTypeContentModel requestBody;

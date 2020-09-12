@@ -11,10 +11,10 @@ import java.util.Objects;
 
 @Slf4j
 public class RequestsHandlersResolver {
-    private HttpOperationsGroupsResolver httpOperationsGroupsResolver;
-    private RequestsHandlerTypeNameResolver requestsHandlerTypeNameResolver;
-    private RequestsHandlerMethodNameResolver requestsHandlerMethodNameResolver;
-    private RequestsHandlerMethodsResolver requestsHandlerMethodsResolver;
+    private final HttpOperationsGroupsResolver httpOperationsGroupsResolver;
+    private final RequestsHandlerTypeNameResolver requestsHandlerTypeNameResolver;
+    private final RequestsHandlerMethodNameResolver requestsHandlerMethodNameResolver;
+    private final RequestsHandlerMethodsResolver requestsHandlerMethodsResolver;
 
     public RequestsHandlersResolver(@Nonnull HttpOperationsGroupsResolver httpOperationsGroupsResolver,
                                     @Nonnull RequestsHandlerTypeNameResolver requestsHandlerTypeNameResolver,

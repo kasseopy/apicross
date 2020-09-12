@@ -7,7 +7,7 @@ import org.apache.commons.lang3.BooleanUtils;
 
 import java.util.Objects;
 
-public abstract class NamedDatum extends HasCustomAttribures {
+public abstract class NamedDatum extends HasCustomModelAttributes {
     private String name;
     private String resolvedName;
     private String description;

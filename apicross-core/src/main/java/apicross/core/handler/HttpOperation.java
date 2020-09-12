@@ -1,18 +1,17 @@
 package apicross.core.handler;
 
-import com.google.common.base.Preconditions;
 import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.PathItem;
 import lombok.NonNull;
 
 import java.util.Objects;
 
 public class HttpOperation {
-    private String uriPath;
-    private String httpMethod;
-    private Operation operation;
+    private final String uriPath;
+    private final PathItem.HttpMethod httpMethod;
+    private final Operation operation;
 
-    public HttpOperation(@NonNull String uriPath, @NonNull String httpMethod, @NonNull Operation operation) {
-        Preconditions.checkArgument(operation.getOperationId() != null, "'operation.operationId' must not be null");
+    public HttpOperation(@NonNull String uriPath, @NonNull PathItem.HttpMethod httpMethod, @NonNull Operation operation) {
         this.uriPath = uriPath;
         this.httpMethod = httpMethod;
         this.operation = operation;
@@ -22,7 +21,7 @@ public class HttpOperation {
         return uriPath;
     }
 
-    public String getHttpMethod() {
+    public PathItem.HttpMethod getHttpMethod() {
         return httpMethod;
     }
 

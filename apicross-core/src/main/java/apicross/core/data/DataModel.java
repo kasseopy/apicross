@@ -1,6 +1,6 @@
 package apicross.core.data;
 
-import apicross.core.HasCustomAttribures;
+import apicross.core.HasCustomModelAttributes;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.BooleanUtils;
@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-public abstract class DataModel extends HasCustomAttribures {
+public abstract class DataModel extends HasCustomModelAttributes {
     private Schema<?> source;
 
     protected DataModel(@Nonnull Schema<?> source) {

@@ -2,6 +2,7 @@ package apicross.core.handler;
 
 import apicross.core.data.DataModel;
 import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +33,7 @@ public class RequestsHandlersResolverTest {
     @Test
     public void test() {
         String requestsHandlerOperationId = "getResource";
-        String requestsHandlerOperationHttpMethod = "GET";
+        PathItem.HttpMethod requestsHandlerOperationHttpMethod = PathItem.HttpMethod.GET;
         String requestsHandlerOperationProducesMediaType = "text/html";
         String requestsHandlerOperationUriPath = "/test";
         String requestsHandlerTypeName = "TestResourceController";
@@ -47,7 +48,7 @@ public class RequestsHandlersResolverTest {
 
         when(requestsHandlerMethodsResolver.resolve(eq(new HttpOperation(requestsHandlerOperationUriPath, requestsHandlerOperationHttpMethod, fixtureOperation)), eq(requestsHandlerMethodNameResolver)))
                 .thenReturn(Collections.singletonList(new RequestsHandlerMethod()
-                        .setHttpMethod(requestsHandlerOperationHttpMethod)
+                        .setHttpMethod(requestsHandlerOperationHttpMethod.name())
                         .setMethodName(requestsHandlerOperationId)
                         .setUriPath(requestsHandlerOperationUriPath)
                         .setOperation(fixtureOperation)
@@ -65,7 +66,7 @@ public class RequestsHandlersResolverTest {
         assertEquals(1, handler.getMethods().size());
         RequestsHandlerMethod requestsHandlerMethod = handler.getMethods().get(0);
         assertEquals(requestsHandlerOperationId, requestsHandlerMethod.getMethodName());
-        assertEquals(requestsHandlerOperationHttpMethod, requestsHandlerMethod.getHttpMethod());
+        assertEquals(requestsHandlerOperationHttpMethod.name(), requestsHandlerMethod.getHttpMethod());
         assertEquals(requestsHandlerOperationProducesMediaType, requestsHandlerMethod.getResponseBody().getMediaType());
         assertEquals(requestsHandlerOperationUriPath, requestsHandlerMethod.getUriPath());
     }

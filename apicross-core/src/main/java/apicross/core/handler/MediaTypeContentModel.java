@@ -1,14 +1,14 @@
 package apicross.core.handler;
 
-import apicross.core.HasCustomAttribures;
+import apicross.core.HasCustomModelAttributes;
 import apicross.core.data.DataModel;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
 
-public class MediaTypeContentModel extends HasCustomAttribures {
-    private DataModel content;
-    private String mediaType;
+public class MediaTypeContentModel extends HasCustomModelAttributes {
+    private final DataModel content;
+    private final String mediaType;
 
     public MediaTypeContentModel(@Nonnull DataModel content, @Nonnull String mediaType) {
         this.content = Objects.requireNonNull(content, "'content' argument must not be null");

@@ -27,9 +27,9 @@ public class OperationFirstTagHttpOperationsGroupsResolver implements HttpOperat
         Map<String, HttpOperationsGroup> byTagMap = new HashMap<>();
         for (String uriPath : pathItems.keySet()) {
             PathItem pathItem = pathItems.get(uriPath);
-            Map<String, Operation> operationsByHttpMethod = PathItemsOperationsMapper.mapOperationsByHttpMethod(pathItem);
+            Map<PathItem.HttpMethod, Operation> operationsByHttpMethod = pathItem.readOperationsMap();
             log.debug("For uri '{}' were detected following HTTP methods: {}", uriPath, operationsByHttpMethod.keySet());
-            for (String httpMethod : operationsByHttpMethod.keySet()) {
+            for (PathItem.HttpMethod httpMethod : operationsByHttpMethod.keySet()) {
                 Operation operation = operationsByHttpMethod.get(httpMethod);
                 if (needsToBoSkipped(operation)) {
                     continue;

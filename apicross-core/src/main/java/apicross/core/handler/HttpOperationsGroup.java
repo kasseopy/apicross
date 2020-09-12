@@ -1,6 +1,7 @@
 package apicross.core.handler;
 
 import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.PathItem;
 import lombok.NonNull;
 
 import java.util.*;
@@ -9,14 +10,14 @@ import java.util.*;
  * Group of operations to be implemented in single RequestsHandler
  */
 public class HttpOperationsGroup {
-    private String name;
-    private List<HttpOperation> httpOperations = new ArrayList<>();
+    private final String name;
+    private final List<HttpOperation> httpOperations = new ArrayList<>();
 
     public HttpOperationsGroup(@NonNull String name) {
         this.name = name;
     }
 
-    public void add(@NonNull Operation operation, @NonNull String uriPath, @NonNull String httpMethod) {
+    public void add(@NonNull Operation operation, @NonNull String uriPath, @NonNull PathItem.HttpMethod httpMethod) {
         httpOperations.add(new HttpOperation(uriPath, httpMethod, operation));
     }
 

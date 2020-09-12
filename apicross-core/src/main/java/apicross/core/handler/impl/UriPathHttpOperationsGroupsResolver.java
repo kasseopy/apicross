@@ -20,8 +20,8 @@ public class UriPathHttpOperationsGroupsResolver implements HttpOperationsGroups
             int endIndex = uriPath.lastIndexOf('/');
             String firstPathSegment = endIndex > 0 ? uriPath.substring(1, endIndex - 1) : uriPath;
             PathItem pathItem = pathItems.get(uriPath);
-            Map<String, Operation> operationsByHttpMethod = PathItemsOperationsMapper.mapOperationsByHttpMethod(pathItem);
-            for (String httpMethod : operationsByHttpMethod.keySet()) {
+            Map<PathItem.HttpMethod, Operation> operationsByHttpMethod = pathItem.readOperationsMap();
+            for (PathItem.HttpMethod httpMethod : operationsByHttpMethod.keySet()) {
                 Operation operation = operationsByHttpMethod.get(httpMethod);
                 result.computeIfAbsent(firstPathSegment, HttpOperationsGroup::new)
                         .add(operation, uriPath, httpMethod);

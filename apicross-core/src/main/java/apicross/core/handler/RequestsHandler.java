@@ -1,6 +1,6 @@
 package apicross.core.handler;
 
-import apicross.core.HasCustomAttribures;
+import apicross.core.HasCustomModelAttributes;
 
 import java.util.Collections;
 import java.util.List;
@@ -9,9 +9,9 @@ import java.util.Map;
 /**
  * Models object implementing group of operations declared in API specification
  */
-public class RequestsHandler extends HasCustomAttribures {
-    private String typeName;
-    private List<RequestsHandlerMethod> methods;
+public class RequestsHandler extends HasCustomModelAttributes {
+    private final String typeName;
+    private final List<RequestsHandlerMethod> methods;
 
     public RequestsHandler(String typeName, List<RequestsHandlerMethod> methods) {
         this.typeName = typeName;

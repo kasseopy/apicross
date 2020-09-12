@@ -7,6 +7,7 @@ import apicross.core.handler.ParameterNameResolver;
 import apicross.core.handler.RequestsHandlerMethod;
 import apicross.core.handler.RequestsHandlerMethodNameResolver;
 import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
@@ -66,7 +67,7 @@ public class DefaultRequestsHandlerMethodsResolverTest {
                     return DataModel.newObjectType(objectSchema, objectSchema.getName());
                 });
 
-        List<RequestsHandlerMethod> methods = resolver.resolve(new HttpOperation("/test", "GET", operation), methodNameResolver);
+        List<RequestsHandlerMethod> methods = resolver.resolve(new HttpOperation("/test", PathItem.HttpMethod.GET, operation), methodNameResolver);
 
         assertEquals(1, methods.size());
         RequestsHandlerMethod requestsHandlerMethod = methods.get(0);
