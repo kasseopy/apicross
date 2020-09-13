@@ -7,7 +7,55 @@ import static org.junit.Assert.fail;
 
 public class DefaultMethodNameBuilderTest {
     @Test
-    public void maskIsNotAllowedInProduces() {
+    public void whenNoOperationPayloads_thenMethodNameIsOperationId() {
+        String methodName = new DefaultMethodNameBuilder()
+                .operationId("getResource")
+                .build();
+        assertEquals("getResource", methodName);
+    }
+
+    @Test
+    public void whenOperationProducesContent_thenMethodNameIsOperationIdAndProduceMadiaType() {
+        String methodName = new DefaultMethodNameBuilder()
+                .operationId("getResource")
+                .producingMediaType("text/plain")
+                .build();
+        assertEquals("getResourceProducePlainText", methodName);
+
+        methodName = new DefaultMethodNameBuilder()
+                .operationId("getResource")
+                .producingMediaType("application/vnd.content.v1+json")
+                .build();
+        assertEquals("getResourceProduceVndContentV1Json", methodName);
+    }
+
+    @Test
+    public void whenOperationConsumesContent_thenMethodNameIsOperationIdAndConsumeMediaType() {
+        String methodName = new DefaultMethodNameBuilder()
+                .operationId("getResource")
+                .consumingsMediaType("text/plain")
+                .build();
+        assertEquals("getResourceConsumePlainText", methodName);
+
+        methodName = new DefaultMethodNameBuilder()
+                .operationId("putResource")
+                .consumingsMediaType("application/vnd.content.v1+json")
+                .build();
+        assertEquals("putResourceConsumeVndContentV1Json", methodName);
+    }
+
+    @Test
+    public void whenOperationConsumesAndProducesContent_thenMethodNameIsOperationIdAndConsumeProduceMadiaType() {
+        String methodName = new DefaultMethodNameBuilder()
+                .operationId("search")
+                .consumingsMediaType("application/x.query.v1+json")
+                .producingMediaType("application/x.content.v2+json")
+                .build();
+        assertEquals("searchConsumeXQueryV1JsonProduceXContentV2Json", methodName);
+    }
+
+    @Test
+    public void masksIsNotAllowedInProducingMediaType() {
         try {
             new DefaultMethodNameBuilder()
                     .operationId("getResource")
@@ -40,99 +88,25 @@ public class DefaultMethodNameBuilderTest {
     }
 
     @Test
-    public void worksWhenPayloadTypesNotDefined() {
-        String methodName = new DefaultMethodNameBuilder()
-                .operationId("getResource")
-                .build();
-        assertEquals("getResource", methodName);
-    }
-    @Test
-    public void worksForTextPlainRequests() {
-        String methodName = new DefaultMethodNameBuilder()
-                .operationId("getResource")
-                .producingMediaType("text/plain")
-                .build();
-        assertEquals("getResourceProducePlainText", methodName);
-    }
-
-    @Test
-    public void worksForTextPlainResponses() {
-        String methodName = new DefaultMethodNameBuilder()
-                .operationId("getResource")
-                .consumingsMediaType("text/plain")
-                .build();
-        assertEquals("getResourceConsumePlainText", methodName);
-    }
-
-    @Test
-    // operationId: getResource, Accept: application/vnd.content.v1+json
-    public void worksForResponseContentTypeWithParts() {
-        String methodName = new DefaultMethodNameBuilder()
-                .operationId("getResource")
-                .producingMediaType("application/vnd.content.v1+json")
-                .build();
-        assertEquals("getResourceProduceVndContentV1Json", methodName);
-    }
-
-    @Test
-    // operationId: getResource, Accept: application/xml
-    public void worksForResponseContentTypeWithoutParts() {
-        String methodName = new DefaultMethodNameBuilder()
-                .operationId("getResource")
-                .producingMediaType("application/xml")
-                .build();
-        assertEquals("getResourceProduceXml", methodName);
-    }
-
-    @Test
-    // operationId: putResource, consume: application/vnd-content-v1+json
-    public void worksForRequestContentTypeWithParts() {
-        String methodName = new DefaultMethodNameBuilder()
-                .operationId("putResource")
-                .consumingsMediaType("application/vnd.content.v1+json")
-                .build();
-        assertEquals("putResourceConsumeVndContentV1Json", methodName);
-    }
-
-    @Test
-    // operationId: putResource, consume: application/xml
-    public void worksForRequestContentTypeWithoutParts() {
-        String methodName = new DefaultMethodNameBuilder()
-                .operationId("putResource")
-                .consumingsMediaType("application/xml")
-                .build();
-        assertEquals("putResourceConsumeXml", methodName);
-    }
-
-    @Test
-    // operationId: search, consume: application/x.query.v1+json, Accept: application/x.content.v1+json
-    public void worksForRequestResponseContentType() {
-        String methodName = new DefaultMethodNameBuilder()
-                .operationId("search")
-                .consumingsMediaType("application/x.query.v1+json")
-                .producingMediaType("application/x.content.v1+json")
-                .build();
-        assertEquals("searchConsumeXQueryV1JsonProduceXContentV1Json", methodName);
-    }
-
-    @Test
-    // operationId: putResource, consume: application/*
-    public void worksWithMaskedRequestType() {
+    public void masksIsAllowedInConsumingMediaType() {
         String methodName = new DefaultMethodNameBuilder()
                 .operationId("putResource")
                 .consumingsMediaType("application/*")
                 .build();
         assertEquals("putResourceConsumeApplicationAnySubType", methodName);
-    }
 
-    @Test
-    // operationId: putResource, consume: */json, produce: application/*
-    public void worksForMaskedResponseContentTypeAndMaskedRequestType() {
-        String methodName = new DefaultMethodNameBuilder()
+        methodName = new DefaultMethodNameBuilder()
                 .operationId("putResource")
                 .consumingsMediaType("*/json")
                 .producingMediaType("application/json")
                 .build();
         assertEquals("putResourceConsumeAnyTypeJsonProduceJson", methodName);
+
+        methodName = new DefaultMethodNameBuilder()
+                .operationId("putResource")
+                .consumingsMediaType("*/*")
+                .producingMediaType("application/json")
+                .build();
+        assertEquals("putResourceProduceJson", methodName);
     }
 }

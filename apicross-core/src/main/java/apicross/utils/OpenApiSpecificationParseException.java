@@ -3,7 +3,7 @@ package apicross.utils;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 
 public class OpenApiSpecificationParseException extends RuntimeException {
-    private SwaggerParseResult swaggerParseResult;
+    private final SwaggerParseResult swaggerParseResult;
 
     public OpenApiSpecificationParseException(String s, SwaggerParseResult swaggerParseResult) {
         super(s);
