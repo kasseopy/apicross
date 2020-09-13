@@ -38,4 +38,24 @@ public class DataModelResolverHandlesAllOfTests extends DataModelSchemaResolverT
         assertTrue(resolvedSchema.getProperty("c").isRequired());
         assertEquals("Test", resolvedSchema.getDescription());
     }
+
+    @Test
+    public void allOfInFieldWithOnlyExampleIsTreatedAsSimpleRef() throws IOException {
+        init("DataModelSchemaResolverTest.allOfSchemaTypeResolved.yaml");
+        Schema<?> schema = openAPIComponentsIndex.schemaByName("AllOfInField1");
+
+        ObjectDataModel resolvedSchema = (ObjectDataModel) resolver.resolve(schema);
+        assertEquals(1, resolvedSchema.getProperties().size());
+        assertEquals("AllOfSchemaTypePart1", resolvedSchema.getProperty("c").getType().getTypeName());
+    }
+
+    @Test
+    public void allOfInFieldWithOnlyDescriptionIsTreatedAsSimpleRef() throws IOException {
+        init("DataModelSchemaResolverTest.allOfSchemaTypeResolved.yaml");
+        Schema<?> schema = openAPIComponentsIndex.schemaByName("AllOfInField2");
+
+        ObjectDataModel resolvedSchema = (ObjectDataModel) resolver.resolve(schema);
+        assertEquals(1, resolvedSchema.getProperties().size());
+        assertEquals("AllOfSchemaTypePart1", resolvedSchema.getProperty("c").getType().getTypeName());
+    }
 }

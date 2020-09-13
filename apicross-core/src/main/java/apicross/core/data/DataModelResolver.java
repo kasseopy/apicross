@@ -16,6 +16,7 @@ public class DataModelResolver {
     private final PropertyNameResolver propertyNameResolver;
     private final OpenApiComponentsIndex openAPIComponentsIndex;
     private final Map<String, DataModel> by$refResolutionCache = new HashMap<>();
+    private final Stack<String> resolvingPropertiesStack = new Stack<>();
 
     public DataModelResolver(OpenApiComponentsIndex openAPIComponentsIndex, PropertyNameResolver propertyNameResolver) {
         this.openAPIComponentsIndex = openAPIComponentsIndex;
@@ -122,8 +123,16 @@ public class DataModelResolver {
         Set<ObjectDataModelProperty> allProperties = new LinkedHashSet<>();
         Set<String> requiredProperties = new HashSet<>();
         String description = null;
+        Set<ObjectDataModel> objectParts = new HashSet<>();
+        int countAnonymousObjectParts = 0;
         for (Schema<?> part : parts) {
             DataModel partTypeSchema = resolveMayBe$ref(part);
+            if (partTypeSchema.isObject()) {
+                objectParts.add((ObjectDataModel) partTypeSchema);
+            }
+            if (SchemaHelper.isAnonymousObjectSchemaWithoutProperties(part)) {
+                countAnonymousObjectParts++;
+            }
             description = part.getDescription();
             if (part.getRequired() != null) {
                 requiredProperties.addAll(part.getRequired());
@@ -133,6 +142,16 @@ public class DataModelResolver {
                 allProperties.addAll(partProperties);
             }
         }
+
+        if ((objectParts.size() == 1) && (parts.size() - countAnonymousObjectParts == 1) && !resolvingPropertiesStack.isEmpty()) {
+            // this magic is to handle constructions like this:
+            //   allOf:
+            //      - $ref: ...
+            //      - decription: ...
+            // i.e. when allOf is used to add mix-in to the referenced schema, for example - to override description or schema example data
+            return objectParts.iterator().next();
+        }
+
         for (ObjectDataModelProperty property : allProperties) {
             if (requiredProperties.contains(property.getName())) {
                 property.markRequired();
@@ -177,27 +196,32 @@ public class DataModelResolver {
         if (properties != null) {
             for (String apiPropertyName : properties.keySet()) {
                 Schema<?> propertySchema = properties.get(apiPropertyName);
-                DataModel propertyDataModel = resolveMayBe$ref(propertySchema);
-                String description = propertySchema.getDescription();
+                resolvingPropertiesStack.push(apiPropertyName);
+                try {
+                    DataModel propertyDataModel = resolveMayBe$ref(propertySchema);
+                    String description = propertySchema.getDescription();
 
-                if (description == null) {
-                    description = propertyDataModel.getSource().getDescription();
+                    if (description == null) {
+                        description = propertyDataModel.getSource().getDescription();
+                    }
+
+                    boolean propertyRequired;
+                    if (((Schema) schema).getRequired() != null) {
+                        propertyRequired = ((Schema) schema).getRequired().contains(apiPropertyName);
+                    } else {
+                        propertyRequired = false;
+                    }
+
+                    result.add(new ObjectDataModelProperty(
+                            apiPropertyName,
+                            propertyNameResolver.resolvePropertyName(propertySchema, apiPropertyName),
+                            description,
+                            propertyDataModel,
+                            schema, propertyRequired,
+                            BooleanUtils.isTrue(propertySchema.getDeprecated())));
+                } finally {
+                    resolvingPropertiesStack.pop();
                 }
-
-                boolean propertyRequired;
-                if (((Schema) schema).getRequired() != null) {
-                    propertyRequired = ((Schema) schema).getRequired().contains(apiPropertyName);
-                } else {
-                    propertyRequired = false;
-                }
-
-                result.add(new ObjectDataModelProperty(
-                        apiPropertyName,
-                        propertyNameResolver.resolvePropertyName(propertySchema, apiPropertyName),
-                        description,
-                        propertyDataModel,
-                        schema, propertyRequired,
-                        BooleanUtils.isTrue(propertySchema.getDeprecated())));
             }
         }
         return result;

@@ -12,7 +12,8 @@ public class SchemaHelper {
     }
 
     public static boolean isAnonymousObjectSchemaWithoutProperties(Schema<?> schema) {
-        return (schema instanceof ObjectSchema) && schema.getName() == null && schema.getProperties() == null;
+        return ((schema instanceof ObjectSchema) || ((schema.getClass().equals(Schema.class) && (schema.get$ref() == null))))
+                && schema.getName() == null && schema.getProperties() == null;
     }
 
     public static boolean isPrimitiveTypeSchema(Schema<?> schema) {

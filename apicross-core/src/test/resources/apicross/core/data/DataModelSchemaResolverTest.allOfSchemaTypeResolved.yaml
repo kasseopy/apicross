@@ -39,3 +39,22 @@ components:
             - a
             - c
           description: Test
+
+
+    AllOfInField1:
+      type: object
+      properties:
+        c:
+          allOf:
+            - $ref: '#/components/schemas/AllOfSchemaTypePart1'
+            - example:
+                a: '1'
+                b: '2'
+
+    AllOfInField2:
+      type: object
+      properties:
+        c:
+          allOf:
+            - $ref: '#/components/schemas/AllOfSchemaTypePart1'
+            - description: Test description
