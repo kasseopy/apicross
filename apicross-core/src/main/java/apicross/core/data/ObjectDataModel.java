@@ -146,14 +146,20 @@ public class ObjectDataModel extends DataModel {
         return inheritanceDiscriminatorValue;
     }
 
-    public void changeTypeName(String newTypeName) {
+    public void changeTypeName(String newTypeName, boolean clear) {
         this.typeName = newTypeName;
-        this.propertiesMap.clear();
-        this.typeLevelConstraints = new ObjectDataModelConstraints();
-        this.inheritanceChildModels = null;
-        this.inheritanceDiscriminatorPropertyName = null;
-        this.inheritanceParent = null;
-        this.additionalPropertiesDataModel = null;
+        if (clear) {
+            this.propertiesMap.clear();
+            this.typeLevelConstraints = new ObjectDataModelConstraints();
+            this.inheritanceChildModels = null;
+            this.inheritanceDiscriminatorPropertyName = null;
+            this.inheritanceParent = null;
+            this.additionalPropertiesDataModel = null;
+        }
+    }
+
+    public void changeTypeName(String newTypeName) {
+        changeTypeName(newTypeName, true);
     }
 
     public boolean isContainingOptionalProperties() {

@@ -130,6 +130,14 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
             postprocessInterfacesForDataModels(result, this.dataModelsInterfacesMap);
         }
 
+        String modelNameSuffix = getOptions().getModelClassNameSuffix();
+        if (modelNameSuffix != null && !modelNameSuffix.isEmpty()) {
+            addModelNameSuffix(modelNameSuffix, this.dataModelsExternalTypesMap, result);
+        }
+        String modelNamePrefix = getOptions().getModelClassNamePrefix();
+        if (modelNamePrefix != null && !modelNamePrefix.isEmpty()) {
+            addModelNamePrefix(modelNamePrefix, this.dataModelsExternalTypesMap, result);
+        }
         log.info("Resolving data models java classes completed!");
         return result;
     }
@@ -184,6 +192,23 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
             }
         }
     }
+
+    private void addModelNameSuffix(String modelNameSuffix, Map<String, String> dataModelsExternalTypesMap, Collection<ObjectDataModel> models) {
+        for (ObjectDataModel model : models) {
+            if (!dataModelsExternalTypesMap.containsKey(model.getTypeName())) {
+                model.changeTypeName(model.getTypeName() + modelNameSuffix, false);
+            }
+        }
+    }
+
+    private void addModelNamePrefix(String modelNamePrefix, Map<String, String> dataModelsExternalTypesMap, Collection<ObjectDataModel> models) {
+        for (ObjectDataModel model : models) {
+            if (!dataModelsExternalTypesMap.containsKey(model.getTypeName())) {
+                model.changeTypeName(modelNamePrefix + model.getTypeName(), false);
+            }
+        }
+    }
+
 
     @Override
     protected PropertyNameResolver setupPropertyNameResolver() {

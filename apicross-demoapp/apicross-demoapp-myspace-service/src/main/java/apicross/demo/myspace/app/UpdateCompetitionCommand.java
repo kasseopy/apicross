@@ -1,7 +1,7 @@
 package apicross.demo.myspace.app;
 
 import apicross.demo.common.utils.AbstractConditionalUpdateEntityCommand;
-import apicross.demo.myspace.app.dto.CmUpdateCompetitionRequest;
+import apicross.demo.myspace.app.dto.RpmCmUpdateCompetitionRequest;
 import apicross.demo.myspace.domain.Competition;
 import apicross.demo.myspace.domain.CompetitionParticipantRequirements;
 
@@ -9,9 +9,9 @@ import java.util.Collection;
 import java.util.Objects;
 
 public class UpdateCompetitionCommand extends AbstractConditionalUpdateEntityCommand<Competition> {
-    private CmUpdateCompetitionRequest request;
+    private RpmCmUpdateCompetitionRequest request;
 
-    public UpdateCompetitionCommand(CmUpdateCompetitionRequest request, Collection<String> requiredEtags) {
+    public UpdateCompetitionCommand(RpmCmUpdateCompetitionRequest request, Collection<String> requiredEtags) {
         super(requiredEtags);
         this.request = Objects.requireNonNull(request);
     }

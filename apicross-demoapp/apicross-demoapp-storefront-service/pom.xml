@@ -89,11 +89,12 @@
                             <generatorOptions implementation="apicross.java.SpringMvcCodeGeneratorOptions">
                                 <apiHandlerPackage>apicross.demoapp.storefront.ports.adapters.web</apiHandlerPackage>
                                 <apiModelPackage>apicross.demoapp.storefront.app.dto</apiModelPackage>
+                                <modelClassNameSuffix>RepresentationModel</modelClassNameSuffix>
                                 <writeSourcesTo>${project.build.directory}/generated-sources/java</writeSourcesTo>
                                 <enableApicrossJavaBeanValidationSupport>true</enableApicrossJavaBeanValidationSupport>
                                 <requestsHandlerMethodNameResolverClassName>apicross.demo.common.utils.DemoAppApiHandlerMethodNameResolver</requestsHandlerMethodNameResolverClassName>
                                 <dataModelsInterfacesMap>
-                                    <SfListCompetitionsResponse>apicross.demo.common.models.PaginatedData&lt;SfCompetitionsShortDescription&gt;</SfListCompetitionsResponse>
+                                    <SfListCompetitionsResponse>apicross.demo.common.models.PaginatedData&lt;SfCompetitionsShortDescriptionRepresentationModel&gt;</SfListCompetitionsResponse>
                                 </dataModelsInterfacesMap>
                                 <queryObjectsInterfacesMap>
                                     <listCompetitionWorks>apicross.demo.common.models.PageRequest</listCompetitionWorks>

@@ -1,9 +1,9 @@
 package apicross.demoapp.storefront.ports.adapters.web;
 
 import apicross.demoapp.storefront.app.VotesService;
-import apicross.demoapp.storefront.app.dto.VtCompetitionResultsResponse;
-import apicross.demoapp.storefront.app.dto.VtVoteRequest;
-import apicross.demoapp.storefront.app.dto.VtVotesResponse;
+import apicross.demoapp.storefront.app.dto.VtCompetitionResultsResponseRepresentationModel;
+import apicross.demoapp.storefront.app.dto.VtVoteRequestRepresentationModel;
+import apicross.demoapp.storefront.app.dto.VtVotesResponseRepresentationModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,18 +20,18 @@ public class VotesRequestsController implements VotesRequestsHandler {
     }
 
     @Override
-    public ResponseEntity<?> vote(String workId, HttpHeaders headers, VtVoteRequest requestEntity) {
+    public ResponseEntity<?> vote(String workId, HttpHeaders headers, VtVoteRequestRepresentationModel requestEntity) {
         votesService.voteForWork(workId, requestEntity);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Override
-    public ResponseEntity<VtVotesResponse> listVotes(String workId, HttpHeaders headers) {
-        return null;
+    public ResponseEntity<VtVotesResponseRepresentationModel> listVotes(String workId, HttpHeaders headers) {
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
-    public ResponseEntity<VtCompetitionResultsResponse> getContestResults(String competitionId, HttpHeaders headers) {
-        return null;
+    public ResponseEntity<VtCompetitionResultsResponseRepresentationModel> getContestResults(String competitionId, HttpHeaders headers) {
+        throw new UnsupportedOperationException("not implemented yet");
     }
 }

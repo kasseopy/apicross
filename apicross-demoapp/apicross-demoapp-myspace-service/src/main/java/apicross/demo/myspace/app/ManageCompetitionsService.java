@@ -2,7 +2,7 @@ package apicross.demo.myspace.app;
 
 import apicross.demo.common.utils.ValidationStages;
 import apicross.demo.common.models.QueryResultTransformer;
-import apicross.demo.myspace.app.dto.CmRegisterCompetitionRequest;
+import apicross.demo.myspace.app.dto.RpmCmRegisterCompetitionRequest;
 import apicross.demo.myspace.domain.Competition;
 import apicross.demo.myspace.domain.CompetitionRepository;
 import apicross.demo.common.utils.ConditionalUpdateEntityCommand;
@@ -34,7 +34,7 @@ public class ManageCompetitionsService {
     }
 
     @Transactional
-    public ResourceObjectWithTag<Competition> registerNewCompetition(@Valid CmRegisterCompetitionRequest command) {
+    public ResourceObjectWithTag<Competition> registerNewCompetition(@Valid RpmCmRegisterCompetitionRequest command) {
         Competition competition = competitionFactory.create(command, currentUserId());
         competitionRepository.add(competition);
         return new ResourceObjectWithTag<>(competition, competition::etag);

@@ -1,7 +1,7 @@
 package apicross.demo.myspace.app;
 
-import apicross.demo.myspace.app.dto.CmRegisterCompetitionRequest;
-import apicross.demo.myspace.app.dto.ParticipantRequirements;
+import apicross.demo.myspace.app.dto.RpmCmRegisterCompetitionRequest;
+import apicross.demo.myspace.app.dto.RpmParticipantRequirements;
 import apicross.demo.myspace.domain.Competition;
 import apicross.demo.myspace.domain.CompetitionParticipantRequirements;
 import org.springframework.stereotype.Component;
@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Component
 class CompetitionFactory {
-    Competition create(CmRegisterCompetitionRequest request, String userId) {
+    Competition create(RpmCmRegisterCompetitionRequest request, String userId) {
         return new Competition(UUID.randomUUID().toString(), userId)
                 .setTitle(request.getTitle())
                 .setDescription(request.getDescription())
@@ -21,8 +21,8 @@ class CompetitionFactory {
 
     }
 
-    private CompetitionParticipantRequirements createParticipantRequirements(CmRegisterCompetitionRequest request) {
-        ParticipantRequirements participantReqs = request.getParticipantReqs();
+    private CompetitionParticipantRequirements createParticipantRequirements(RpmCmRegisterCompetitionRequest request) {
+        RpmParticipantRequirements participantReqs = request.getParticipantReqs();
         return new CompetitionParticipantRequirements()
                 .setMaxAge(participantReqs.isMaxAgePresent() ? participantReqs.getMaxAge() : null)
                 .setMinAge(participantReqs.isMinAgePresent() ? participantReqs.getMinAge() : null);

@@ -20,41 +20,40 @@ public class StorefrontRequestsController implements StorefrontRequestsHandler {
     }
 
     @Override
-    public ResponseEntity<SfListCompetitionsResponse> listOpenCompetitions(ListOpenCompetitionsQuery queryParameters, HttpHeaders headers) {
-        PaginatedResult<SfCompetitionsShortDescription> result = storefrontService.search(queryParameters, new SfCompetitionShortDescriptionViewAssembler());
-        return ResponseEntity.ok(new SfListCompetitionsResponse()
+    public ResponseEntity<SfListCompetitionsResponseRepresentationModel> listOpenCompetitions(ListOpenCompetitionsQuery queryParameters, HttpHeaders headers) {
+        PaginatedResult<SfCompetitionsShortDescriptionRepresentationModel> result = storefrontService.search(queryParameters, new SfCompetitionShortDescriptionViewAssembler());
+        return ResponseEntity.ok(new SfListCompetitionsResponseRepresentationModel()
                 .page(result.getPage())
                 .pageContent(result.getContent()));
     }
 
     @Override
-    public ResponseEntity<SfGetCompetitionResponse> getCompetitionDescription(String competitionId, GetCompetitionDescriptionQuery queryParameters, HttpHeaders headers) {
-        return null;
+    public ResponseEntity<SfGetCompetitionResponseRepresentationModel> getCompetitionDescription(String competitionId, GetCompetitionDescriptionQuery queryParameters, HttpHeaders headers) {
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
-    public ResponseEntity<SfListCompetitionWorksResponse> listCompetitionWorks(String competitionId, ListCompetitionWorksQuery queryParameters, HttpHeaders headers) {
-        return null;
+    public ResponseEntity<SfListCompetitionWorksResponseRepresentationModel> listCompetitionWorks(String competitionId, ListCompetitionWorksQuery queryParameters, HttpHeaders headers) {
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
-
-    public ResponseEntity<SfGetCompetitionWorkResponse> getWork(String workId, GetWorkQuery queryParameters, HttpHeaders headers) {
-        return null;
+    public ResponseEntity<SfGetCompetitionWorkResponseRepresentationModel> getWork(String workId, GetWorkQuery queryParameters, HttpHeaders headers) {
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public ResponseEntity<InputStream> getWorkMediaProduceImageJpeg(String fileId, HttpHeaders headers) {
-        return null;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public ResponseEntity<InputStream> getWorkMediaProduceAudioMp4(String fileId, HttpHeaders headers) {
-        return null;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public ResponseEntity<InputStream> getWorkMediaProduceVideoMp4(String fileId, HttpHeaders headers) {
-        return null;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 }

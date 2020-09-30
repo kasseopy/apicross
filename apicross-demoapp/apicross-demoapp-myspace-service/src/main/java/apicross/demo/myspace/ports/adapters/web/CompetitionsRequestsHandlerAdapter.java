@@ -24,7 +24,7 @@ public class CompetitionsRequestsHandlerAdapter implements CompetitionsRequestsH
     }
 
     @Override
-    public ResponseEntity<?> registerNewCompetitionConsumeVndDemoappV1Json(HttpHeaders headers, CmRegisterCompetitionRequest requestEntity) {
+    public ResponseEntity<?> registerNewCompetitionConsumeVndDemoappV1Json(HttpHeaders headers, RpmCmRegisterCompetitionRequest requestEntity) {
         ResourceObjectWithTag<Competition> registerCompetitionResult = manageCompetitionsService.registerNewCompetition(requestEntity);
         UriComponents location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(registerCompetitionResult.getEntity().getId());
@@ -34,8 +34,8 @@ public class CompetitionsRequestsHandlerAdapter implements CompetitionsRequestsH
     }
 
     @Override
-    public ResponseEntity<CmListCompetitionsResponse> listCompetitionsProduceVndDemoappV1Json(HttpHeaders headers) {
-        CmListCompetitionsResponse response = manageCompetitionsService.listAllCompetitionsForCurrentUser(new ListCompetitionsResponseViewAssembler());
+    public ResponseEntity<RpmCmListCompetitionsResponse> listCompetitionsProduceVndDemoappV1Json(HttpHeaders headers) {
+        RpmCmListCompetitionsResponse response = manageCompetitionsService.listAllCompetitionsForCurrentUser(new ListCompetitionsResponseViewAssembler());
         return ResponseEntity.ok(response);
     }
 
@@ -45,15 +45,15 @@ public class CompetitionsRequestsHandlerAdapter implements CompetitionsRequestsH
     }
 
     @Override
-    public ResponseEntity<CmGetCompetitionResponse> getCompetitionDescriptionProduceVndDemoappV1Json(String competitionId, HttpHeaders headers) {
-        ResourceObjectWithTag<CmGetCompetitionResponse> response = manageCompetitionsService.getCompetition(competitionId, new GetCompetitionResponseViewAssembler());
+    public ResponseEntity<RpmCmGetCompetitionResponse> getCompetitionDescriptionProduceVndDemoappV1Json(String competitionId, HttpHeaders headers) {
+        ResourceObjectWithTag<RpmCmGetCompetitionResponse> response = manageCompetitionsService.getCompetition(competitionId, new GetCompetitionResponseViewAssembler());
         return ResponseEntity.status(HttpStatus.OK)
                 .eTag(response.getEntityTag())
                 .body(response.getEntity());
     }
 
     @Override
-    public ResponseEntity<?> updateCompetitionConsumeVndDemoappV1Json(String competitionId, HttpHeaders headers, CmUpdateCompetitionRequest requestEntity) {
+    public ResponseEntity<?> updateCompetitionConsumeVndDemoappV1Json(String competitionId, HttpHeaders headers, RpmCmUpdateCompetitionRequest requestEntity) {
         ConditionalUpdateResult updateResult = manageCompetitionsService.updateCompetition(competitionId,
                 new UpdateCompetitionCommand(requestEntity, headers.getIfMatch()));
         if (updateResult.isOk()) {
@@ -64,17 +64,17 @@ public class CompetitionsRequestsHandlerAdapter implements CompetitionsRequestsH
     }
 
     @Override
-    public ResponseEntity<?> openCompetitionConsumeVndDemoappV1Json(String competitionId, HttpHeaders headers, CmOpenCompetitionRequest requestEntity) {
-        return null;
+    public ResponseEntity<?> openCompetitionConsumeVndDemoappV1Json(String competitionId, HttpHeaders headers, RpmCmOpenCompetitionRequest requestEntity) {
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public ResponseEntity<?> startCompetitionVoting(String competitionId, HttpHeaders headers) {
-        return null;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public ResponseEntity<?> closeCompetition(String competitionId, HttpHeaders headers) {
-        return null;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 }

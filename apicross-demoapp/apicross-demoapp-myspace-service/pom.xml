@@ -117,17 +117,18 @@
                             <generatorOptions implementation="apicross.java.SpringMvcCodeGeneratorOptions">
                                 <apiHandlerPackage>apicross.demo.myspace.ports.adapters.web</apiHandlerPackage>
                                 <apiModelPackage>apicross.demo.myspace.app.dto</apiModelPackage>
+                                <modelClassNamePrefix>Rpm</modelClassNamePrefix>
                                 <writeSourcesTo>${project.build.directory}/generated-sources/java</writeSourcesTo>
                                 <propertyNameResolverClassName>apicross.demo.common.utils.DemoAppApiModelPropertyNameResolver</propertyNameResolverClassName>
                                 <enableApicrossJavaBeanValidationSupport>true</enableApicrossJavaBeanValidationSupport>
                                 <dataModelsInterfacesMap>
-                                    <NfListNotificationsResponse>apicross.demo.common.models.PaginatedData&lt;NfNotification&gt;</NfListNotificationsResponse>
-                                    <WpListWorksResponse>apicross.demo.common.models.PaginatedData&lt;WorkSummary&gt;</WpListWorksResponse>
-                                    <CmListCompetitionsResponse>apicross.demo.common.models.PaginatedData&lt;CmCompetitionShortDescription&gt;</CmListCompetitionsResponse>
+                                    <NfListNotificationsResponse>apicross.demo.common.models.PaginatedData&lt;RpmNfNotification&gt;</NfListNotificationsResponse>
+                                    <WpListWorksResponse>apicross.demo.common.models.PaginatedData&lt;RpmWorkSummary&gt;</WpListWorksResponse>
+                                    <CmListCompetitionsResponse>apicross.demo.common.models.PaginatedData&lt;RpmCmCompetitionShortDescription&gt;</CmListCompetitionsResponse>
                                 </dataModelsInterfacesMap>
                                 <dataModelsExternalTypesMap>
                                     <Page>apicross.demo.common.models.Page</Page>
-                                    <WpMultipartPlaceWorkRequest>apicross.demo.myspace.app.dto.WpMultipartPlaceWorkRequest</WpMultipartPlaceWorkRequest>
+                                    <WpMultipartPlaceWorkRequest>apicross.demo.myspace.app.dto.RpmWpMultipartPlaceWorkRequest</WpMultipartPlaceWorkRequest>
                                 </dataModelsExternalTypesMap>
                                 <skipTags>
                                     <param>Notifications</param>

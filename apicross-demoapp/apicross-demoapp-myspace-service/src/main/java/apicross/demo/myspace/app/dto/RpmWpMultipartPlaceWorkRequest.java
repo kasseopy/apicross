@@ -2,7 +2,7 @@ package apicross.demo.myspace.app.dto;
 
 import org.springframework.web.multipart.MultipartFile;
 
-public class WpMultipartPlaceWorkRequest extends WpPlaceWorkRequest {
+public class RpmWpMultipartPlaceWorkRequest extends RpmWpPlaceWorkRequest {
     private MultipartFile file1;
     private MultipartFile file2;
     private MultipartFile file3;
@@ -11,7 +11,7 @@ public class WpMultipartPlaceWorkRequest extends WpPlaceWorkRequest {
         return file1;
     }
 
-    public WpMultipartPlaceWorkRequest setFile1(MultipartFile file1) {
+    public RpmWpMultipartPlaceWorkRequest setFile1(MultipartFile file1) {
         this.file1 = file1;
         return this;
     }
@@ -20,7 +20,7 @@ public class WpMultipartPlaceWorkRequest extends WpPlaceWorkRequest {
         return file2;
     }
 
-    public WpMultipartPlaceWorkRequest setFile2(MultipartFile file2) {
+    public RpmWpMultipartPlaceWorkRequest setFile2(MultipartFile file2) {
         this.file2 = file2;
         return this;
     }
@@ -29,7 +29,7 @@ public class WpMultipartPlaceWorkRequest extends WpPlaceWorkRequest {
         return file3;
     }
 
-    public WpMultipartPlaceWorkRequest setFile3(MultipartFile file3) {
+    public RpmWpMultipartPlaceWorkRequest setFile3(MultipartFile file3) {
         this.file3 = file3;
         return this;
     }
