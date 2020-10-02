@@ -1,6 +1,5 @@
 package apicross.core.data;
 
-import apicross.java.DefaultJavaPropertyAndParameterNameResolver;
 import apicross.utils.OpenApiComponentsIndex;
 import apicross.utils.OpenApiSpecificationParser;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -15,6 +14,6 @@ public abstract class DataModelSchemaResolverTestsBase {
         OpenAPI openAPI = OpenApiSpecificationParser.parse(getClass()
                 .getResourceAsStream(apiSpecificationResource));
         openAPIComponentsIndex = new OpenApiComponentsIndex(openAPI);
-        resolver = new DataModelResolver(openAPIComponentsIndex, new DefaultJavaPropertyAndParameterNameResolver());
+        resolver = new DataModelResolver(openAPIComponentsIndex, (propertySchema, apiPropertyName) -> apiPropertyName);
     }
 }

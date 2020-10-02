@@ -15,7 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>itroadlabs.toolkits</groupId>
-            <artifactId>apicross-core</artifactId>
+            <artifactId>apicross-java</artifactId>
         </dependency>
 
         <dependency>

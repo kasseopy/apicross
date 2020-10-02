@@ -22,6 +22,7 @@
 
     <modules>
         <module>apicross-core</module>
+        <module>apicross-java</module>
         <module>apicross-support</module>
         <module>apicross-maven-plugin</module>
         <module>apicross-springmvc</module>
@@ -35,6 +36,11 @@
             <dependency>
                 <groupId>itroadlabs.toolkits</groupId>
                 <artifactId>apicross-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>itroadlabs.toolkits</groupId>
+                <artifactId>apicross-java</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

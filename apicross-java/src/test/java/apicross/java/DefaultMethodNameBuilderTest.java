@@ -1,5 +1,6 @@
 package apicross.java;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -11,7 +12,7 @@ public class DefaultMethodNameBuilderTest {
         String methodName = new DefaultMethodNameBuilder()
                 .operationId("getResource")
                 .build();
-        assertEquals("getResource", methodName);
+        Assert.assertEquals("getResource", methodName);
     }
 
     @Test
@@ -20,13 +21,13 @@ public class DefaultMethodNameBuilderTest {
                 .operationId("getResource")
                 .producingMediaType("text/plain")
                 .build();
-        assertEquals("getResourceProducePlainText", methodName);
+        Assert.assertEquals("getResourceProducePlainText", methodName);
 
         methodName = new DefaultMethodNameBuilder()
                 .operationId("getResource")
                 .producingMediaType("application/vnd.content.v1+json")
                 .build();
-        assertEquals("getResourceProduceVndContentV1Json", methodName);
+        Assert.assertEquals("getResourceProduceVndContentV1Json", methodName);
     }
 
     @Test
@@ -35,13 +36,13 @@ public class DefaultMethodNameBuilderTest {
                 .operationId("getResource")
                 .consumingsMediaType("text/plain")
                 .build();
-        assertEquals("getResourceConsumePlainText", methodName);
+        Assert.assertEquals("getResourceConsumePlainText", methodName);
 
         methodName = new DefaultMethodNameBuilder()
                 .operationId("putResource")
                 .consumingsMediaType("application/vnd.content.v1+json")
                 .build();
-        assertEquals("putResourceConsumeVndContentV1Json", methodName);
+        Assert.assertEquals("putResourceConsumeVndContentV1Json", methodName);
     }
 
     @Test
@@ -51,7 +52,7 @@ public class DefaultMethodNameBuilderTest {
                 .consumingsMediaType("application/x.query.v1+json")
                 .producingMediaType("application/x.content.v2+json")
                 .build();
-        assertEquals("searchConsumeXQueryV1JsonProduceXContentV2Json", methodName);
+        Assert.assertEquals("searchConsumeXQueryV1JsonProduceXContentV2Json", methodName);
     }
 
     @Test
@@ -61,7 +62,7 @@ public class DefaultMethodNameBuilderTest {
                     .operationId("getResource")
                     .producingMediaType("application/*")
                     .build();
-            fail();
+            Assert.fail();
         } catch (IllegalArgumentException e) {
             // it's ok
         }
@@ -71,7 +72,7 @@ public class DefaultMethodNameBuilderTest {
                     .operationId("getResource")
                     .producingMediaType("*/json")
                     .build();
-            fail();
+            Assert.fail();
         } catch (IllegalArgumentException e) {
             // it's ok
         }
@@ -81,7 +82,7 @@ public class DefaultMethodNameBuilderTest {
                     .operationId("getResource")
                     .producingMediaType("*/*")
                     .build();
-            fail();
+            Assert.fail();
         } catch (IllegalArgumentException e) {
             // it's ok
         }
@@ -93,20 +94,20 @@ public class DefaultMethodNameBuilderTest {
                 .operationId("putResource")
                 .consumingsMediaType("application/*")
                 .build();
-        assertEquals("putResourceConsumeApplicationAnySubType", methodName);
+        Assert.assertEquals("putResourceConsumeApplicationAnySubType", methodName);
 
         methodName = new DefaultMethodNameBuilder()
                 .operationId("putResource")
                 .consumingsMediaType("*/json")
                 .producingMediaType("application/json")
                 .build();
-        assertEquals("putResourceConsumeAnyTypeJsonProduceJson", methodName);
+        Assert.assertEquals("putResourceConsumeAnyTypeJsonProduceJson", methodName);
 
         methodName = new DefaultMethodNameBuilder()
                 .operationId("putResource")
                 .consumingsMediaType("*/*")
                 .producingMediaType("application/json")
                 .build();
-        assertEquals("putResourceProduceJson", methodName);
+        Assert.assertEquals("putResourceProduceJson", methodName);
     }
 }
