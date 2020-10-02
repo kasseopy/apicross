@@ -1,5 +1,9 @@
 package apicross.core.handler;
 
+import apicross.core.handler.model.HttpOperation;
+import apicross.core.handler.model.HttpOperationsGroup;
+import apicross.core.handler.model.RequestsHandler;
+import apicross.core.handler.model.RequestsHandlerMethod;
 import io.swagger.v3.oas.models.Paths;
 import lombok.extern.slf4j.Slf4j;
 

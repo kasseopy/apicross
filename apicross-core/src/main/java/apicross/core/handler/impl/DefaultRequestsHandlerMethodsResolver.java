@@ -1,8 +1,9 @@
 package apicross.core.handler.impl;
 
-import apicross.core.data.DataModel;
+import apicross.core.data.model.DataModel;
 import apicross.core.data.DataModelResolver;
 import apicross.core.handler.*;
+import apicross.core.handler.model.*;
 import apicross.utils.OpenApiComponentsIndex;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;

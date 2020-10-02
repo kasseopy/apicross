@@ -1,4 +1,4 @@
-package apicross.core.handler;
+package apicross.core.handler.model;
 
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;

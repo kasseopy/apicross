@@ -1,7 +1,7 @@
 package apicross.core;
 
-import apicross.core.data.DataModel;
-import apicross.core.data.ObjectDataModel;
+import apicross.core.data.model.DataModel;
+import apicross.core.data.model.ObjectDataModel;
 import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.BooleanUtils;
 

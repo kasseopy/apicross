@@ -1,7 +1,7 @@
 package apicross.java.springcloudopenfeign;
 
-import apicross.core.data.ObjectDataModel;
-import apicross.core.handler.RequestsHandler;
+import apicross.core.data.model.ObjectDataModel;
+import apicross.core.handler.model.RequestsHandler;
 import apicross.java.JavaCodeGenerator;
 import apicross.utils.HandlebarsFactory;
 import com.github.jknack.handlebars.Handlebars;

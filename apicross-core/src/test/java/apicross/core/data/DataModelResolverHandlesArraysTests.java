@@ -1,5 +1,7 @@
 package apicross.core.data;
 
+import apicross.core.data.model.ArrayDataModel;
+import apicross.core.data.model.PrimitiveDataModel;
 import io.swagger.v3.oas.models.media.Schema;
 import org.junit.Test;
 import org.junit.runner.RunWith;

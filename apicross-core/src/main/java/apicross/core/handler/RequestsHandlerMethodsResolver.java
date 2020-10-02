@@ -1,5 +1,8 @@
 package apicross.core.handler;
 
+import apicross.core.handler.model.HttpOperation;
+import apicross.core.handler.model.RequestsHandlerMethod;
+
 import javax.annotation.Nonnull;
 import java.util.List;
 

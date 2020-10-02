@@ -1,6 +1,6 @@
 package apicross.java;
 
-import apicross.core.handler.HttpOperationsGroup;
+import apicross.core.handler.model.HttpOperationsGroup;
 import apicross.core.handler.RequestsHandlerTypeNameResolver;
 import org.apache.commons.lang3.StringUtils;
 

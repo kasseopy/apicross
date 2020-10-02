@@ -1,4 +1,4 @@
-package apicross.core.data;
+package apicross.core.data.model;
 
 import com.google.common.base.Preconditions;
 

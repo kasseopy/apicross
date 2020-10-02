@@ -1,6 +1,8 @@
 package apicross.core.data;
 
 import apicross.CodeGeneratorException;
+import apicross.core.data.PropertyNameResolver;
+import apicross.core.data.model.*;
 import apicross.utils.OpenApiComponentsIndex;
 import apicross.utils.SchemaHelper;
 import com.google.common.base.Preconditions;

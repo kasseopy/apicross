@@ -1,6 +1,6 @@
 package apicross.core.handler.impl;
 
-import apicross.core.handler.HttpOperationsGroup;
+import apicross.core.handler.model.HttpOperationsGroup;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;

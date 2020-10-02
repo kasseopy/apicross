@@ -1,6 +1,7 @@
 package apicross.core.handler;
 
-import apicross.core.data.DataModel;
+import apicross.core.data.model.DataModel;
+import apicross.core.handler.model.*;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;

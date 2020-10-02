@@ -1,4 +1,4 @@
-package apicross.core.data;
+package apicross.core.data.model;
 
 import apicross.core.HasCustomModelAttributes;
 import io.swagger.v3.oas.models.media.ArraySchema;

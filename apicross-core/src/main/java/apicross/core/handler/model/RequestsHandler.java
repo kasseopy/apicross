@@ -1,4 +1,4 @@
-package apicross.core.handler;
+package apicross.core.handler.model;
 
 import apicross.core.HasCustomModelAttributes;
 

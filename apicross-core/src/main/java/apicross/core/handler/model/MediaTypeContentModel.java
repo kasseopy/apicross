@@ -1,7 +1,7 @@
-package apicross.core.handler;
+package apicross.core.handler.model;
 
 import apicross.core.HasCustomModelAttributes;
-import apicross.core.data.DataModel;
+import apicross.core.data.model.DataModel;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;

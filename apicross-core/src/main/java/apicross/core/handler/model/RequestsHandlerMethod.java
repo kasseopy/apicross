@@ -1,10 +1,10 @@
-package apicross.core.handler;
+package apicross.core.handler.model;
 
 import apicross.core.HasCustomModelAttributes;
 import io.swagger.v3.oas.models.Operation;
 import apicross.core.NamedDatum;
-import apicross.core.data.DataModel;
-import apicross.core.data.ObjectDataModel;
+import apicross.core.data.model.DataModel;
+import apicross.core.data.model.ObjectDataModel;
 
 import java.util.Map;
 import java.util.Set;

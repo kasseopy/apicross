@@ -1,10 +1,10 @@
 package apicross.core.handler.impl;
 
-import apicross.core.data.DataModel;
+import apicross.core.data.model.DataModel;
 import apicross.core.data.DataModelResolver;
-import apicross.core.handler.HttpOperation;
+import apicross.core.handler.model.HttpOperation;
 import apicross.core.handler.ParameterNameResolver;
-import apicross.core.handler.RequestsHandlerMethod;
+import apicross.core.handler.model.RequestsHandlerMethod;
 import apicross.core.handler.RequestsHandlerMethodNameResolver;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;

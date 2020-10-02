@@ -1,7 +1,7 @@
 package apicross.java.wiremock;
 
-import apicross.core.data.ObjectDataModel;
-import apicross.core.handler.RequestsHandler;
+import apicross.core.data.model.ObjectDataModel;
+import apicross.core.handler.model.RequestsHandler;
 import apicross.java.JavaCodeGenerator;
 import apicross.java.JavaCodeGeneratorOptions;
 import apicross.utils.HandlebarsFactory;

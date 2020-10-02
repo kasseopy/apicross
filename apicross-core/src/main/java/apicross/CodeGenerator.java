@@ -1,11 +1,12 @@
 package apicross;
 
 import apicross.core.data.DataModelResolver;
-import apicross.core.data.ObjectDataModel;
+import apicross.core.data.model.ObjectDataModel;
 import apicross.core.data.PropertyNameResolver;
 import apicross.core.handler.*;
 import apicross.core.handler.impl.DefaultRequestsHandlerMethodsResolver;
 import apicross.core.handler.impl.OperationFirstTagHttpOperationsGroupsResolver;
+import apicross.core.handler.model.RequestsHandler;
 import apicross.utils.OpenApiComponentsIndex;
 import apicross.utils.OpenApiSpecificationParser;
 import apicross.utils.SchemaHelper;

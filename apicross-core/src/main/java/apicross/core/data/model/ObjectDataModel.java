@@ -1,6 +1,7 @@
-package apicross.core.data;
+package apicross.core.data.model;
 
 import apicross.core.NamedDatum;
+import apicross.core.data.InlineModelTypeNameResolver;
 import io.swagger.v3.oas.models.media.Schema;
 
 import javax.annotation.Nullable;

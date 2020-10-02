@@ -1,4 +1,4 @@
-package apicross.core.data;
+package apicross.core.data.model;
 
 import io.swagger.v3.oas.models.media.Schema;
 import apicross.core.NamedDatum;
@@ -28,7 +28,7 @@ public class ObjectDataModelProperty extends NamedDatum {
         return schemaThatDeclaresThisProperty.getName();
     }
 
-    void markRequired() {
+    public void markRequired() {
         setOptional(false);
     }
 }

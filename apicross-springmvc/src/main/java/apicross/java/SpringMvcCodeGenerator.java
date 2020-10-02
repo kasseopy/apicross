@@ -1,12 +1,14 @@
 package apicross.java;
 
-import apicross.core.data.ObjectDataModel;
+import apicross.core.data.model.ObjectDataModel;
+import apicross.core.handler.model.RequestQueryParameter;
+import apicross.core.handler.model.RequestsHandler;
+import apicross.core.handler.model.RequestsHandlerMethod;
 import apicross.utils.HandlebarsFactory;
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
-import apicross.core.data.ObjectDataModelConstraints;
-import apicross.core.handler.*;
+import apicross.core.data.model.ObjectDataModelConstraints;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 

@@ -1,12 +1,12 @@
 package apicross.utils;
 
-import apicross.core.data.ArrayDataModel;
-import apicross.core.data.DataModel;
-import apicross.core.data.ObjectDataModel;
-import apicross.core.data.ObjectDataModelProperty;
-import apicross.core.handler.MediaTypeContentModel;
-import apicross.core.handler.RequestsHandler;
-import apicross.core.handler.RequestsHandlerMethod;
+import apicross.core.data.model.ArrayDataModel;
+import apicross.core.data.model.DataModel;
+import apicross.core.data.model.ObjectDataModel;
+import apicross.core.data.model.ObjectDataModelProperty;
+import apicross.core.handler.model.MediaTypeContentModel;
+import apicross.core.handler.model.RequestsHandler;
+import apicross.core.handler.model.RequestsHandlerMethod;
 
 import java.util.*;
 import java.util.stream.Collectors;

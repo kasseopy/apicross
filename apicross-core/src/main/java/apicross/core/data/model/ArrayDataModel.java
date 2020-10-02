@@ -1,5 +1,6 @@
-package apicross.core.data;
+package apicross.core.data.model;
 
+import apicross.core.data.InlineModelTypeNameResolver;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import org.apache.commons.lang3.BooleanUtils;
 

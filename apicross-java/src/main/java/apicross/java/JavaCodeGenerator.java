@@ -2,10 +2,13 @@ package apicross.java;
 
 import apicross.CodeGenerator;
 import apicross.CodeGeneratorException;
-import apicross.core.data.ArrayDataModel;
-import apicross.core.data.ObjectDataModel;
+import apicross.core.data.model.ArrayDataModel;
+import apicross.core.data.model.ObjectDataModel;
 import apicross.core.data.PropertyNameResolver;
 import apicross.core.handler.*;
+import apicross.core.handler.model.MediaTypeContentModel;
+import apicross.core.handler.model.RequestsHandler;
+import apicross.core.handler.model.RequestsHandlerMethod;
 import apicross.utils.PluginsHelper;
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
