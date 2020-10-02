@@ -1,9 +1,5 @@
 package apicross;
 
-import apicross.core.data.PropertyNameResolver;
-import apicross.core.handler.ParameterNameResolver;
-import apicross.core.handler.RequestsHandlerMethodNameResolver;
-import apicross.core.handler.RequestsHandlerTypeNameResolver;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,8 +17,4 @@ public class CodeGeneratorOptions {
     private String requestsHandlerTypeNameResolverClassName;
     private String propertyNameResolverClassName;
     private String parameterNameResolverClassName;
-    private RequestsHandlerMethodNameResolver requestsHandlerMethodNameResolver;
-    private RequestsHandlerTypeNameResolver requestsHandlerTypeNameResolver;
-    private ParameterNameResolver parameterNameResolver;
-    private PropertyNameResolver propertyNameResolver;
 }

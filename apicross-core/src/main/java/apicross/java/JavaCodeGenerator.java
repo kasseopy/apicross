@@ -209,49 +209,28 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         }
     }
 
-
     @Override
     protected PropertyNameResolver setupPropertyNameResolver() {
-        PropertyNameResolver propertyNameResolver = getOptions().getPropertyNameResolver();
-        if (propertyNameResolver != null) {
-            return propertyNameResolver;
-        } else {
-            return PluginsHelper.instantiatePlugin(getOptions().getPropertyNameResolverClassName(),
-                    DefaultJavaPropertyAndParameterNameResolver::new);
-        }
+        return PluginsHelper.instantiatePlugin(getOptions().getPropertyNameResolverClassName(),
+                DefaultJavaPropertyAndParameterNameResolver::new);
     }
 
     @Override
     protected RequestsHandlerMethodNameResolver setupRequestsHandlerMethodNameResolver() {
-        RequestsHandlerMethodNameResolver requestsHandlerMethodNameResolver = getOptions().getRequestsHandlerMethodNameResolver();
-        if (requestsHandlerMethodNameResolver != null) {
-            return requestsHandlerMethodNameResolver;
-        } else {
-            return PluginsHelper.instantiatePlugin(getOptions().getRequestsHandlerMethodNameResolverClassName(),
-                    DefaultJavaRequestsHandlerMethodNameResolver::new);
-        }
+        return PluginsHelper.instantiatePlugin(getOptions().getRequestsHandlerMethodNameResolverClassName(),
+                DefaultJavaRequestsHandlerMethodNameResolver::new);
     }
 
     @Override
     protected RequestsHandlerTypeNameResolver setupRequestsHandlerTypeNameResolver() {
-        RequestsHandlerTypeNameResolver requestsHandlerTypeNameResolver = getOptions().getRequestsHandlerTypeNameResolver();
-        if (requestsHandlerTypeNameResolver != null) {
-            return requestsHandlerTypeNameResolver;
-        } else {
-            return PluginsHelper.instantiatePlugin(getOptions().getRequestsHandlerTypeNameResolverClassName(),
-                    DefaultJavaRequestsHandlerTypeNameResolver::new);
-        }
+        return PluginsHelper.instantiatePlugin(getOptions().getRequestsHandlerTypeNameResolverClassName(),
+                DefaultJavaRequestsHandlerTypeNameResolver::new);
     }
 
     @Override
     protected ParameterNameResolver setupParameterNameResolver() {
-        ParameterNameResolver parameterNameResolver = getOptions().getParameterNameResolver();
-        if (parameterNameResolver != null) {
-            return parameterNameResolver;
-        } else {
-            return PluginsHelper.instantiatePlugin(getOptions().getParameterNameResolverClassName(),
-                    DefaultJavaPropertyAndParameterNameResolver::new);
-        }
+        return PluginsHelper.instantiatePlugin(getOptions().getParameterNameResolverClassName(),
+                DefaultJavaPropertyAndParameterNameResolver::new);
     }
 
     protected abstract Handlebars setupHandlebars();
