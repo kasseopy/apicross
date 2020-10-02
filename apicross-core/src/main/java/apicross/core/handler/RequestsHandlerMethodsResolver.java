@@ -8,5 +8,7 @@ import java.util.List;
 
 public interface RequestsHandlerMethodsResolver {
     @Nonnull
-    List<RequestsHandlerMethod> resolve(@Nonnull HttpOperation httpOperation, RequestsHandlerMethodNameResolver methodNameResolver);
+    List<RequestsHandlerMethod> resolve(@Nonnull HttpOperation httpOperation,
+                                        @Nonnull RequestsHandlerMethodNameResolver methodNameResolver,
+                                        @Nonnull ParameterNameResolver parameterNameResolver);
 }

@@ -30,6 +30,8 @@ public class RequestsHandlersResolverTest {
     private RequestsHandlerTypeNameResolver requestsHandlerTypeNameResolver;
     @Mock
     private RequestsHandlerMethodNameResolver requestsHandlerMethodNameResolver;
+    @Mock
+    private ParameterNameResolver parameterNameResolver;
 
     @Test
     public void test() {
@@ -47,7 +49,7 @@ public class RequestsHandlersResolverTest {
                     return Collections.singleton(testTagGroup);
                 });
 
-        when(requestsHandlerMethodsResolver.resolve(eq(new HttpOperation(requestsHandlerOperationUriPath, requestsHandlerOperationHttpMethod, fixtureOperation)), eq(requestsHandlerMethodNameResolver)))
+        when(requestsHandlerMethodsResolver.resolve(eq(new HttpOperation(requestsHandlerOperationUriPath, requestsHandlerOperationHttpMethod, fixtureOperation)), eq(requestsHandlerMethodNameResolver), eq(parameterNameResolver)))
                 .thenReturn(Collections.singletonList(new RequestsHandlerMethod()
                         .setHttpMethod(requestsHandlerOperationHttpMethod.name())
                         .setMethodName(requestsHandlerOperationId)
@@ -57,7 +59,7 @@ public class RequestsHandlersResolverTest {
 
         when(requestsHandlerTypeNameResolver.resolve(any(HttpOperationsGroup.class))).thenReturn(requestsHandlerTypeName);
 
-        RequestsHandlersResolver resolver = new RequestsHandlersResolver(grouper, requestsHandlerTypeNameResolver, requestsHandlerMethodNameResolver, requestsHandlerMethodsResolver);
+        RequestsHandlersResolver resolver = new RequestsHandlersResolver(grouper, requestsHandlerTypeNameResolver, requestsHandlerMethodNameResolver, requestsHandlerMethodsResolver, parameterNameResolver);
 
         List<RequestsHandler> handlers = resolver.resolve(new Paths());
 

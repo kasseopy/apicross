@@ -22,32 +22,32 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DefaultRequestsHandlerMethodsResolver implements RequestsHandlerMethodsResolver {
-    private OperationRequestAndResponseResolver operationRequestAndResponseResolver;
-    private DataModelResolver dataModelResolver;
-    private ParameterNameResolver parameterNameResolver;
+    private final OperationRequestAndResponseResolver operationRequestAndResponseResolver;
+    private final DataModelResolver dataModelResolver;
 
     public DefaultRequestsHandlerMethodsResolver(DataModelResolver dataModelResolver,
-                                                 OpenApiComponentsIndex apiComponentsIndex, ParameterNameResolver parameterNameResolver) {
-        this(new DefaultOperationRequestAndResponseResolver(apiComponentsIndex), dataModelResolver, parameterNameResolver);
+                                                 OpenApiComponentsIndex apiComponentsIndex) {
+        this(new DefaultOperationRequestAndResponseResolver(apiComponentsIndex), dataModelResolver);
     }
 
     DefaultRequestsHandlerMethodsResolver(OperationRequestAndResponseResolver operationRequestAndResponseResolver,
-                                          DataModelResolver dataModelResolver, ParameterNameResolver parameterNameResolver) {
+                                          DataModelResolver dataModelResolver) {
         this.operationRequestAndResponseResolver = operationRequestAndResponseResolver;
         this.dataModelResolver = dataModelResolver;
-        this.parameterNameResolver = parameterNameResolver;
     }
 
     @Nonnull
     @Override
-    public List<RequestsHandlerMethod> resolve(@Nonnull HttpOperation httpOperation, @Nonnull RequestsHandlerMethodNameResolver methodNameResolver) {
+    public List<RequestsHandlerMethod> resolve(@Nonnull HttpOperation httpOperation,
+                                               @Nonnull RequestsHandlerMethodNameResolver methodNameResolver,
+                                               @Nonnull ParameterNameResolver parameterNameResolver) {
         Operation operation = Objects.requireNonNull(httpOperation).getOperation();
 
         List<OperationRequestAndResponse> requestAndResponses = operationRequestAndResponseResolver.resolve(operation);
 
         List<Parameter> allParameters = operation.getParameters();
-        Set<RequestQueryParameter> queryParameters = allParameters == null ? Collections.emptySet() : resolveQueryStringParameters(allParameters);
-        Set<RequestUriPathParameter> pathParameters = allParameters == null ? Collections.emptySet() : resolvePathParameters(allParameters);
+        Set<RequestQueryParameter> queryParameters = allParameters == null ? Collections.emptySet() : resolveQueryStringParameters(allParameters, parameterNameResolver);
+        Set<RequestUriPathParameter> pathParameters = allParameters == null ? Collections.emptySet() : resolvePathParameters(allParameters, parameterNameResolver);
 
         return requestAndResponses.stream()
                 .map(operationInputOutput ->
@@ -99,7 +99,7 @@ public class DefaultRequestsHandlerMethodsResolver implements RequestsHandlerMet
         return new MediaTypeContentModel(dataModel, mediaType);
     }
 
-    private Set<RequestQueryParameter> resolveQueryStringParameters(List<Parameter> parameters) {
+    private Set<RequestQueryParameter> resolveQueryStringParameters(List<Parameter> parameters, ParameterNameResolver parameterNameResolver) {
         return parametersOf("query", parameters)
                 .map((Function<Parameter, RequestQueryParameter>) parameter -> {
                     Preconditions.checkArgument(parameter != null);
@@ -116,7 +116,7 @@ public class DefaultRequestsHandlerMethodsResolver implements RequestsHandlerMet
                 .collect(Collectors.toSet());
     }
 
-    private Set<RequestUriPathParameter> resolvePathParameters(List<Parameter> parameters) {
+    private Set<RequestUriPathParameter> resolvePathParameters(List<Parameter> parameters, ParameterNameResolver parameterNameResolver) {
         return parametersOf("path", parameters)
                 .map((Function<Parameter, RequestUriPathParameter>) parameter -> {
                     Preconditions.checkArgument(parameter != null);

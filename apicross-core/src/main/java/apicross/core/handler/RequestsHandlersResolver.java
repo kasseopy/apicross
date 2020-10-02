@@ -19,15 +19,18 @@ public class RequestsHandlersResolver {
     private final RequestsHandlerTypeNameResolver requestsHandlerTypeNameResolver;
     private final RequestsHandlerMethodNameResolver requestsHandlerMethodNameResolver;
     private final RequestsHandlerMethodsResolver requestsHandlerMethodsResolver;
+    private final ParameterNameResolver parameterNameResolver;
 
     public RequestsHandlersResolver(@Nonnull HttpOperationsGroupsResolver httpOperationsGroupsResolver,
                                     @Nonnull RequestsHandlerTypeNameResolver requestsHandlerTypeNameResolver,
                                     @Nonnull RequestsHandlerMethodNameResolver requestsHandlerMethodNameResolver,
-                                    @Nonnull RequestsHandlerMethodsResolver requestsHandlerMethodsResolver) {
+                                    @Nonnull RequestsHandlerMethodsResolver requestsHandlerMethodsResolver,
+                                    @Nonnull ParameterNameResolver parameterNameResolver) {
         this.httpOperationsGroupsResolver = Objects.requireNonNull(httpOperationsGroupsResolver);
         this.requestsHandlerTypeNameResolver = Objects.requireNonNull(requestsHandlerTypeNameResolver);
         this.requestsHandlerMethodNameResolver = Objects.requireNonNull(requestsHandlerMethodNameResolver);
         this.requestsHandlerMethodsResolver = Objects.requireNonNull(requestsHandlerMethodsResolver);
+        this.parameterNameResolver = parameterNameResolver;
     }
 
     public List<RequestsHandler> resolve(Paths paths) {
@@ -57,7 +60,7 @@ public class RequestsHandlersResolver {
         for (HttpOperation httpOperation : requestsHandlerOperationsGroup.operations()) {
             log.info("Resolve methods for: {}", httpOperation);
             List<RequestsHandlerMethod> operationMethods =
-                    requestsHandlerMethodsResolver.resolve(httpOperation, this.requestsHandlerMethodNameResolver);
+                    requestsHandlerMethodsResolver.resolve(httpOperation, this.requestsHandlerMethodNameResolver, this.parameterNameResolver);
             methods.addAll(operationMethods);
         }
         return methods;

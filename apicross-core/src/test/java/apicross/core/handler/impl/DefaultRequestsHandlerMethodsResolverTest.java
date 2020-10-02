@@ -38,13 +38,15 @@ public class DefaultRequestsHandlerMethodsResolverTest {
     private RequestsHandlerMethodNameResolver methodNameResolver;
     @Mock
     private DataModelResolver dataModelResolver;
+    @Mock
+    private ParameterNameResolver parameterNameResolver;
 
     @Before
     public void setUp() {
         when(methodNameResolver.resolve(any(Operation.class), anyString(), anyString(), anyString()))
                 .thenAnswer(invocationOnMock -> ((Operation) invocationOnMock.getArgument(0)).getOperationId());
 
-        resolver = new DefaultRequestsHandlerMethodsResolver(operationRequestAndResponseResolver, dataModelResolver, PARAMETER_NAME_RESOLVER);
+        resolver = new DefaultRequestsHandlerMethodsResolver(operationRequestAndResponseResolver, dataModelResolver);
     }
 
     @Test
@@ -67,7 +69,7 @@ public class DefaultRequestsHandlerMethodsResolverTest {
                     return DataModel.newObjectType(objectSchema, objectSchema.getName());
                 });
 
-        List<RequestsHandlerMethod> methods = resolver.resolve(new HttpOperation("/test", PathItem.HttpMethod.GET, operation), methodNameResolver);
+        List<RequestsHandlerMethod> methods = resolver.resolve(new HttpOperation("/test", PathItem.HttpMethod.GET, operation), methodNameResolver, parameterNameResolver);
 
         assertEquals(1, methods.size());
         RequestsHandlerMethod requestsHandlerMethod = methods.get(0);

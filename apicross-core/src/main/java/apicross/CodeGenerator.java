@@ -39,11 +39,6 @@ public abstract class CodeGenerator<T extends CodeGeneratorOptions> {
         return options;
     }
 
-    public void generate(T options) throws Exception {
-        setOptions(options);
-        generate();
-    }
-
     public void generate() throws IOException {
         Preconditions.checkState(this.specUrl != null, "specification url was not defined");
         log.info("Reading API specification from {}...", specUrl);
@@ -107,22 +102,24 @@ public abstract class CodeGenerator<T extends CodeGeneratorOptions> {
     }
 
     protected RequestsHandlersResolver configureRequestsHandlersResolver(OpenApiComponentsIndex openApiComponentsIndex, DataModelResolver dataModelResolver) {
+        ParameterNameResolver parameterNameResolver = setupParameterNameResolver();
         return new RequestsHandlersResolver(
                 setupHttpOperationsGroupingStrategy(),
                 setupRequestsHandlerTypeNameResolver(),
                 setupRequestsHandlerMethodNameResolver(),
-                setupRequestsHandlerMethodsResolver(openApiComponentsIndex, dataModelResolver));
+                setupRequestsHandlerMethodsResolver(openApiComponentsIndex, dataModelResolver), parameterNameResolver);
     }
-
-    protected abstract PropertyNameResolver setupPropertyNameResolver();
 
     protected HttpOperationsGroupsResolver setupHttpOperationsGroupingStrategy() {
         return new OperationFirstTagHttpOperationsGroupsResolver(this.getOptions().getGenerateOnlyTags(), this.getOptions().getSkipTags());
     }
 
-    protected RequestsHandlerMethodsResolver setupRequestsHandlerMethodsResolver(OpenApiComponentsIndex openApiComponentsIndex, DataModelResolver dataModelResolver) {
-        return new DefaultRequestsHandlerMethodsResolver(dataModelResolver, openApiComponentsIndex, setupParameterNameResolver());
+    protected RequestsHandlerMethodsResolver setupRequestsHandlerMethodsResolver(OpenApiComponentsIndex openApiComponentsIndex,
+                                                                                 DataModelResolver dataModelResolver) {
+        return new DefaultRequestsHandlerMethodsResolver(dataModelResolver, openApiComponentsIndex);
     }
+
+    protected abstract PropertyNameResolver setupPropertyNameResolver();
 
     protected abstract ParameterNameResolver setupParameterNameResolver();
 
