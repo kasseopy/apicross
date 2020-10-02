@@ -1,9 +1,11 @@
 package apicross.core.data.model;
 
+import apicross.core.data.DataModelResolver;
 import apicross.core.data.InlineModelTypeNameResolver;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import org.apache.commons.lang3.BooleanUtils;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -58,19 +60,6 @@ public class ArrayDataModel extends DataModel {
 
     public String getArrayItemTypeName() {
         return getItemsDataModel().getTypeName();
-    }
-
-    public List<ObjectDataModel> resolveInlineModels(InlineModelTypeNameResolver resolver) {
-        List<ObjectDataModel> result = new ArrayList<>();
-        DataModel arrayItemType = this.getItemsDataModel();
-        if (arrayItemType.isObject() && arrayItemType.getTypeName() == null) {
-            ObjectDataModel objectArrayItemType = (ObjectDataModel) arrayItemType;
-            objectArrayItemType.setTypeName(resolver.resolveArrayItemTypeName(this.getTypeName(), ""));
-            result.add(objectArrayItemType); // TODO: really needed?
-            List<ObjectDataModel> objectDataModels = objectArrayItemType.resolveInlineModels(resolver);
-            result.addAll(objectDataModels);
-        }
-        return result;
     }
 
     @Override

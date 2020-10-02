@@ -4,6 +4,7 @@ import apicross.core.NamedDatum;
 import apicross.core.data.InlineModelTypeNameResolver;
 import io.swagger.v3.oas.models.media.Schema;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
@@ -95,7 +96,7 @@ public class ObjectDataModel extends DataModel {
         return typeName;
     }
 
-    void setTypeName(String typeName) {
+    public void setTypeName(String typeName) {
         this.typeName = typeName;
     }
 
@@ -199,44 +200,6 @@ public class ObjectDataModel extends DataModel {
 
     public String getInheritanceParentTypeName() {
         return inheritanceParent != null ? inheritanceParent.getTypeName() : null;
-    }
-
-    public List<ObjectDataModel> resolveInlineModels(InlineModelTypeNameResolver resolver) {
-        List<ObjectDataModel> result = new ArrayList<>();
-        doResolveInlineModels(result, resolver, this);
-        return result;
-    }
-
-    private static void doResolveInlineModels(List<ObjectDataModel> collectTo, InlineModelTypeNameResolver resolver,
-                                              ObjectDataModel source) {
-        Collection<ObjectDataModelProperty> properties = source.propertiesMap.values();
-        for (ObjectDataModelProperty property : properties) {
-            DataModel type = property.getType();
-            if (type.isObject() && type.getTypeName() == null) {
-                ObjectDataModel propertyType = (ObjectDataModel) type;
-                propertyType.typeName = resolver.resolveTypeName(source.typeName, property.getResolvedName());
-                collectTo.add(propertyType);
-                doResolveInlineModels(collectTo, resolver, propertyType);
-            } else if (type.isArray()) {
-                ArrayDataModel propertyType = (ArrayDataModel) type;
-                DataModel arrayItemType = propertyType.getItemsDataModel();
-                if (arrayItemType.isObject() && arrayItemType.getTypeName() == null) {
-                    ObjectDataModel objectArrayItemType = (ObjectDataModel) arrayItemType;
-                    objectArrayItemType.setTypeName(resolver.resolveArrayItemTypeName(source.typeName, property.getResolvedName()));
-                    collectTo.add(objectArrayItemType);
-                    doResolveInlineModels(collectTo, resolver, objectArrayItemType);
-                }
-            }
-        }
-        DataModel additionalPropertiesType = source.getAdditionalPropertiesDataModel();
-        if (additionalPropertiesType != null && additionalPropertiesType.isObject()) {
-            if (additionalPropertiesType.getTypeName() == null) {
-                ObjectDataModel objectType = (ObjectDataModel) additionalPropertiesType;
-                objectType.typeName = resolver.resolveTypeName(source.typeName, "additionalProperties");
-                collectTo.add(objectType);
-                doResolveInlineModels(collectTo, resolver, objectType);
-            }
-        }
     }
 
     @Override

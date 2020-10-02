@@ -22,7 +22,7 @@ public class DataModelResolverHandlesInlineModelsTests extends DataModelSchemaRe
         Schema<?> schema = openAPIComponentsIndex.schemaByName("Model1");
 
         ObjectDataModel resolvedSchema = (ObjectDataModel) resolver.resolve(schema);
-        List<ObjectDataModel> inlineModels = resolvedSchema.resolveInlineModels((typeName, propertyName) -> typeName + "_" + propertyName);
+        List<ObjectDataModel> inlineModels = DataModelResolver.resolveInlineModels((typeName, propertyName) -> typeName + "_" + propertyName, resolvedSchema);
         assertEquals(2, inlineModels.size());
         Map<String, ObjectDataModel> inlineModelsMap = inlineModels.stream()
                 .collect(Collectors.toMap(ObjectDataModel::getTypeName, dataModelSchema -> dataModelSchema));
@@ -38,7 +38,7 @@ public class DataModelResolverHandlesInlineModelsTests extends DataModelSchemaRe
         Schema<?> schema = openAPIComponentsIndex.schemaByName("Model3");
 
         ObjectDataModel resolvedSchema = (ObjectDataModel) resolver.resolve(schema);
-        List<ObjectDataModel> inlineModels = resolvedSchema.resolveInlineModels((typeName, propertyName) -> typeName + "_" + propertyName);
+        List<ObjectDataModel> inlineModels = DataModelResolver.resolveInlineModels((typeName, propertyName) -> typeName + "_" + propertyName, resolvedSchema);
         Map<String, ObjectDataModel> inlineModelsMap = inlineModels.stream()
                 .collect(Collectors.toMap(ObjectDataModel::getTypeName, dataModelSchema -> dataModelSchema));
         ObjectDataModel model3_p1 = inlineModelsMap.get("Model3_p1");
@@ -53,7 +53,7 @@ public class DataModelResolverHandlesInlineModelsTests extends DataModelSchemaRe
         Schema<?> schema = openAPIComponentsIndex.schemaByName("Model4");
 
         ObjectDataModel resolvedSchema = (ObjectDataModel) resolver.resolve(schema);
-        List<ObjectDataModel> inlineModels = resolvedSchema.resolveInlineModels((typeName, propertyName) -> typeName + "_" + propertyName);
+        List<ObjectDataModel> inlineModels = DataModelResolver.resolveInlineModels((typeName, propertyName) -> typeName + "_" + propertyName, resolvedSchema);
         Map<String, ObjectDataModel> inlineModelsMap = inlineModels.stream()
                 .collect(Collectors.toMap(ObjectDataModel::getTypeName, dataModelSchema -> dataModelSchema));
         ObjectDataModel model3_p1 = inlineModelsMap.get("Model4_additionalProperties");
@@ -66,7 +66,7 @@ public class DataModelResolverHandlesInlineModelsTests extends DataModelSchemaRe
         Schema<?> schema = openAPIComponentsIndex.schemaByName("Model5");
 
         ObjectDataModel resolvedSchema = (ObjectDataModel) resolver.resolve(schema);
-        List<ObjectDataModel> inlineModels = resolvedSchema.resolveInlineModels((typeName, propertyName) -> typeName + "_" + propertyName);
+        List<ObjectDataModel> inlineModels = DataModelResolver.resolveInlineModels((typeName, propertyName) -> typeName + "_" + propertyName, resolvedSchema);
         Map<String, ObjectDataModel> inlineModelsMap = inlineModels.stream()
                 .collect(Collectors.toMap(ObjectDataModel::getTypeName, dataModelSchema -> dataModelSchema));
         ObjectDataModel model5_array = inlineModelsMap.get("Model5_arrayItem");

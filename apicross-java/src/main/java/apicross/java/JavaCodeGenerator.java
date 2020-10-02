@@ -2,6 +2,7 @@ package apicross.java;
 
 import apicross.CodeGenerator;
 import apicross.CodeGeneratorException;
+import apicross.core.data.DataModelResolver;
 import apicross.core.data.model.ArrayDataModel;
 import apicross.core.data.model.ObjectDataModel;
 import apicross.core.data.PropertyNameResolver;
@@ -145,24 +146,24 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         return result;
     }
 
-    private void resolveInlineModels(List<ObjectDataModel> result, List<RequestsHandler> handlers) {
+    private static void resolveInlineModels(List<ObjectDataModel> result, List<RequestsHandler> handlers) {
         for (RequestsHandler handler : handlers) {
             for (RequestsHandlerMethod method : handler.getMethods()) {
                 if (method.getRequestBody() != null && method.getRequestBody().getContent().isArray()) {
                     ArrayDataModel requestBodyModel = (ArrayDataModel) method.getRequestBody().getContent();
-                    List<ObjectDataModel> objectDataModels = requestBodyModel.resolveInlineModels((typeName, propertyResolvedName) -> typeName + StringUtils.capitalize(propertyResolvedName));
+                    List<ObjectDataModel> objectDataModels = DataModelResolver.resolveInlineModels((typeName, propertyResolvedName) -> typeName + StringUtils.capitalize(propertyResolvedName), requestBodyModel);
                     result.addAll(objectDataModels);
                 }
             }
         }
     }
 
-    private void resolveInlineModels(List<ObjectDataModel> result, Collection<ObjectDataModel> schemas) {
+    private static void resolveInlineModels(List<ObjectDataModel> result, Collection<ObjectDataModel> schemas) {
         for (ObjectDataModel model : schemas) {
             result.add(model);
             List<ObjectDataModel> inlineModels =
-                    model.resolveInlineModels((typeName, propertyName) -> typeName + StringUtils.capitalize(propertyName));
-            if (inlineModels != null && !inlineModels.isEmpty()) {
+                    DataModelResolver.resolveInlineModels((typeName, propertyName) -> typeName + StringUtils.capitalize(propertyName), model);
+            if (!inlineModels.isEmpty()) {
                 result.addAll(inlineModels);
                 resolveInlineModels(result, inlineModels);
             }
