@@ -1,10 +1,8 @@
 package apicross.core.data;
 
-import apicross.CodeGeneratorException;
 import apicross.core.data.model.*;
 import apicross.utils.OpenApiComponentsIndex;
 import apicross.utils.SchemaHelper;
-import com.google.common.base.Preconditions;
 import io.swagger.v3.oas.models.media.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
@@ -101,6 +99,7 @@ public class DataModelResolver {
         if (schema$ref != null) {
             by$refResolutionCache.put(schema$ref, dataModel);
         }
+
         return dataModel;
     }
 
@@ -122,6 +121,7 @@ public class DataModelResolver {
             } else if (((ComposedSchema) schema).getOneOf() != null) {
                 return resolveOneOfSchema(schema);
             } else if ((((ComposedSchema) schema).getAnyOf() != null)) {
+                // TODO: how to resolve anyOf ???
                 return DataModel.newPrimitiveType(schema);
             }
         } else if (schema instanceof MapSchema) {
@@ -130,11 +130,11 @@ public class DataModelResolver {
             return resolveObjectSchema(schema);
         }
 
-        throw new CodeGeneratorException("Unsupported schema: " + schema);
+        throw new DataModelResolverException("Unsupported schema: " + schema);
     }
 
     private DataModel resolveMapSchema(Schema<?> schema) {
-        DataModel additionalPropertiesDataModel = null;
+        DataModel additionalPropertiesDataModel;
 
         Object additionalProperties = schema.getAdditionalProperties();
 
@@ -143,6 +143,8 @@ public class DataModelResolver {
             additionalPropertiesDataModel = resolveMayBe$ref(additionalPropertiesSchema);
         } else if (additionalProperties instanceof Boolean) {
             additionalPropertiesDataModel = DataModel.anyType();
+        } else {
+            throw new DataModelResolverException("Only 'additionalProperties : true' and 'additionalProperties: <schema>' supported");
         }
 
         return resolveObjectSchema(schema, additionalPropertiesDataModel);
@@ -151,8 +153,10 @@ public class DataModelResolver {
     private DataModel resolveOneOfSchema(Schema<?> schema) {
         List<Schema> parts = ((ComposedSchema) schema).getOneOf();
         Map<String, ObjectDataModel> childTypes = new HashMap<>();
-        for (Schema part : parts) {
-            Preconditions.checkArgument(part.get$ref() != null, "oneOf only with $ref supported");
+        for (Schema<?> part : parts) {
+            if (part.get$ref() == null) {
+                throw new DataModelResolverException("oneOf only with $ref items supported");
+            }
             DataModel childDataModel = resolveFrom$ref(part.get$ref());
             if (childDataModel instanceof ObjectDataModel) {
                 childTypes.put(childDataModel.getTypeName(), (ObjectDataModel) childDataModel);
@@ -175,81 +179,63 @@ public class DataModelResolver {
     }
 
     private DataModel resolveAllOfSchema(ComposedSchema schema) {
-        List<Schema> parts = schema.getAllOf();
+        List<Schema> partsSchemas = schema.getAllOf();
+
         Set<ObjectDataModelProperty> allProperties = new LinkedHashSet<>();
         Set<String> requiredProperties = new HashSet<>();
-        String description = null;
-        Set<ObjectDataModel> objectParts = new LinkedHashSet<>();
-        Set<PrimitiveDataModel> primitiveParts = new LinkedHashSet<>();
-        int countAnonymousParts = 0;
+        Set<ObjectDataModel> objectPartsModels = new LinkedHashSet<>();
+        Set<PrimitiveDataModel> primitivePartsModels = new LinkedHashSet<>();
+
+        int anonymousPartsCount = 0;
         Schema<?> anonymousPart = null;
-        for (Schema<?> part : parts) {
-            DataModel partTypeSchema = resolveMayBe$ref(part);
+        String description = null;
+
+        for (Schema<?> partSchema : partsSchemas) {
+            DataModel partTypeSchema = resolveMayBe$ref(partSchema);
             if (partTypeSchema.isObject()) {
-                objectParts.add((ObjectDataModel) partTypeSchema);
+                ObjectDataModel objectDataModel = (ObjectDataModel) partTypeSchema;
+                objectPartsModels.add(objectDataModel);
+
+                if (partSchema.getRequired() != null) {
+                    requiredProperties.addAll(partSchema.getRequired());
+                }
+
+                allProperties.addAll(objectDataModel.getProperties());
             }
+
             if (partTypeSchema.isPrimitive()) {
-                primitiveParts.add((PrimitiveDataModel) partTypeSchema);
+                primitivePartsModels.add((PrimitiveDataModel) partTypeSchema);
             }
-            if (SchemaHelper.isPrimitiveLikeSchema(part)) {
-                countAnonymousParts++;
-                anonymousPart = part;
+
+            if (SchemaHelper.isPrimitiveLikeSchema(partSchema)) { // only schemas to mix-in constraints, e.g. 'nullable: true' or 'minLength: 10'
+                anonymousPartsCount++;
+                anonymousPart = partSchema;
             }
-            description = part.getDescription();
-            if (part.getRequired() != null) {
-                requiredProperties.addAll(part.getRequired());
-            }
-            if (partTypeSchema instanceof ObjectDataModel) {
-                Set<ObjectDataModelProperty> partProperties = ((ObjectDataModel) partTypeSchema).getProperties();
-                allProperties.addAll(partProperties);
+
+            if (partSchema.getDescription() != null) {
+                description = partSchema.getDescription();
             }
         }
 
-        boolean inFieldResolutionContext = !resolvingPropertiesStack.isEmpty();
-        if ((objectParts.size() == 1) && (countAnonymousParts == 1) && inFieldResolutionContext) {
+        if (inFieldResolutionContext() && anonymousPartsCount == 1) {
             // this magic is to handle constructions like this:
             // property1:
             //   allOf:
             //      - $ref: ...
             //      - description: ...
-            // i.e. when allOf is used to add mix-in to the referenced schema, for example - to override description or schema example data
-            ObjectDataModel objectDataModel = objectParts.iterator().next();
-            if (anonymousPart.getDescription() != null) {
-                objectDataModel.getSource().setDescription(anonymousPart.getDescription());
+            //        nullable: true
+            // i.e. when allOf is used to add mix-in to the referenced schema, for example - to override description or schema constraints
+            if (objectPartsModels.size() == 1) {
+                ObjectDataModel objectDataModel = objectPartsModels.iterator().next();
+                mixInObjectDataModelConstraints(anonymousPart, objectDataModel.getSource());
+                return objectDataModel;
             }
-            if (anonymousPart.getMinProperties() != null) {
-                objectDataModel.getSource().setMinProperties(anonymousPart.getMinProperties());
-            }
-            if (anonymousPart.getMaxProperties() != null) {
-                objectDataModel.getSource().setMaxProperties(anonymousPart.getMaxProperties());
-            }
-            if (anonymousPart.getNullable() != null) {
-                objectDataModel.getSource().setNullable(anonymousPart.getNullable());
-            }
-            return objectDataModel;
-        }
 
-        if (primitiveParts.size() >= 1 && countAnonymousParts == 1 && inFieldResolutionContext) {
-            PrimitiveDataModel primitiveDataModel = primitiveParts.iterator().next();
-            if (anonymousPart.getDescription() != null) {
-                primitiveDataModel.getSource().setDescription(anonymousPart.getDescription());
+            if (primitivePartsModels.size() >= 1) {
+                PrimitiveDataModel primitiveDataModel = primitivePartsModels.iterator().next();
+                mixInPrimitiveDataModelConstraints(anonymousPart, primitiveDataModel.getSource());
+                return primitiveDataModel;
             }
-            if (anonymousPart.getMaximum() != null) {
-                primitiveDataModel.getSource().setMaximum(anonymousPart.getMaximum());
-            }
-            if (anonymousPart.getMinimum() != null) {
-                primitiveDataModel.getSource().setMinimum(anonymousPart.getMinimum());
-            }
-            if (anonymousPart.getMaxLength() != null) {
-                primitiveDataModel.getSource().setMaxLength(anonymousPart.getMaxLength());
-            }
-            if (anonymousPart.getMinLength() != null) {
-                primitiveDataModel.getSource().setMinLength(anonymousPart.getMinLength());
-            }
-            if (anonymousPart.getNullable() != null) {
-                primitiveDataModel.getSource().setNullable(anonymousPart.getNullable());
-            }
-            return primitiveDataModel;
         }
 
         for (ObjectDataModelProperty property : allProperties) {
@@ -257,8 +243,64 @@ public class DataModelResolver {
                 property.markRequired();
             }
         }
-        schema.setDescription(description);
+
+        if (description != null) {
+            schema.setDescription(description);
+        }
+
         return DataModel.newObjectType(schema, schema.getName(), allProperties, null);
+    }
+
+    private void mixInPrimitiveDataModelConstraints(Schema<?> source, Schema<?> target) {
+        if (source.getDescription() != null) {
+            target.setDescription(source.getDescription());
+        }
+        if (source.getMaximum() != null) {
+            target.setMaximum(source.getMaximum());
+        }
+        if (source.getMinimum() != null) {
+            target.setMinimum(source.getMinimum());
+        }
+        if (source.getMaxLength() != null) {
+            target.setMaxLength(source.getMaxLength());
+        }
+        if (source.getMinLength() != null) {
+            target.setMinLength(source.getMinLength());
+        }
+        if (source.getNullable() != null) {
+            target.setNullable(source.getNullable());
+        }
+        if (source.getPattern() != null) {
+            target.setPattern(source.getPattern());
+        }
+        if (source.getExclusiveMaximum() != null) {
+            target.setExclusiveMaximum(source.getExclusiveMaximum());
+        }
+        if (source.getExclusiveMinimum() != null) {
+            target.setExclusiveMinimum(source.getExclusiveMinimum());
+        }
+//        if (source.getEnum() != null) {
+//            target.setEnum(source.getEnum());
+//        }
+    }
+
+    private void mixInObjectDataModelConstraints(Schema<?> source, Schema<?> target) {
+        if (source.getDescription() != null) {
+            target.setDescription(source.getDescription());
+        }
+        if (source.getMinProperties() != null) {
+            target.setMinProperties(source.getMinProperties());
+        }
+        if (source.getMaxProperties() != null) {
+            target.setMaxProperties(source.getMaxProperties());
+        }
+        if (source.getNullable() != null) {
+            target.setNullable(source.getNullable());
+        }
+    }
+
+    private boolean inFieldResolutionContext() {
+        return !resolvingPropertiesStack.isEmpty();
     }
 
     private ArrayDataModel resolveArraySchema(ArraySchema schema) {
@@ -292,8 +334,8 @@ public class DataModelResolver {
                     }
 
                     boolean propertyRequired;
-                    if (((Schema) schema).getRequired() != null) {
-                        propertyRequired = ((Schema) schema).getRequired().contains(apiPropertyName);
+                    if (schema.getRequired() != null) {
+                        propertyRequired = schema.getRequired().contains(apiPropertyName);
                     } else {
                         propertyRequired = false;
                     }
@@ -321,9 +363,5 @@ public class DataModelResolver {
     private DataModel resolveFrom$ref(String $ref) {
         Schema<?> targetSchema = openAPIComponentsIndex.schemaBy$ref($ref);
         return resolve(targetSchema);
-    }
-
-    private boolean isObjectSchema(Schema<?> schema) {
-        return schema != null && ((schema instanceof ObjectSchema) || schema.getProperties() != null);
     }
 }
