@@ -11,11 +11,6 @@ public class SchemaHelper {
         return !((schema instanceof ArraySchema) || SchemaHelper.isPrimitiveTypeSchema(schema));
     }
 
-    public static boolean isAnonymousObjectSchemaWithoutProperties(Schema<?> schema) {
-        return ((schema instanceof ObjectSchema) || ((schema.getClass().equals(Schema.class) && (schema.get$ref() == null))))
-                && schema.getName() == null && schema.getProperties() == null;
-    }
-
     public static boolean isPrimitiveTypeSchema(Schema<?> schema) {
         return (schema instanceof StringSchema) || (schema instanceof BooleanSchema)
                 || (schema instanceof NumberSchema) || (schema instanceof IntegerSchema)
@@ -27,5 +22,14 @@ public class SchemaHelper {
     @Nonnull
     public static String schemaNameFromRef(@Nonnull String $ref) {
         return Objects.requireNonNull($ref).substring(StringUtils.lastIndexOf($ref, "/") + 1);
+    }
+
+    public static boolean isPrimitiveLikeSchema(Schema<?> schema) {
+        return schema.getClass().equals(Schema.class)
+                && schema.get$ref() == null
+                && schema.getProperties() == null
+                && schema.getRequired() == null
+                && schema.getMinProperties() == null
+                && schema.getMaxProperties() == null;
     }
 }

@@ -1,7 +1,6 @@
 package apicross.core.data;
 
 import apicross.CodeGeneratorException;
-import apicross.core.data.PropertyNameResolver;
 import apicross.core.data.model.*;
 import apicross.utils.OpenApiComponentsIndex;
 import apicross.utils.SchemaHelper;
@@ -113,13 +112,13 @@ public class DataModelResolver {
 
         if (schema$ref != null) {
             return resolveFrom$ref(schema$ref);
-        } else if (SchemaHelper.isPrimitiveTypeSchema(schema) || SchemaHelper.isAnonymousObjectSchemaWithoutProperties(schema)) {
+        } else if (SchemaHelper.isPrimitiveTypeSchema(schema) || SchemaHelper.isPrimitiveLikeSchema(schema)) {
             return DataModel.newPrimitiveType(schema);
         } else if (schema instanceof ArraySchema) {
             return resolveArraySchema((ArraySchema) schema);
         } else if (schema instanceof ComposedSchema) {
             if (((ComposedSchema) schema).getAllOf() != null) {
-                return resolveAllOfSchema(schema);
+                return resolveAllOfSchema((ComposedSchema) schema);
             } else if (((ComposedSchema) schema).getOneOf() != null) {
                 return resolveOneOfSchema(schema);
             } else if ((((ComposedSchema) schema).getAnyOf() != null)) {
@@ -175,20 +174,26 @@ public class DataModelResolver {
                 childTypes, discriminator.getPropertyName(), mappingKeysByTypes);
     }
 
-    private DataModel resolveAllOfSchema(Schema<?> schema) {
-        List<Schema> parts = ((ComposedSchema) schema).getAllOf();
+    private DataModel resolveAllOfSchema(ComposedSchema schema) {
+        List<Schema> parts = schema.getAllOf();
         Set<ObjectDataModelProperty> allProperties = new LinkedHashSet<>();
         Set<String> requiredProperties = new HashSet<>();
         String description = null;
-        Set<ObjectDataModel> objectParts = new HashSet<>();
-        int countAnonymousObjectParts = 0;
+        Set<ObjectDataModel> objectParts = new LinkedHashSet<>();
+        Set<PrimitiveDataModel> primitiveParts = new LinkedHashSet<>();
+        int countAnonymousParts = 0;
+        Schema<?> anonymousPart = null;
         for (Schema<?> part : parts) {
             DataModel partTypeSchema = resolveMayBe$ref(part);
             if (partTypeSchema.isObject()) {
                 objectParts.add((ObjectDataModel) partTypeSchema);
             }
-            if (SchemaHelper.isAnonymousObjectSchemaWithoutProperties(part)) {
-                countAnonymousObjectParts++;
+            if (partTypeSchema.isPrimitive()) {
+                primitiveParts.add((PrimitiveDataModel) partTypeSchema);
+            }
+            if (SchemaHelper.isPrimitiveLikeSchema(part)) {
+                countAnonymousParts++;
+                anonymousPart = part;
             }
             description = part.getDescription();
             if (part.getRequired() != null) {
@@ -200,13 +205,51 @@ public class DataModelResolver {
             }
         }
 
-        if ((objectParts.size() == 1) && (parts.size() - countAnonymousObjectParts == 1) && !resolvingPropertiesStack.isEmpty()) {
+        boolean inFieldResolutionContext = !resolvingPropertiesStack.isEmpty();
+        if ((objectParts.size() == 1) && (countAnonymousParts == 1) && inFieldResolutionContext) {
             // this magic is to handle constructions like this:
+            // property1:
             //   allOf:
             //      - $ref: ...
-            //      - decription: ...
+            //      - description: ...
             // i.e. when allOf is used to add mix-in to the referenced schema, for example - to override description or schema example data
-            return objectParts.iterator().next();
+            ObjectDataModel objectDataModel = objectParts.iterator().next();
+            if (anonymousPart.getDescription() != null) {
+                objectDataModel.getSource().setDescription(anonymousPart.getDescription());
+            }
+            if (anonymousPart.getMinProperties() != null) {
+                objectDataModel.getTypeLevelConstraints().setMinProperties(anonymousPart.getMinProperties());
+            }
+            if (anonymousPart.getMaxProperties() != null) {
+                objectDataModel.getTypeLevelConstraints().setMaxProperties(anonymousPart.getMaxProperties());
+            }
+            if (anonymousPart.getNullable() != null) {
+                objectDataModel.getSource().setNullable(anonymousPart.getNullable());
+            }
+            return objectDataModel;
+        }
+
+        if (primitiveParts.size() >= 1 && countAnonymousParts == 1 && inFieldResolutionContext) {
+            PrimitiveDataModel primitiveDataModel = primitiveParts.iterator().next();
+            if (anonymousPart.getDescription() != null) {
+                primitiveDataModel.getSource().setDescription(anonymousPart.getDescription());
+            }
+            if (anonymousPart.getMaximum() != null) {
+                primitiveDataModel.getSource().setMaximum(anonymousPart.getMaximum());
+            }
+            if (anonymousPart.getMinimum() != null) {
+                primitiveDataModel.getSource().setMinimum(anonymousPart.getMinimum());
+            }
+            if (anonymousPart.getMaxLength() != null) {
+                primitiveDataModel.getSource().setMaxLength(anonymousPart.getMaxLength());
+            }
+            if (anonymousPart.getMinLength() != null) {
+                primitiveDataModel.getSource().setMinLength(anonymousPart.getMinLength());
+            }
+            if (anonymousPart.getNullable() != null) {
+                primitiveDataModel.getSource().setNullable(anonymousPart.getNullable());
+            }
+            return primitiveDataModel;
         }
 
         for (ObjectDataModelProperty property : allProperties) {

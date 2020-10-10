@@ -1,10 +1,8 @@
 package apicross.core.data.model;
 
 import apicross.core.NamedDatum;
-import apicross.core.data.InlineModelTypeNameResolver;
 import io.swagger.v3.oas.models.media.Schema;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
@@ -123,6 +121,7 @@ public class ObjectDataModel extends DataModel {
     public ObjectDataModelConstraints getTypeLevelConstraints() {
         return typeLevelConstraints;
     }
+
 
     public DataModel getAdditionalPropertiesDataModel() {
         return additionalPropertiesDataModel;

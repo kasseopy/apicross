@@ -1,6 +1,9 @@
 package apicross.core.data;
 
+import apicross.core.data.model.DataModel;
 import apicross.core.data.model.ObjectDataModel;
+import apicross.core.data.model.ObjectDataModelProperty;
+import apicross.core.data.model.PrimitiveDataModel;
 import io.swagger.v3.oas.models.media.Schema;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,5 +61,21 @@ public class DataModelResolverHandlesAllOfTests extends DataModelSchemaResolverT
         ObjectDataModel resolvedSchema = (ObjectDataModel) resolver.resolve(schema);
         assertEquals(1, resolvedSchema.getProperties().size());
         assertEquals("AllOfSchemaTypePart1", resolvedSchema.getProperty("c").getType().getTypeName());
+    }
+
+    @Test
+    public void allOfInFieldWithConstraints() throws IOException {
+        init("DataModelSchemaResolverTest.allOfSchemaTypeResolved.yaml");
+        Schema<?> schema = openAPIComponentsIndex.schemaByName("AllOfInField3");
+
+        ObjectDataModel resolvedSchema = (ObjectDataModel) resolver.resolve(schema);
+        assertEquals(1, resolvedSchema.getProperties().size());
+        ObjectDataModelProperty property = resolvedSchema.getProperty("c");
+        DataModel propertyType = property.getType();
+        assertTrue(propertyType.isPrimitive());
+        assertTrue(propertyType.isNullable());
+        PrimitiveDataModel primitiveDataModel = (PrimitiveDataModel) propertyType;
+        assertEquals(100, primitiveDataModel.getMaxLength().intValue());
+        assertEquals(10, primitiveDataModel.getMinLength().intValue());
     }
 }

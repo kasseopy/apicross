@@ -30,10 +30,12 @@ public class RequestsHandlersResolver {
         this.requestsHandlerTypeNameResolver = Objects.requireNonNull(requestsHandlerTypeNameResolver);
         this.requestsHandlerMethodNameResolver = Objects.requireNonNull(requestsHandlerMethodNameResolver);
         this.requestsHandlerMethodsResolver = Objects.requireNonNull(requestsHandlerMethodsResolver);
-        this.parameterNameResolver = parameterNameResolver;
+        this.parameterNameResolver = Objects.requireNonNull(parameterNameResolver);
     }
 
-    public List<RequestsHandler> resolve(Paths paths) {
+    @Nonnull
+    public List<RequestsHandler> resolve(@Nonnull Paths paths) {
+        Objects.requireNonNull(paths);
         Collection<HttpOperationsGroup> requestsHandlersOperationsGroups = httpOperationsGroupsResolver.resolve(paths);
 
         List<RequestsHandler> result = new ArrayList<>();
@@ -54,7 +56,7 @@ public class RequestsHandlersResolver {
         return result;
     }
 
-    public List<RequestsHandlerMethod> resolveMethodsOf(HttpOperationsGroup requestsHandlerOperationsGroup) {
+    private List<RequestsHandlerMethod> resolveMethodsOf(HttpOperationsGroup requestsHandlerOperationsGroup) {
         List<RequestsHandlerMethod> methods = new ArrayList<>();
 
         for (HttpOperation httpOperation : requestsHandlerOperationsGroup.operations()) {
