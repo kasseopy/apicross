@@ -38,9 +38,8 @@ public abstract class DataModel extends HasCustomModelAttributes {
 
     public static ObjectDataModel newObjectType(@Nonnull Schema<?> source, @Nonnull String typeName,
                                                 @Nonnull Set<ObjectDataModelProperty> properties,
-                                                @Nonnull ObjectDataModelConstraints typeLevelConstraints,
                                                 DataModel additionalPropertiesDataModel) {
-        return new ObjectDataModel(typeName, source, properties, typeLevelConstraints, additionalPropertiesDataModel);
+        return new ObjectDataModel(typeName, source, properties, additionalPropertiesDataModel);
     }
 
     public static ObjectDataModel newObjectType(@Nonnull Schema<?> source, @Nonnull String typeName,

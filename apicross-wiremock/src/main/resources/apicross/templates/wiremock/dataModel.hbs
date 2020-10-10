@@ -15,22 +15,20 @@ import java.util.*;
 
 {{> documentation }}
 {{#if extraOpts.enableApicrossJavaBeanValidationSupport}}
-    {{#with typeLevelConstraints}}
-        {{#if minProperties}}
-            @MinProperties(value = {{minProperties}}, groups = {BeanPropertiesValidationGroup.class})
-        {{/if}}
-        {{#if maxProperties}}
-            @MaxProperties(value = {{maxProperties}}, groups = {BeanPropertiesValidationGroup.class})
-        {{/if}}
-        {{#if requiredProperties}}
-            @RequiredProperties(value = {
-            {{#each requiredProperties}}
-                "{{this}}"
-                {{#unless @last}},{{/unless}}
-            {{/each}}
-            }, groups = {BeanPropertiesValidationGroup.class})
-        {{/if}}
-    {{/with}}
+    {{#if minProperties}}
+        @MinProperties(value = {{minProperties}}, groups = {BeanPropertiesValidationGroup.class})
+    {{/if}}
+    {{#if maxProperties}}
+        @MaxProperties(value = {{maxProperties}}, groups = {BeanPropertiesValidationGroup.class})
+    {{/if}}
+    {{#if requiredProperties}}
+        @RequiredProperties(value = {
+        {{#each requiredProperties}}
+            "{{this}}"
+            {{#unless @last}},{{/unless}}
+        {{/each}}
+        }, groups = {BeanPropertiesValidationGroup.class})
+    {{/if}}
 {{/if}}
 {{#if inheritanceChildModels}}
     @JsonTypeInfo(

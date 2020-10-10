@@ -8,7 +8,6 @@ import apicross.utils.HandlebarsFactory;
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
-import apicross.core.data.model.ObjectDataModelConstraints;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -78,28 +77,15 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
                         if (!ifaces.isEmpty()) {
                             context.combine("queryObjectTypeInterfaces", ifaces);
                         }
-                        ObjectDataModelConstraints queryObjectTypeLevelConstraints = createQueryTypeLevelConstraints(method.getQueryParameters());
-                        context.combine("queryObjectTypeLevelConstraints", queryObjectTypeLevelConstraints);
+                        context.combine("queryObjectRequiredProperties", method.getQueryParameters().stream()
+                                .filter(RequestQueryParameter::isRequired)
+                                .map(RequestQueryParameter::getName)
+                                .collect(Collectors.toSet()));
                         writeSource(context, requestsHandlerQueryObjectTemplate, sourcePrintWriter);
                     }
                     handledOperations.add(operationId);
                 }
             }
-        }
-    }
-
-    private ObjectDataModelConstraints createQueryTypeLevelConstraints(Set<RequestQueryParameter> queryParameters) {
-        Set<String> requiredParametersNames = queryParameters.stream()
-                .filter(RequestQueryParameter::isRequired)
-                .map(RequestQueryParameter::getName)
-                .collect(Collectors.toSet());
-
-        if (requiredParametersNames.isEmpty()) {
-            return null;
-        } else {
-            ObjectDataModelConstraints constraints = new ObjectDataModelConstraints();
-            constraints.setRequiredProperties(requiredParametersNames);
-            return constraints;
         }
     }
 

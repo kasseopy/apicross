@@ -218,10 +218,10 @@ public class DataModelResolver {
                 objectDataModel.getSource().setDescription(anonymousPart.getDescription());
             }
             if (anonymousPart.getMinProperties() != null) {
-                objectDataModel.getTypeLevelConstraints().setMinProperties(anonymousPart.getMinProperties());
+                objectDataModel.getSource().setMinProperties(anonymousPart.getMinProperties());
             }
             if (anonymousPart.getMaxProperties() != null) {
-                objectDataModel.getTypeLevelConstraints().setMaxProperties(anonymousPart.getMaxProperties());
+                objectDataModel.getSource().setMaxProperties(anonymousPart.getMaxProperties());
             }
             if (anonymousPart.getNullable() != null) {
                 objectDataModel.getSource().setNullable(anonymousPart.getNullable());
@@ -258,20 +258,7 @@ public class DataModelResolver {
             }
         }
         schema.setDescription(description);
-        ObjectDataModelConstraints typeLevelConstraints = resolveAllOfConstraints(resolveReferenced(parts));
-        return DataModel.newObjectType(schema, schema.getName(), allProperties, typeLevelConstraints, null);
-    }
-
-    private List<Schema> resolveReferenced(List<Schema> parts) {
-        List<Schema> resolved = new ArrayList<>();
-        for (Schema part : parts) {
-            if (part.get$ref() != null) {
-                resolved.add(openAPIComponentsIndex.schemaBy$ref(part.get$ref()));
-            } else {
-                resolved.add(part);
-            }
-        }
-        return resolved;
+        return DataModel.newObjectType(schema, schema.getName(), allProperties, null);
     }
 
     private ArrayDataModel resolveArraySchema(ArraySchema schema) {
@@ -285,9 +272,8 @@ public class DataModelResolver {
     }
 
     private ObjectDataModel resolveObjectSchema(Schema<?> schema, DataModel additionalPropertiesDataModel) {
-        ObjectDataModelConstraints constraints = resolveConstraints(schema);
         Set<ObjectDataModelProperty> properties = resolveObjectSchemaProperties(schema);
-        return DataModel.newObjectType(schema, schema.getName(), properties, constraints, additionalPropertiesDataModel);
+        return DataModel.newObjectType(schema, schema.getName(), properties, additionalPropertiesDataModel);
     }
 
     private Set<ObjectDataModelProperty> resolveObjectSchemaProperties(Schema<?> schema) {
@@ -335,42 +321,6 @@ public class DataModelResolver {
     private DataModel resolveFrom$ref(String $ref) {
         Schema<?> targetSchema = openAPIComponentsIndex.schemaBy$ref($ref);
         return resolve(targetSchema);
-    }
-
-    private ObjectDataModelConstraints resolveConstraints(@Nonnull Schema<?> schema) {
-        Preconditions.checkArgument(isObjectSchema(schema) || (schema instanceof MapSchema));
-        ObjectDataModelConstraints result = new ObjectDataModelConstraints();
-        Integer minProperties = schema.getMinProperties();
-        Integer maxProperties = schema.getMaxProperties();
-        List<String> requiredProperties = schema.getRequired();
-        if (minProperties != null) {
-            result.setMinProperties(minProperties);
-        }
-        if (maxProperties != null) {
-            result.setMaxProperties(maxProperties);
-        }
-        if (requiredProperties != null && requiredProperties.size() > 0) {
-            result.setRequiredProperties(
-                    new LinkedHashSet<>(requiredProperties));
-        }
-        return result;
-    }
-
-    private ObjectDataModelConstraints resolveAllOfConstraints(@Nonnull List<Schema> parts) {
-        // TODO: what to do with min/maxProperties? sum values for allOf ?
-        ObjectDataModelConstraints result = new ObjectDataModelConstraints();
-        Set<String> allRequiredProperties = new LinkedHashSet<>();
-        for (Schema<?> schema : parts) {
-            List<String> requiredProperties = schema.getRequired();
-            if (requiredProperties != null && isObjectSchema(schema)) {
-                allRequiredProperties.addAll(requiredProperties);
-            }
-        }
-        if (allRequiredProperties.size() > 0) {
-            result.setRequiredProperties(
-                    new LinkedHashSet<>(allRequiredProperties));
-        }
-        return result;
     }
 
     private boolean isObjectSchema(Schema<?> schema) {

@@ -14,16 +14,14 @@ import java.util.*;
 {{/if}}
 
 {{#if extraOpts.enableApicrossJavaBeanValidationSupport}}
-    {{#with queryObjectTypeLevelConstraints}}
-        {{#if requiredProperties}}
-            @RequiredProperties(value = {
-            {{#each requiredProperties}}
-                "{{this}}"
-                {{#unless @last}},{{/unless}}
-            {{/each}}
-            }, groups = {BeanPropertiesValidationGroup.class})
-        {{/if}}
-    {{/with}}
+    {{#if queryObjectRequiredProperties}}
+        @RequiredProperties(value = {
+        {{#each requiredProperties}}
+            "{{this}}"
+            {{#unless @last}},{{/unless}}
+        {{/each}}
+        }, groups = {BeanPropertiesValidationGroup.class})
+    {{/if}}
 {{/if}}
 public class {{capitalizeFirst operationId}}Query
     {{#if extraOpts.enableApicrossJavaBeanValidationSupport}}implements HasSpecifiedProperties{{/if}}

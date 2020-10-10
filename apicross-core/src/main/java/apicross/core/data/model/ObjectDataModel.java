@@ -16,7 +16,6 @@ public class ObjectDataModel extends DataModel {
     private String inheritanceDiscriminatorValue;
 
     private Set<String> propertiesOriginSchemasNames;
-    private ObjectDataModelConstraints typeLevelConstraints = new ObjectDataModelConstraints();
     private DataModel additionalPropertiesDataModel;
 
     ObjectDataModel(String typeName, Schema<?> source) {
@@ -25,11 +24,9 @@ public class ObjectDataModel extends DataModel {
     }
 
     ObjectDataModel(String typeName, Schema<?> source, Set<ObjectDataModelProperty> properties,
-                    ObjectDataModelConstraints typeLevelConstraints,
                     DataModel additionalPropertiesDataModel) {
         this(typeName, source);
         this.propertiesMap = new LinkedHashMap<>();
-        this.typeLevelConstraints = typeLevelConstraints;
         this.additionalPropertiesDataModel = additionalPropertiesDataModel;
         this.initPropertiesFrom(properties);
     }
@@ -54,7 +51,7 @@ public class ObjectDataModel extends DataModel {
         for (ObjectDataModel childModel : this.inheritanceChildModels.values()) {
             List<ObjectDataModelProperty> propsToBeMovedToParent = removePropertiesForOriginSources(childModel, originSchemasNamesForCommonProperties);
             propsToBeMovedToParent.removeIf(property -> property.getName().equals(this.inheritanceDiscriminatorPropertyName));
-            childModel.getTypeLevelConstraints().removeRequiredProperty(this.inheritanceDiscriminatorPropertyName);
+            childModel.removeRequiredProperty(this.inheritanceDiscriminatorPropertyName);
             collectedCommonProperties.addAll(propsToBeMovedToParent);
         }
         this.initPropertiesFrom(collectedCommonProperties); // TODO: here in the collectedCommonProperties might be duplicates, but these are avoided in the initPropertiesFrom(), and it's not clear :(
@@ -118,10 +115,24 @@ public class ObjectDataModel extends DataModel {
         return propertiesMap.get(name);
     }
 
-    public ObjectDataModelConstraints getTypeLevelConstraints() {
-        return typeLevelConstraints;
+    public Integer getMinProperties() {
+        return getSource().getMinProperties();
     }
 
+    public Integer getMaxProperties() {
+        return getSource().getMaxProperties();
+    }
+
+    public List<String> getRequiredProperties() {
+        return getSource().getRequired();
+    }
+
+    public void removeRequiredProperty(String propertyName) {
+        List<String> required = getSource().getRequired();
+        if (required != null) {
+            required.remove(propertyName);
+        }
+    }
 
     public DataModel getAdditionalPropertiesDataModel() {
         return additionalPropertiesDataModel;
@@ -151,7 +162,6 @@ public class ObjectDataModel extends DataModel {
         this.typeName = newTypeName;
         if (clear) {
             this.propertiesMap.clear();
-            this.typeLevelConstraints = new ObjectDataModelConstraints();
             this.inheritanceChildModels = null;
             this.inheritanceDiscriminatorPropertyName = null;
             this.inheritanceParent = null;
