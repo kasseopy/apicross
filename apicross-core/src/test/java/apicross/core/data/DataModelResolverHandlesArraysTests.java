@@ -66,8 +66,8 @@ public class DataModelResolverHandlesArraysTests extends DataModelSchemaResolver
         assertTrue(resolvedSchema.isArray());
         assertEquals("SimpleObject", resolvedSchema.getItemsDataModel().getTypeName());
 
-        assertEquals(1, resolvedSchema.getMinItems());
-        assertEquals(10, resolvedSchema.getMaxItems());
+        assertEquals(1, resolvedSchema.getMinItems().intValue());
+        assertEquals(10, resolvedSchema.getMaxItems().intValue());
         assertTrue(resolvedSchema.isUniqueItems());
 
         assertFalse(resolvedSchema.getItemsDataModel().isNullable());
@@ -77,8 +77,8 @@ public class DataModelResolverHandlesArraysTests extends DataModelSchemaResolver
         assertTrue(resolvedSchema.isArray());
         assertEquals("string", resolvedSchema.getItemsDataModel().getTypeName());
 
-        assertEquals(1, resolvedSchema.getMinItems());
-        assertEquals(10, resolvedSchema.getMaxItems());
+        assertEquals(1, resolvedSchema.getMinItems().intValue());
+        assertEquals(10, resolvedSchema.getMaxItems().intValue());
         assertTrue(resolvedSchema.isUniqueItems());
 
         Integer maxLength = ((PrimitiveDataModel) resolvedSchema.getItemsDataModel()).getMaxLength();

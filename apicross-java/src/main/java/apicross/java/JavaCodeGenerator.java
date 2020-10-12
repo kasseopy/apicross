@@ -48,32 +48,8 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
     }
 
     @Override
-    protected void preProcess(Collection<ObjectDataModel> models, List<RequestsHandler> handlers) {
-        if (!getOptions().isGenerateOnlyModels()) {
-            handleNeedToUseRequestBodyAnnotation(handlers);
-        }
-    }
-
-    protected void handleNeedToUseRequestBodyAnnotation(List<RequestsHandler> handlers) {
-        handlers.forEach(requestsHandler -> requestsHandler.getMethods().forEach(requestsHandlerMethod -> {
-            MediaTypeContentModel requestBody = requestsHandlerMethod.getRequestBody();
-            if (requestBody != null) {
-                if ("multipart/form-data".equals(requestBody.getMediaType()) ||
-                        "application/x-www-form-urlencoded".equals(requestBody.getMediaType())) {
-                    requestBody.addCustomAttribute("avoidRequestBodyAnnotation", Boolean.TRUE);
-                }
-            }
-        }));
-    }
-
-    @Override
     protected void generate(Collection<ObjectDataModel> models, List<RequestsHandler> handlers) throws IOException {
-        Map<String, ObjectDataModel> modelsMap = new LinkedHashMap<>();
-        for (ObjectDataModel model : models) {
-            modelsMap.put(model.getTypeName(), model);
-        }
-
-        List<ObjectDataModel> modelsJavaClasses = postprocessDataModelJavaClasses(modelsMap, handlers);
+        List<ObjectDataModel> modelsJavaClasses = prepareDataModelJavaClasses(models, handlers);
 
         if (!getOptions().isGenerateOnlyModels()) {
             if (!this.apiHandlerPackage.equals(this.apiModelPackage)) {
@@ -102,6 +78,7 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
             modelsPackageDir.mkdirs();
             log.info("Directory {} created", modelsPackageDir.getAbsolutePath());
         }
+
         writeModelsSources(modelsPackageDir, modelsJavaClasses);
 
         if (!getOptions().isGenerateOnlyModels()) {
@@ -114,35 +91,37 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         }
     }
 
-    protected List<ObjectDataModel> postprocessDataModelJavaClasses(Map<String, ObjectDataModel> schemasMap, List<RequestsHandler> handlers) {
-        log.info("Postprocess data models java classes...");
+    protected List<ObjectDataModel> prepareDataModelJavaClasses(Collection<ObjectDataModel> schemas, List<RequestsHandler> handlers) {
+        log.info("Prepare data models java classes...");
 
         List<ObjectDataModel> result = new ArrayList<>();
-
-        Collection<ObjectDataModel> schemas = schemasMap.values();
 
         resolveInlineModels(result, schemas);
         resolveInlineModels(result, handlers);
 
         if (this.dataModelsExternalTypesMap != null) {
-            log.info("Postprocess data models external types map...");
+            log.info("Process data models external types map...");
             postprocessExternalTypesForDataModels(result, this.dataModelsExternalTypesMap);
         }
 
         if (this.dataModelsInterfacesMap != null) {
-            log.info("Postprocess data models interfaces...");
+            log.info("Process data models interfaces...");
             postprocessInterfacesForDataModels(result, this.dataModelsInterfacesMap);
         }
 
         String modelNameSuffix = getOptions().getModelClassNameSuffix();
         if (modelNameSuffix != null && !modelNameSuffix.isEmpty()) {
+            log.info("Process data models name suffix...");
             addModelNameSuffix(modelNameSuffix, this.dataModelsExternalTypesMap, result);
         }
         String modelNamePrefix = getOptions().getModelClassNamePrefix();
         if (modelNamePrefix != null && !modelNamePrefix.isEmpty()) {
+            log.info("Process data models name prefix...");
             addModelNamePrefix(modelNamePrefix, this.dataModelsExternalTypesMap, result);
         }
-        log.info("Resolving data models java classes completed!");
+
+        log.info("Preparing data models java classes completed!");
+
         return result;
     }
 

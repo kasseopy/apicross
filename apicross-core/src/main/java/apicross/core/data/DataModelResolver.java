@@ -151,17 +151,17 @@ public class DataModelResolver {
     }
 
     private DataModel resolveOneOfSchema(Schema<?> schema) {
-        List<Schema> parts = ((ComposedSchema) schema).getOneOf();
+        List<Schema> partsSchemas = ((ComposedSchema) schema).getOneOf();
         Map<String, ObjectDataModel> childTypes = new HashMap<>();
-        for (Schema<?> part : parts) {
-            if (part.get$ref() == null) {
+        for (Schema<?> partSchema : partsSchemas) {
+            if (partSchema.get$ref() == null) {
                 throw new DataModelResolverException("oneOf only with $ref items supported");
             }
-            DataModel childDataModel = resolveFrom$ref(part.get$ref());
+            DataModel childDataModel = resolveFrom$ref(partSchema.get$ref());
             if (childDataModel instanceof ObjectDataModel) {
                 childTypes.put(childDataModel.getTypeName(), (ObjectDataModel) childDataModel);
             } else {
-                throw new IllegalStateException("Only object type schemas can be inheritance child");
+                throw new DataModelResolverException("Only object type schemas can be inheritance child");
             }
         }
 

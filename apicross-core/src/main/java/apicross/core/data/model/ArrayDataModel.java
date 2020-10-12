@@ -1,13 +1,8 @@
 package apicross.core.data.model;
 
-import apicross.core.data.DataModelResolver;
-import apicross.core.data.InlineModelTypeNameResolver;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import org.apache.commons.lang3.BooleanUtils;
 
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 public class ArrayDataModel extends DataModel {
@@ -28,30 +23,12 @@ public class ArrayDataModel extends DataModel {
         return BooleanUtils.isTrue(getSource().getUniqueItems());
     }
 
-    public boolean isArrayLengthConstrained() {
-        return isMinItemsDefined() || isMaxItemsDefined();
-    }
-
-    public int getMinItems() {
-        if (!isMinItemsDefined()) {
-            throw new IllegalStateException("'minItems' constraint is not defined");
-        }
+    public Integer getMinItems() {
         return getSource().getMinItems();
     }
 
-    public boolean isMinItemsDefined() {
-        return getSource().getMinItems() != null;
-    }
-
-    public int getMaxItems() {
-        if (!isMaxItemsDefined()) {
-            throw new IllegalStateException("'maxItems' constraint is not defined");
-        }
+    public Integer getMaxItems() {
         return getSource().getMaxItems();
-    }
-
-    public boolean isMaxItemsDefined() {
-        return getSource().getMaxItems() != null;
     }
 
     public DataModel getItemsDataModel() {

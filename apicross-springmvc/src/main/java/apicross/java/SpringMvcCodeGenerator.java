@@ -1,6 +1,7 @@
 package apicross.java;
 
 import apicross.core.data.model.ObjectDataModel;
+import apicross.core.handler.model.MediaTypeContentModel;
 import apicross.core.handler.model.RequestQueryParameter;
 import apicross.core.handler.model.RequestsHandler;
 import apicross.core.handler.model.RequestsHandlerMethod;
@@ -13,10 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -35,6 +33,27 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
     public void setOptions(SpringMvcCodeGeneratorOptions options) throws Exception {
         super.setOptions(options);
         this.enableApicrossJavaBeanValidationSupport = options.isEnableApicrossJavaBeanValidationSupport();
+    }
+
+    @Override
+    protected void preProcess(Collection<ObjectDataModel> models, List<RequestsHandler> handlers) {
+        super.preProcess(models, handlers);
+        if (!getOptions().isGenerateOnlyModels()) {
+            handleNeedToUseRequestBodyAnnotation(handlers);
+        }
+    }
+
+    protected void handleNeedToUseRequestBodyAnnotation(List<RequestsHandler> handlers) {
+        // TODO: it looks like Spring MVC option, needs to be moved to appropriate generator class
+        handlers.forEach(requestsHandler -> requestsHandler.getMethods().forEach(requestsHandlerMethod -> {
+            MediaTypeContentModel requestBody = requestsHandlerMethod.getRequestBody();
+            if (requestBody != null) {
+                if ("multipart/form-data".equals(requestBody.getMediaType()) ||
+                        "application/x-www-form-urlencoded".equals(requestBody.getMediaType())) {
+                    requestBody.addCustomAttribute("avoidRequestBodyAnnotation", Boolean.TRUE);
+                }
+            }
+        }));
     }
 
     @Override

@@ -5,13 +5,13 @@
 {{#if object}}
     @Valid
 {{else if array}}
-    {{#if arrayLengthConstrained}}
+    {{#if customAttributes.arrayLengthConstrained}}
         @Size(
-        {{#if minItemsDefined}}
+        {{#if customAttributes.minItemsDefined}}
             min = {{minItems}}
         {{/if}}
-        {{#if maxItemsDefined}}
-            {{#if minItemsDefined}},{{/if}}
+        {{#if customAttributes.maxItemsDefined}}
+            {{#if customAttributes.minItemsDefined}},{{/if}}
             max = {{maxItems}}
         {{/if}}
         )
@@ -21,13 +21,13 @@
     {{/if}}
 {{else if primitive}}
     {{#eq type 'string'}}
-        {{#if constrainedStringLength}}
+        {{#if customAttributes.constrainedLength}}
             @Size(
-            {{#if minLengthDefined}}
+            {{#if customAttributes.minLengthDefined}}
                 min = {{minLength}}
             {{/if}}
-            {{#if maxLengthDefined}}
-                {{#if minLengthDefined}},{{/if}}
+            {{#if customAttributes.maxLengthDefined}}
+                {{#if customAttributes.minLengthDefined}},{{/if}}
                 max = {{maxLength}}
             {{/if}}
             )
@@ -40,10 +40,10 @@
         {{/if}}
     {{/eq}}
     {{#eq type 'integer'}}
-        {{#if minimumDefined}}
+        {{#if customAttributes.minimumDefined}}
             @DecimalMin(value = "{{minimum}}" {{#if exclusiveMinimum}}, inclusive = false{{/if}})
         {{/if}}
-        {{#if maximumDefined}}
+        {{#if customAttributes.maximumDefined}}
             @DecimalMax(value = "{{maximum}}" {{#if exclusiveMaximum}}, inclusive = false{{/if}})
         {{/if}}
     {{/eq}}

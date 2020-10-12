@@ -6,6 +6,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -23,20 +24,8 @@ public class PrimitiveDataModel extends DataModel {
         return getSource().getFormat();
     }
 
-    public boolean isConstrainedStringLength() {
-        return isMaxLengthDefined() || isMinLengthDefined();
-    }
-
-    public boolean isMinLengthDefined() {
-        return getSource().getMinLength() != null;
-    }
-
     public Integer getMinLength() {
         return getSource().getMinLength();
-    }
-
-    public boolean isMaxLengthDefined() {
-        return getSource().getMaxLength() != null;
     }
 
     public Integer getMaxLength() {
@@ -52,20 +41,13 @@ public class PrimitiveDataModel extends DataModel {
         List<?> anEnum = getSource().getEnum();
         return anEnum == null ? null : anEnum.stream()
                 .map((Function<Object, String>) Object::toString)
+                .filter(Objects::isNull)
                 .collect(Collectors.toSet());
-    }
-
-    public boolean isMinimumDefined() {
-        return getSource().getMinimum() != null;
     }
 
     public Number getMinimum() {
         BigDecimal minimum = getSource().getMinimum();
         return minimum == null ? null : toNumberAccordingType(minimum);
-    }
-
-    public boolean isMaximumDefined() {
-        return getSource().getMaximum() != null;
     }
 
     public Number getMaximum() {
@@ -80,6 +62,26 @@ public class PrimitiveDataModel extends DataModel {
     public boolean isExclusiveMaximum() {
         return BooleanUtils.isTrue(getSource().getExclusiveMaximum());
     }
+
+//    public boolean isConstrainedStringLength() {
+//        return isMaxLengthDefined() || isMinLengthDefined();
+//    }
+//
+//    public boolean isMinLengthDefined() {
+//        return getSource().getMinLength() != null;
+//    }
+//
+//    public boolean isMinimumDefined() {
+//        return getSource().getMinimum() != null;
+//    }
+//
+//    public boolean isMaxLengthDefined() {
+//        return getSource().getMaxLength() != null;
+//    }
+//
+//    public boolean isMaximumDefined() {
+//        return getSource().getMaximum() != null;
+//    }
 
     private Number toNumberAccordingType(BigDecimal value) {
         Schema<?> source = getSource();

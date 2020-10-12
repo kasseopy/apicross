@@ -1,7 +1,7 @@
 package apicross;
 
 import apicross.core.data.DataModelResolver;
-import apicross.core.data.model.ObjectDataModel;
+import apicross.core.data.model.*;
 import apicross.core.data.PropertyNameResolver;
 import apicross.core.handler.*;
 import apicross.core.handler.impl.DefaultRequestsHandlerMethodsResolver;
@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 public abstract class CodeGenerator<T extends CodeGeneratorOptions> {
@@ -70,7 +71,33 @@ public abstract class CodeGenerator<T extends CodeGeneratorOptions> {
     }
 
     protected void preProcess(Collection<ObjectDataModel> models, List<RequestsHandler> handlers) {
-
+        for (ObjectDataModel model : models) {
+            Set<ObjectDataModelProperty> properties = model.getProperties();
+            for (ObjectDataModelProperty property : properties) {
+                DataModel propertyDataModel = property.getType();
+                if (propertyDataModel instanceof PrimitiveDataModel) {
+                    PrimitiveDataModel primitiveDataModel = (PrimitiveDataModel) propertyDataModel;
+                    boolean maxLengthDefined = primitiveDataModel.getMaxLength() != null;
+                    boolean minLengthDefined = primitiveDataModel.getMinLength() != null;
+                    boolean constrainedLength = maxLengthDefined || minLengthDefined;
+                    boolean minimumDefined = primitiveDataModel.getMinimum() != null;
+                    boolean maximumDefined = primitiveDataModel.getMaximum() != null;
+                    primitiveDataModel.addCustomAttribute("constrainedLength", constrainedLength);
+                    primitiveDataModel.addCustomAttribute("maxLengthDefined", maxLengthDefined);
+                    primitiveDataModel.addCustomAttribute("minLengthDefined", minLengthDefined);
+                    primitiveDataModel.addCustomAttribute("minimumDefined", minimumDefined);
+                    primitiveDataModel.addCustomAttribute("maximumDefined", maximumDefined);
+                } else if (propertyDataModel instanceof ArrayDataModel) {
+                    ArrayDataModel arrayDataModel = (ArrayDataModel) propertyDataModel;
+                    boolean maxItemsDefined = arrayDataModel.getMaxItems() != null;
+                    boolean minItemsDefined = arrayDataModel.getMinItems() != null;
+                    boolean arrayLengthConstrained = maxItemsDefined || minItemsDefined;
+                    arrayDataModel.addCustomAttribute("arrayLengthConstrained", arrayLengthConstrained);
+                    arrayDataModel.addCustomAttribute("maxItemsDefined", maxItemsDefined);
+                    arrayDataModel.addCustomAttribute("minItemsDefined", minItemsDefined);
+                }
+            }
+        }
     }
 
     protected abstract void generate(Collection<ObjectDataModel> models, List<RequestsHandler> handlers) throws IOException;

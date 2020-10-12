@@ -64,6 +64,10 @@ public abstract class DataModel extends HasCustomModelAttributes {
         return (this instanceof PrimitiveDataModel);
     }
 
+    public boolean isAnonymous() {
+        return getSource().getType() == null;
+    }
+
     public boolean isArray() {
         return (this instanceof ArrayDataModel);
     }
