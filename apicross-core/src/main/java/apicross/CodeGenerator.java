@@ -1,5 +1,6 @@
 package apicross;
 
+import apicross.core.HasCustomModelAttributes;
 import apicross.core.data.DataModelResolver;
 import apicross.core.data.model.*;
 import apicross.core.data.PropertyNameResolver;
@@ -18,13 +19,16 @@ import io.swagger.v3.oas.models.media.Schema;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Consumer;
 
 @Slf4j
 public abstract class CodeGenerator<T extends CodeGeneratorOptions> {
+    private final Consumer<HasCustomModelAttributes> setupGenerationAttributesConsumer  = objectDataModel -> {
+        objectDataModel.addCustomAttribute("generatorClassName", CodeGenerator.this.getClass().getName());
+        objectDataModel.addCustomAttribute("generationDate", new Date().toString());
+    };
+
     private String specUrl;
     private T options;
 
@@ -53,9 +57,11 @@ public abstract class CodeGenerator<T extends CodeGeneratorOptions> {
 
         log.info("Resolving data models...");
         Collection<ObjectDataModel> models = resolveDataModels(dataModelResolver, openAPIComponentsIndex);
+        models.forEach(setupGenerationAttributesConsumer);
 
         log.info("Resolving handlers...");
         List<RequestsHandler> handlers = resolveRequestsHandlers(requestsHandlersResolver, openAPI.getPaths());
+        handlers.forEach(setupGenerationAttributesConsumer);
 
         if (!getOptions().isGenerateOnlyModels()) {
             log.info("Cleaning unused schemas...");

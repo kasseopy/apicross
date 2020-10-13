@@ -44,7 +44,6 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
     }
 
     protected void handleNeedToUseRequestBodyAnnotation(List<RequestsHandler> handlers) {
-        // TODO: it looks like Spring MVC option, needs to be moved to appropriate generator class
         handlers.forEach(requestsHandler -> requestsHandler.getMethods().forEach(requestsHandlerMethod -> {
             MediaTypeContentModel requestBody = requestsHandlerMethod.getRequestBody();
             if (requestBody != null) {

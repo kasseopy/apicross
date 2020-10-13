@@ -42,6 +42,7 @@ import java.util.*;
     {{/each}}
     })
 {{/if}}
+@javax.annotation.Generated(value = "{{customAttributes.generatorClassName}}", date = "{{customAttributes.generationDate}}")
 public {{#if inheritanceChildModels}}abstract{{/if}} class {{typeName}}
 {{#if inheritanceParentTypeName}} extends {{{inheritanceParentTypeName}}}{{/if}}
 {{#if extraOpts.enableApicrossJavaBeanValidationSupport}}implements HasSpecifiedProperties{{/if}}
