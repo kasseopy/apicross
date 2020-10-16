@@ -5,6 +5,7 @@ import apicross.core.handler.model.HttpOperationsGroup;
 import apicross.core.handler.model.RequestsHandler;
 import apicross.core.handler.model.RequestsHandlerMethod;
 import io.swagger.v3.oas.models.Paths;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
@@ -21,21 +22,20 @@ public class RequestsHandlersResolver {
     private final RequestsHandlerMethodsResolver requestsHandlerMethodsResolver;
     private final ParameterNameResolver parameterNameResolver;
 
-    public RequestsHandlersResolver(@Nonnull HttpOperationsGroupsResolver httpOperationsGroupsResolver,
-                                    @Nonnull RequestsHandlerTypeNameResolver requestsHandlerTypeNameResolver,
-                                    @Nonnull RequestsHandlerMethodNameResolver requestsHandlerMethodNameResolver,
-                                    @Nonnull RequestsHandlerMethodsResolver requestsHandlerMethodsResolver,
-                                    @Nonnull ParameterNameResolver parameterNameResolver) {
-        this.httpOperationsGroupsResolver = Objects.requireNonNull(httpOperationsGroupsResolver);
-        this.requestsHandlerTypeNameResolver = Objects.requireNonNull(requestsHandlerTypeNameResolver);
-        this.requestsHandlerMethodNameResolver = Objects.requireNonNull(requestsHandlerMethodNameResolver);
-        this.requestsHandlerMethodsResolver = Objects.requireNonNull(requestsHandlerMethodsResolver);
-        this.parameterNameResolver = Objects.requireNonNull(parameterNameResolver);
+    public RequestsHandlersResolver(@NonNull HttpOperationsGroupsResolver httpOperationsGroupsResolver,
+                                    @NonNull RequestsHandlerTypeNameResolver requestsHandlerTypeNameResolver,
+                                    @NonNull RequestsHandlerMethodNameResolver requestsHandlerMethodNameResolver,
+                                    @NonNull RequestsHandlerMethodsResolver requestsHandlerMethodsResolver,
+                                    @NonNull ParameterNameResolver parameterNameResolver) {
+        this.httpOperationsGroupsResolver = httpOperationsGroupsResolver;
+        this.requestsHandlerTypeNameResolver = requestsHandlerTypeNameResolver;
+        this.requestsHandlerMethodNameResolver = requestsHandlerMethodNameResolver;
+        this.requestsHandlerMethodsResolver = requestsHandlerMethodsResolver;
+        this.parameterNameResolver = parameterNameResolver;
     }
 
-    @Nonnull
-    public List<RequestsHandler> resolve(@Nonnull Paths paths) {
-        Objects.requireNonNull(paths);
+    @NonNull
+    public List<RequestsHandler> resolve(@NonNull Paths paths) {
         Collection<HttpOperationsGroup> requestsHandlersOperationsGroups = httpOperationsGroupsResolver.resolve(paths);
 
         List<RequestsHandler> result = new ArrayList<>();

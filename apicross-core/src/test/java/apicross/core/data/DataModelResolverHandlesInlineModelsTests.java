@@ -1,75 +1,89 @@
 package apicross.core.data;
 
 import apicross.core.data.model.ObjectDataModel;
+import apicross.utils.OpenApiComponentsIndex;
+import apicross.utils.OpenApiSpecificationParser;
+import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
+import lombok.NonNull;
+import org.hamcrest.CustomMatcher;
+import org.hamcrest.Matcher;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DataModelResolverHandlesInlineModelsTests extends DataModelSchemaResolverTestsBase {
-    @Test
-    public void inlineModelResolved1() throws IOException {
-        init("DataModelSchemaResolverTest.inlineModelsResolved.yaml");
-        Schema<?> schema = openAPIComponentsIndex.schemaByName("Model1");
+public class DataModelResolverHandlesInlineModelsTests {
+    private OpenApiComponentsIndex openAPIComponentsIndex;
+    private DataModelResolver resolver;
 
-        ObjectDataModel resolvedSchema = (ObjectDataModel) resolver.resolve(schema);
-        List<ObjectDataModel> inlineModels = DataModelResolver.resolveInlineModels((typeName, propertyName) -> typeName + "_" + propertyName, resolvedSchema);
-        assertEquals(2, inlineModels.size());
-        Map<String, ObjectDataModel> inlineModelsMap = inlineModels.stream()
-                .collect(Collectors.toMap(ObjectDataModel::getTypeName, dataModelSchema -> dataModelSchema));
-        ObjectDataModel model1P1 = inlineModelsMap.get("Model1_p1");
-        assertNotNull(model1P1);
-        ObjectDataModel model1P2 = inlineModelsMap.get("Model1_p2");
-        assertNotNull(model1P2);
+    @Before
+    public void setup() throws IOException {
+        OpenAPI openAPI = OpenApiSpecificationParser.parse(getClass()
+                .getResourceAsStream("DataModelSchemaResolverTest.inlineModelsResolved.yaml"));
+        this.openAPIComponentsIndex = new OpenApiComponentsIndex(openAPI);
+        this.resolver = new DataModelResolver(this.openAPIComponentsIndex, (propertySchema, apiPropertyName) -> apiPropertyName);
     }
 
     @Test
-    public void inlineModelResolved_stack() throws IOException {
-        init("DataModelSchemaResolverTest.inlineModelsResolved.yaml");
-        Schema<?> schema = openAPIComponentsIndex.schemaByName("Model3");
+    public void resolvedInPlainStructure() {
+        ObjectDataModel resolvedSchema = resolveModel("Model1");
 
-        ObjectDataModel resolvedSchema = (ObjectDataModel) resolver.resolve(schema);
-        List<ObjectDataModel> inlineModels = DataModelResolver.resolveInlineModels((typeName, propertyName) -> typeName + "_" + propertyName, resolvedSchema);
-        Map<String, ObjectDataModel> inlineModelsMap = inlineModels.stream()
-                .collect(Collectors.toMap(ObjectDataModel::getTypeName, dataModelSchema -> dataModelSchema));
-        ObjectDataModel model3_p1 = inlineModelsMap.get("Model3_p1");
-        assertNotNull(model3_p1);
-        ObjectDataModel model3_p1_p2 = inlineModelsMap.get("Model3_p1_p2");
-        assertNotNull(model3_p1_p2);
+        List<ObjectDataModel> resolvedInlineModels = DataModelResolver.resolveInlineModels(resolvedSchema, inlineModelTypeNameResolver());
+
+        assertThat(resolvedInlineModels, hasSize(2));
+        assertThat(resolvedInlineModels, containsModelWithTypeName("Model1_p1"));
+        assertThat(resolvedInlineModels, containsModelWithTypeName("Model1_p2"));
     }
 
     @Test
-    public void inlineModelResolved_additionalProperties() throws IOException {
-        init("DataModelSchemaResolverTest.inlineModelsResolved.yaml");
-        Schema<?> schema = openAPIComponentsIndex.schemaByName("Model4");
+    public void resolvedInStack() {
+        ObjectDataModel resolvedSchema = resolveModel("Model3");
 
-        ObjectDataModel resolvedSchema = (ObjectDataModel) resolver.resolve(schema);
-        List<ObjectDataModel> inlineModels = DataModelResolver.resolveInlineModels((typeName, propertyName) -> typeName + "_" + propertyName, resolvedSchema);
-        Map<String, ObjectDataModel> inlineModelsMap = inlineModels.stream()
-                .collect(Collectors.toMap(ObjectDataModel::getTypeName, dataModelSchema -> dataModelSchema));
-        ObjectDataModel model3_p1 = inlineModelsMap.get("Model4_additionalProperties");
-        assertNotNull(model3_p1);
+        List<ObjectDataModel> resolvedInlineModels = DataModelResolver.resolveInlineModels(resolvedSchema, inlineModelTypeNameResolver());
+
+        assertThat(resolvedInlineModels, containsModelWithTypeName("Model3_p1"));
+        assertThat(resolvedInlineModels, containsModelWithTypeName("Model3_p1_p2"));
     }
 
     @Test
-    public void inlineModelResolved_array() throws IOException {
-        init("DataModelSchemaResolverTest.inlineModelsResolved.yaml");
-        Schema<?> schema = openAPIComponentsIndex.schemaByName("Model5");
+    public void resolvedInAdditionalProperties() {
+        ObjectDataModel resolvedSchema = resolveModel("Model4");
 
-        ObjectDataModel resolvedSchema = (ObjectDataModel) resolver.resolve(schema);
-        List<ObjectDataModel> inlineModels = DataModelResolver.resolveInlineModels((typeName, propertyName) -> typeName + "_" + propertyName, resolvedSchema);
-        Map<String, ObjectDataModel> inlineModelsMap = inlineModels.stream()
-                .collect(Collectors.toMap(ObjectDataModel::getTypeName, dataModelSchema -> dataModelSchema));
-        ObjectDataModel model5_array = inlineModelsMap.get("Model5_arrayItem");
-        assertNotNull(model5_array);
+        List<ObjectDataModel> resolvedInlineModels = DataModelResolver.resolveInlineModels(resolvedSchema, inlineModelTypeNameResolver());
+
+        assertThat(resolvedInlineModels, containsModelWithTypeName("Model4_additionalProperties"));
+    }
+
+    @Test
+    public void resolvedInArrays() {
+        ObjectDataModel resolvedSchema = resolveModel("Model5");
+
+        List<ObjectDataModel> resolvedInlineModels = DataModelResolver.resolveInlineModels(resolvedSchema, inlineModelTypeNameResolver());
+
+        assertThat(resolvedInlineModels, containsModelWithTypeName("Model5_arrayItem"));
+    }
+
+    private ObjectDataModel resolveModel(String modelName) {
+        Schema<?> schema = this.openAPIComponentsIndex.schemaByName(modelName);
+        return (ObjectDataModel) this.resolver.resolve(schema);
+    }
+
+    private InlineModelTypeNameResolver inlineModelTypeNameResolver() {
+        return (typeName, propertyName) -> typeName + "_" + propertyName;
+    }
+
+    private Matcher<List<ObjectDataModel>> containsModelWithTypeName(@NonNull String modelName) {
+        return new CustomMatcher<List<ObjectDataModel>>("Models list contains model with type name: " + modelName) {
+            @Override
+            public boolean matches(Object o) {
+                List<ObjectDataModel> list = (List<ObjectDataModel>) o;
+                return list.stream().anyMatch(objectDataModel -> modelName.equals(objectDataModel.getTypeName()));
+            }
+        };
     }
 }

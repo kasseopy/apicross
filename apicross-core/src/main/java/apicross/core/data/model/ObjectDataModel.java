@@ -35,13 +35,13 @@ public class ObjectDataModel extends DataModel {
         this(typeName, source);
         this.inheritanceDiscriminatorPropertyName = discriminatorPropertyName;
         this.inheritanceChildModels = new LinkedHashMap<>(childModels);
-        for (ObjectDataModel childModel : inheritanceChildModels.values()) {
+        for (ObjectDataModel childModel : this.inheritanceChildModels.values()) {
             childModel.inheritanceParent = this;
             childModel.inheritanceDiscriminatorValue = mapping != null ?
                     mapping.getOrDefault(childModel.typeName, childModel.typeName) : childModel.typeName;
         }
 
-        // Some properties from child schemas might be declared in the same schamas.
+        // Some properties from child schemas might be declared in the same schemas.
         // For example SchemaA is a AllOf(SchemaX and something else), SchemaB is AllOf(SchemaX and something else),
         // so when SchemaA and SchemaB is child data models for this model, so their common properties can be moved to this data model
 
@@ -88,7 +88,7 @@ public class ObjectDataModel extends DataModel {
 
     @Override
     public String getTypeName() {
-        return typeName;
+        return this.typeName;
     }
 
     public void setTypeName(String typeName) {
@@ -98,7 +98,7 @@ public class ObjectDataModel extends DataModel {
     private void initPropertiesFrom(Collection<ObjectDataModelProperty> properties) {
         Set<String> schemasNames = new HashSet<>();
         for (ObjectDataModelProperty property : properties) {
-            propertiesMap.put(property.getName(), property);
+            this.propertiesMap.put(property.getName(), property);
             String originSchemaName = property.getOriginSchemaName();
             schemasNames.add(originSchemaName);
         }
@@ -107,12 +107,12 @@ public class ObjectDataModel extends DataModel {
     }
 
     public Set<ObjectDataModelProperty> getProperties() {
-        return new LinkedHashSet<>(propertiesMap.values());
+        return new LinkedHashSet<>(this.propertiesMap.values());
     }
 
     @Nullable
     public ObjectDataModelProperty getProperty(String name) {
-        return propertiesMap.get(name);
+        return this.propertiesMap.get(name);
     }
 
     public Integer getMinProperties() {
@@ -135,27 +135,27 @@ public class ObjectDataModel extends DataModel {
     }
 
     public DataModel getAdditionalPropertiesDataModel() {
-        return additionalPropertiesDataModel;
+        return this.additionalPropertiesDataModel;
     }
 
     public Map<String, ObjectDataModel> getInheritanceChildModelsMap() {
-        return inheritanceChildModels;
+        return this.inheritanceChildModels;
     }
 
     public Collection<ObjectDataModel> getInheritanceChildModels() {
-        return inheritanceChildModels != null ? inheritanceChildModels.values() : null;
+        return this.inheritanceChildModels != null ? this.inheritanceChildModels.values() : null;
     }
 
     public String getInheritanceDiscriminatorPropertyName() {
-        return inheritanceDiscriminatorPropertyName;
+        return this.inheritanceDiscriminatorPropertyName;
     }
 
     public ObjectDataModel getInheritanceParent() {
-        return inheritanceParent;
+        return this.inheritanceParent;
     }
 
     public String getInheritanceDiscriminatorValue() {
-        return inheritanceDiscriminatorValue;
+        return this.inheritanceDiscriminatorValue;
     }
 
     public void changeTypeName(String newTypeName, boolean clear) {
@@ -193,9 +193,9 @@ public class ObjectDataModel extends DataModel {
         // TODO: make it deeper - replace for array items, for example
         Set<ObjectDataModelProperty> properties = this.getProperties();
         for (ObjectDataModelProperty property : properties) {
-            DataModel type = property.getType();
-            if (type.isObject()) {
-                String typeName = type.getTypeName();
+            DataModel dataModel = property.getType();
+            if (dataModel.isObject()) {
+                String typeName = dataModel.getTypeName();
                 if (externalTypesMap.containsKey(typeName)) {
                     property.changeTypeToExternal(externalTypesMap.get(typeName));
                 }
@@ -208,13 +208,13 @@ public class ObjectDataModel extends DataModel {
     }
 
     public String getInheritanceParentTypeName() {
-        return inheritanceParent != null ? inheritanceParent.getTypeName() : null;
+        return this.inheritanceParent != null ? this.inheritanceParent.getTypeName() : null;
     }
 
     @Override
     public String toString() {
         return "ObjectDataModelSchema{" +
-                "typeName='" + typeName + '\'' +
+                "typeName='" + this.typeName + '\'' +
                 '}';
     }
 }

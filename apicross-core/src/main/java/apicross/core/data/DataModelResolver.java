@@ -4,10 +4,10 @@ import apicross.core.data.model.*;
 import apicross.utils.OpenApiComponentsIndex;
 import apicross.utils.SchemaHelper;
 import io.swagger.v3.oas.models.media.*;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 
-import javax.annotation.Nonnull;
 import java.util.*;
 
 @Slf4j
@@ -17,30 +17,55 @@ public class DataModelResolver {
     private final Map<String, DataModel> by$refResolutionCache = new HashMap<>();
     private final Stack<String> resolvingPropertiesStack = new Stack<>();
 
-    public DataModelResolver(OpenApiComponentsIndex openAPIComponentsIndex, PropertyNameResolver propertyNameResolver) {
+    public DataModelResolver(@NonNull OpenApiComponentsIndex openAPIComponentsIndex, @NonNull PropertyNameResolver propertyNameResolver) {
         this.openAPIComponentsIndex = openAPIComponentsIndex;
         this.propertyNameResolver = propertyNameResolver;
     }
 
-    @Nonnull
-    public static List<ObjectDataModel> resolveInlineModels(InlineModelTypeNameResolver resolver, ObjectDataModel source) {
+    public static List<ObjectDataModel> resolveInlineModels(@NonNull ObjectDataModel source, @NonNull InlineModelTypeNameResolver resolver) {
         List<ObjectDataModel> result = new ArrayList<>();
         doResolveInlineModels(result, resolver, source);
         return result;
     }
 
-    @Nonnull
-    public static List<ObjectDataModel> resolveInlineModels(InlineModelTypeNameResolver resolver, ArrayDataModel arrayDataModel) {
-        List<ObjectDataModel> result = new ArrayList<>();
-        DataModel arrayItemType = arrayDataModel.getItemsDataModel();
+    public static List<ObjectDataModel> resolveInlineModels(@NonNull ArrayDataModel source, @NonNull InlineModelTypeNameResolver resolver) {
+        List<ObjectDataModel> outcome = new ArrayList<>();
+        DataModel arrayItemType = source.getItemsDataModel();
         if (arrayItemType.isObject() && arrayItemType.getTypeName() == null) {
             ObjectDataModel objectArrayItemType = (ObjectDataModel) arrayItemType;
-            objectArrayItemType.setTypeName(resolver.resolveArrayItemTypeName(arrayDataModel.getTypeName(), ""));
-            result.add(objectArrayItemType); // TODO: really needed?
-            List<ObjectDataModel> objectDataModels = resolveInlineModels(resolver, objectArrayItemType);
-            result.addAll(objectDataModels);
+            objectArrayItemType.setTypeName(resolver.resolveArrayItemTypeName(source.getTypeName(), ""));
+            outcome.add(objectArrayItemType);
+            List<ObjectDataModel> objectDataModels = resolveInlineModels(objectArrayItemType, resolver);
+            outcome.addAll(objectDataModels);
         }
-        return result;
+        return outcome;
+    }
+
+    @NonNull
+    public DataModel resolve(@NonNull Schema<?> schema) {
+        String schema$ref = schema.get$ref();
+        String schemaName = schema.getName();
+
+        if (schema$ref == null && schemaName != null) {
+            schema$ref = "#/components/schemas/" + schemaName;
+        }
+
+        log.info("Resolving schema, name: {}, $ref: {}, description: {}", schemaName, schema$ref, schema.getDescription());
+
+        if (schema$ref != null && by$refResolutionCache.containsKey(schema$ref)) {
+            log.info("Found cached schema (by $ref), name: {}, $ref: {}, description: {}", schemaName, schema$ref, schema.getDescription());
+            return by$refResolutionCache.get(schema$ref);
+        }
+
+        log.info("No cached schema, name: {}, $ref: {}, description: {}", schemaName, schema$ref, schema.getDescription());
+
+        DataModel dataModel = doResolve(schema);
+
+        if (schema$ref != null) {
+            by$refResolutionCache.put(schema$ref, dataModel);
+        }
+
+        return dataModel;
     }
 
     private static void doResolveInlineModels(List<ObjectDataModel> collectTo, InlineModelTypeNameResolver resolver,
@@ -76,33 +101,6 @@ public class DataModelResolver {
         }
     }
 
-    @Nonnull
-    public DataModel resolve(Schema<?> schema) {
-        String schema$ref = schema.get$ref();
-        String schemaName = schema.getName();
-
-        if (schema$ref == null && schemaName != null) {
-            schema$ref = "#/components/schemas/" + schemaName;
-        }
-
-        log.info("Resolving schema, name: {}, $ref: {}, description: {}", schemaName, schema$ref, schema.getDescription());
-
-        if (schema$ref != null && by$refResolutionCache.containsKey(schema$ref)) {
-            log.info("Found cached schema (by $ref), name: {}, $ref: {}, description: {}", schemaName, schema$ref, schema.getDescription());
-            return by$refResolutionCache.get(schema$ref);
-        }
-
-        log.info("No cached schema, name: {}, $ref: {}, description: {}", schemaName, schema$ref, schema.getDescription());
-
-        DataModel dataModel = doResolve(schema);
-
-        if (schema$ref != null) {
-            by$refResolutionCache.put(schema$ref, dataModel);
-        }
-
-        return dataModel;
-    }
-
     private DataModel doResolve(Schema<?> schema) {
         String schemaName = schema.getName();
         String schema$ref = schema.get$ref();
@@ -111,7 +109,7 @@ public class DataModelResolver {
 
         if (schema$ref != null) {
             return resolveFrom$ref(schema$ref);
-        } else if (SchemaHelper.isPrimitiveTypeSchema(schema) || SchemaHelper.isPrimitiveLikeSchema(schema)) {
+        } else if (SchemaHelper.isPrimitiveTypeSchema(schema) || SchemaHelper.isSchemaWithoutProperties(schema)) {
             return DataModel.newPrimitiveType(schema);
         } else if (schema instanceof ArraySchema) {
             return resolveArraySchema((ArraySchema) schema);
@@ -207,7 +205,7 @@ public class DataModelResolver {
                 primitivePartsModels.add((PrimitiveDataModel) partTypeSchema);
             }
 
-            if (SchemaHelper.isPrimitiveLikeSchema(partSchema)) { // only schemas to mix-in constraints, e.g. 'nullable: true' or 'minLength: 10'
+            if (SchemaHelper.isSchemaWithoutProperties(partSchema)) { // only schemas to mix-in constraints, e.g. 'nullable: true' or 'minLength: 10'
                 anonymousPartsCount++;
                 anonymousPart = partSchema;
             }
@@ -255,6 +253,9 @@ public class DataModelResolver {
         if (source.getDescription() != null) {
             target.setDescription(source.getDescription());
         }
+        if (source.getNullable() != null) {
+            target.setNullable(source.getNullable());
+        }
         if (source.getMaximum() != null) {
             target.setMaximum(source.getMaximum());
         }
@@ -266,9 +267,6 @@ public class DataModelResolver {
         }
         if (source.getMinLength() != null) {
             target.setMinLength(source.getMinLength());
-        }
-        if (source.getNullable() != null) {
-            target.setNullable(source.getNullable());
         }
         if (source.getPattern() != null) {
             target.setPattern(source.getPattern());
@@ -288,14 +286,14 @@ public class DataModelResolver {
         if (source.getDescription() != null) {
             target.setDescription(source.getDescription());
         }
+        if (source.getNullable() != null) {
+            target.setNullable(source.getNullable());
+        }
         if (source.getMinProperties() != null) {
             target.setMinProperties(source.getMinProperties());
         }
         if (source.getMaxProperties() != null) {
             target.setMaxProperties(source.getMaxProperties());
-        }
-        if (source.getNullable() != null) {
-            target.setNullable(source.getNullable());
         }
     }
 

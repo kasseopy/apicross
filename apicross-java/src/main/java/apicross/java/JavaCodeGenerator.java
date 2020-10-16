@@ -91,13 +91,13 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         }
     }
 
-    protected List<ObjectDataModel> prepareDataModelJavaClasses(Collection<ObjectDataModel> schemas, List<RequestsHandler> handlers) {
+    protected List<ObjectDataModel> prepareDataModelJavaClasses(Collection<ObjectDataModel> schemas, Collection<RequestsHandler> handlers) {
         log.info("Prepare data models java classes...");
 
         List<ObjectDataModel> result = new ArrayList<>();
 
-        resolveInlineModels(result, schemas);
-        resolveInlineModels(result, handlers);
+        resolveInlineModelsFromSchemas(result, schemas);
+        resolveInlineModelsFromRequestsHandler(result, handlers);
 
         if (this.dataModelsExternalTypesMap != null) {
             log.info("Process data models external types map...");
@@ -125,26 +125,26 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         return result;
     }
 
-    private static void resolveInlineModels(List<ObjectDataModel> result, List<RequestsHandler> handlers) {
+    private static void resolveInlineModelsFromRequestsHandler(List<ObjectDataModel> collectTo, Collection<RequestsHandler> handlers) {
         for (RequestsHandler handler : handlers) {
             for (RequestsHandlerMethod method : handler.getMethods()) {
                 if (method.getRequestBody() != null && method.getRequestBody().getContent().isArray()) {
                     ArrayDataModel requestBodyModel = (ArrayDataModel) method.getRequestBody().getContent();
-                    List<ObjectDataModel> objectDataModels = DataModelResolver.resolveInlineModels((typeName, propertyResolvedName) -> typeName + StringUtils.capitalize(propertyResolvedName), requestBodyModel);
-                    result.addAll(objectDataModels);
+                    List<ObjectDataModel> objectDataModels = DataModelResolver.resolveInlineModels(requestBodyModel, (typeName, propertyResolvedName) -> typeName + StringUtils.capitalize(propertyResolvedName));
+                    collectTo.addAll(objectDataModels);
                 }
             }
         }
     }
 
-    private static void resolveInlineModels(List<ObjectDataModel> result, Collection<ObjectDataModel> schemas) {
+    private static void resolveInlineModelsFromSchemas(List<ObjectDataModel> collectTo, Collection<ObjectDataModel> schemas) {
         for (ObjectDataModel model : schemas) {
-            result.add(model);
+            collectTo.add(model);
             List<ObjectDataModel> inlineModels =
-                    DataModelResolver.resolveInlineModels((typeName, propertyName) -> typeName + StringUtils.capitalize(propertyName), model);
+                    DataModelResolver.resolveInlineModels(model, (typeName, propertyName) -> typeName + StringUtils.capitalize(propertyName));
             if (!inlineModels.isEmpty()) {
-                result.addAll(inlineModels);
-                resolveInlineModels(result, inlineModels);
+                collectTo.addAll(inlineModels);
+                resolveInlineModelsFromSchemas(collectTo, inlineModels);
             }
         }
     }

@@ -21,7 +21,7 @@ public abstract class DataModel extends HasCustomModelAttributes {
     }
 
     public Schema<?> getSource() {
-        return source;
+        return this.source;
     }
 
     public static PrimitiveDataModel newPrimitiveType(@Nonnull Schema<?> source) {
@@ -73,27 +73,27 @@ public abstract class DataModel extends HasCustomModelAttributes {
     }
 
     public boolean isNullable() {
-        return BooleanUtils.isTrue(source.getNullable());
+        return BooleanUtils.isTrue(this.source.getNullable());
     }
 
     public boolean isString() {
-        return isPrimitive() && "string".equals(source.getType());
+        return isPrimitive() && "string".equals(this.source.getType());
     }
 
     public String getTypeName() {
-        return source.getType();
+        return this.source.getType();
     }
 
     public String getDescription() {
-        return source.getDescription();
+        return this.source.getDescription();
     }
 
     public Object getDefaultValue() {
-        return source.getDefault();
+        return this.source.getDefault();
     }
 
     public boolean isDefaultValueNotNull() {
-        return source.getDefault() != null;
+        return this.source.getDefault() != null;
     }
 
     @Override

@@ -24,7 +24,7 @@ public class SchemaHelper {
         return Objects.requireNonNull($ref).substring(StringUtils.lastIndexOf($ref, "/") + 1);
     }
 
-    public static boolean isPrimitiveLikeSchema(Schema<?> schema) {
+    public static boolean isSchemaWithoutProperties(Schema<?> schema) {
         return schema.getClass().equals(Schema.class)
                 && schema.get$ref() == null
                 && schema.getProperties() == null
