@@ -7,10 +7,10 @@ import apicross.core.data.model.ArrayDataModel;
 import apicross.core.data.model.ObjectDataModel;
 import apicross.core.data.PropertyNameResolver;
 import apicross.core.handler.*;
-import apicross.core.handler.model.MediaTypeContentModel;
 import apicross.core.handler.model.RequestsHandler;
 import apicross.core.handler.model.RequestsHandlerMethod;
 import apicross.utils.PluginsHelper;
+import apicross.utils.SourceCodeLineNumberUtil;
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
@@ -72,7 +72,7 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
 
         log.info("Writing sources...");
         File writeSourcesTo = new File(getOptions().getWriteSourcesTo());
-        File modelsPackageDir = new File(writeSourcesTo, toFilePath(apiModelPackage));
+        File modelsPackageDir = new File(writeSourcesTo, toFilePath(this.apiModelPackage));
 
         if (!modelsPackageDir.exists()) {
             modelsPackageDir.mkdirs();
@@ -82,7 +82,7 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         writeModelsSources(modelsPackageDir, modelsJavaClasses);
 
         if (!getOptions().isGenerateOnlyModels()) {
-            File handlersPackageDir = new File(writeSourcesTo, toFilePath(apiHandlerPackage));
+            File handlersPackageDir = new File(writeSourcesTo, toFilePath(this.apiHandlerPackage));
             if (!handlersPackageDir.exists()) {
                 handlersPackageDir.mkdirs();
                 log.info("Directory {} created", handlersPackageDir.getAbsolutePath());
@@ -101,12 +101,12 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
 
         if (this.dataModelsExternalTypesMap != null) {
             log.info("Process data models external types map...");
-            postprocessExternalTypesForDataModels(result, this.dataModelsExternalTypesMap);
+            processExternalTypesForDataModels(result, this.dataModelsExternalTypesMap);
         }
 
         if (this.dataModelsInterfacesMap != null) {
             log.info("Process data models interfaces...");
-            postprocessInterfacesForDataModels(result, this.dataModelsInterfacesMap);
+            processInterfacesForDataModels(result, this.dataModelsInterfacesMap);
         }
 
         String modelNameSuffix = getOptions().getModelClassNameSuffix();
@@ -149,7 +149,7 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         }
     }
 
-    protected void postprocessExternalTypesForDataModels(List<ObjectDataModel> models, Map<String, String> dataModelsExternalTypesMap) {
+    protected void processExternalTypesForDataModels(List<ObjectDataModel> models, Map<String, String> dataModelsExternalTypesMap) {
         Iterator<ObjectDataModel> dataModelIterator = models.iterator();
         while (dataModelIterator.hasNext()) {
             ObjectDataModel model = dataModelIterator.next();
@@ -167,7 +167,7 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         }
     }
 
-    protected void postprocessInterfacesForDataModels(List<ObjectDataModel> models, Map<String, String> dataModelsInterfacesMap) {
+    protected void processInterfacesForDataModels(List<ObjectDataModel> models, Map<String, String> dataModelsInterfacesMap) {
         for (ObjectDataModel model : models) {
             String iface = dataModelsInterfacesMap.get(model.getTypeName());
             if (iface != null) {
@@ -228,13 +228,13 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
     protected abstract void writeHandlersSources(File handlersPackageDir, File modelsPackageDir, List<RequestsHandler> handlers) throws IOException;
 
     protected void writeRequestsHandler(RequestsHandler requestsHandler, PrintWriter out) throws IOException {
-        Context context = buildTemplateContext(requestsHandler, apiHandlerPackage);
-        writeSource(context, requestsHandlerSourceCodeTemplate, out);
+        Context context = buildTemplateContext(requestsHandler, this.apiHandlerPackage);
+        writeSource(context, this.requestsHandlerSourceCodeTemplate, out);
     }
 
     protected void writeDataModel(ObjectDataModel model, PrintWriter out) throws IOException {
-        Context context = buildTemplateContext(model, apiModelPackage);
-        writeSource(context, dataModelSourceCodeTemplate, out);
+        Context context = buildTemplateContext(model, this.apiModelPackage);
+        writeSource(context, this.dataModelSourceCodeTemplate, out);
     }
 
     protected Context buildTemplateContext(Object model, String packageName) {
@@ -248,9 +248,10 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         String source = template.apply(model);
         String formattedSource;
         try {
-            formattedSource = formatter.formatSource(source);
+            formattedSource = this.formatter.formatSource(source);
         } catch (FormatterException e) {
-            log.error("Unable to format source:\n-------------------\n{}\n--------------------\n", source);
+            log.error("Unable to format source:\n-------------------\n{}\n--------------------\n",
+                    SourceCodeLineNumberUtil.addLineNumbers(source));
             throw new CodeGeneratorException(e);
         }
         out.println(formattedSource);
