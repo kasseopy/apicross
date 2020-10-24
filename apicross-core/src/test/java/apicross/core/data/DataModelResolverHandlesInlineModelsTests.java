@@ -1,10 +1,6 @@
 package apicross.core.data;
 
 import apicross.core.data.model.ObjectDataModel;
-import apicross.utils.OpenApiComponentsIndex;
-import apicross.utils.OpenApiSpecificationParser;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.media.Schema;
 import lombok.NonNull;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
@@ -17,21 +13,15 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 
-public class DataModelResolverHandlesInlineModelsTests {
-    private OpenApiComponentsIndex openAPIComponentsIndex;
-    private DataModelResolver resolver;
-
+public class DataModelResolverHandlesInlineModelsTests extends DataModelSchemaResolverTestsBase {
     @Before
     public void setup() throws IOException {
-        OpenAPI openAPI = OpenApiSpecificationParser.parse(getClass()
-                .getResourceAsStream("DataModelSchemaResolverTest.inlineModelsResolved.yaml"));
-        this.openAPIComponentsIndex = new OpenApiComponentsIndex(openAPI);
-        this.resolver = new DataModelResolver(this.openAPIComponentsIndex, (propertySchema, apiPropertyName) -> apiPropertyName);
+        load("DataModelSchemaResolverTest.inlineModelsResolved.yaml");
     }
 
     @Test
     public void resolvedInPlainStructure() {
-        ObjectDataModel resolvedSchema = resolveModel("Model1");
+        ObjectDataModel resolvedSchema = (ObjectDataModel) resolveModel("Model1");
 
         List<ObjectDataModel> resolvedInlineModels = DataModelResolver.resolveInlineModels(resolvedSchema, inlineModelTypeNameResolver());
 
@@ -42,7 +32,7 @@ public class DataModelResolverHandlesInlineModelsTests {
 
     @Test
     public void resolvedInStack() {
-        ObjectDataModel resolvedSchema = resolveModel("Model3");
+        ObjectDataModel resolvedSchema = (ObjectDataModel) resolveModel("Model3");
 
         List<ObjectDataModel> resolvedInlineModels = DataModelResolver.resolveInlineModels(resolvedSchema, inlineModelTypeNameResolver());
 
@@ -52,7 +42,7 @@ public class DataModelResolverHandlesInlineModelsTests {
 
     @Test
     public void resolvedInAdditionalProperties() {
-        ObjectDataModel resolvedSchema = resolveModel("Model4");
+        ObjectDataModel resolvedSchema = (ObjectDataModel) resolveModel("Model4");
 
         List<ObjectDataModel> resolvedInlineModels = DataModelResolver.resolveInlineModels(resolvedSchema, inlineModelTypeNameResolver());
 
@@ -61,16 +51,11 @@ public class DataModelResolverHandlesInlineModelsTests {
 
     @Test
     public void resolvedInArrays() {
-        ObjectDataModel resolvedSchema = resolveModel("Model5");
+        ObjectDataModel resolvedSchema = (ObjectDataModel) resolveModel("Model5");
 
         List<ObjectDataModel> resolvedInlineModels = DataModelResolver.resolveInlineModels(resolvedSchema, inlineModelTypeNameResolver());
 
         assertThat(resolvedInlineModels, containsModelWithTypeName("Model5_arrayItem"));
-    }
-
-    private ObjectDataModel resolveModel(String modelName) {
-        Schema<?> schema = this.openAPIComponentsIndex.schemaByName(modelName);
-        return (ObjectDataModel) this.resolver.resolve(schema);
     }
 
     private InlineModelTypeNameResolver inlineModelTypeNameResolver() {

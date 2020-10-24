@@ -1,8 +1,8 @@
 package apicross.core.data;
 
 import apicross.core.data.model.*;
-import apicross.utils.OpenApiComponentsIndex;
 import apicross.utils.SchemaHelper;
+import apicross.utils.SchemaIndex;
 import io.swagger.v3.oas.models.media.*;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -13,12 +13,12 @@ import java.util.*;
 @Slf4j
 public class DataModelResolver {
     private final PropertyNameResolver propertyNameResolver;
-    private final OpenApiComponentsIndex openAPIComponentsIndex;
+    private final SchemaIndex schemasIndex;
     private final Map<String, DataModel> by$refResolutionCache = new HashMap<>();
     private final Stack<String> resolvingPropertiesStack = new Stack<>();
 
-    public DataModelResolver(@NonNull OpenApiComponentsIndex openAPIComponentsIndex, @NonNull PropertyNameResolver propertyNameResolver) {
-        this.openAPIComponentsIndex = openAPIComponentsIndex;
+    public DataModelResolver(@NonNull SchemaIndex schemasIndex, @NonNull PropertyNameResolver propertyNameResolver) {
+        this.schemasIndex = schemasIndex;
         this.propertyNameResolver = propertyNameResolver;
     }
 
@@ -359,7 +359,7 @@ public class DataModelResolver {
     }
 
     private DataModel resolveFrom$ref(String $ref) {
-        Schema<?> targetSchema = openAPIComponentsIndex.schemaBy$ref($ref);
+        Schema<?> targetSchema = schemasIndex.schemaBy$ref($ref);
         return resolve(targetSchema);
     }
 }

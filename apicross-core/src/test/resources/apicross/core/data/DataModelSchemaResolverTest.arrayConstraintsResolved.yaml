@@ -5,7 +5,7 @@ info:
 paths: {}
 components:
   schemas:
-    SimpleObject:
+    ObjectType:
       type: object
       required:
         - b
@@ -18,31 +18,29 @@ components:
           type: string
           format: date
 
-    ArrayWithRefOntoObjectType:
+    ArrayWithItemReferredOntoObjectType:
       type: array
       items:
-        $ref: '#/components/schemas/SimpleObject'
+        $ref: '#/components/schemas/ObjectType'
       minItems:  1
       maxItems: 10
       uniqueItems: true
 
-    ArrayWithRefOntoSimpleType:
+    ArrayWithItemOfPrimitiveType:
       type: array
       items:
         type: string
         nullable: true
         maxLength: 100
-      minItems:  1
       maxItems: 10
       uniqueItems: true
 
-    ArrayWithRefOntoSimpleTypeV2:
+    ArrayWithItemReferredOntoPrimitiveType:
       type: array
       items:
         $ref: '#/components/schemas/StringType'
       minItems:  1
-      maxItems: 10
-      uniqueItems: true
+      uniqueItems: false
 
     StringType:
       type: string

@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
 public class DataModelResolverHandlesOneOfTests extends DataModelSchemaResolverTestsBase {
     @Test
     public void oneOfSchemaTypeResolved() throws IOException {
-        init("DataModelSchemaResolverTest.oneOfSchemaTypeResolved.yaml");
+        load("DataModelSchemaResolverTest.oneOfSchemaTypeResolved.yaml");
         Schema<?> schema = openAPIComponentsIndex.schemaByName("OneOfSchemaType");
 
         ObjectDataModel resolvedSchema = (ObjectDataModel) resolver.resolve(schema);
@@ -43,7 +43,7 @@ public class DataModelResolverHandlesOneOfTests extends DataModelSchemaResolverT
 
     @Test
     public void oneOfSchemaWithMappingTypeResolved() throws IOException {
-        init("DataModelSchemaResolverTest.oneOfSchemaTypeResolved.yaml");
+        load("DataModelSchemaResolverTest.oneOfSchemaTypeResolved.yaml");
         Schema<?> schema = openAPIComponentsIndex.schemaByName("OneOfSchemaTypeWithMaping");
 
         ObjectDataModel resolvedSchema = (ObjectDataModel) resolver.resolve(schema);

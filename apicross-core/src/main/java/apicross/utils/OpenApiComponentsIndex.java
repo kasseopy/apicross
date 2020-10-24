@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 
-public class OpenApiComponentsIndex {
+public class OpenApiComponentsIndex implements SchemaIndex {
     private final Map<String, RequestBody> requestBodies;
     private final Map<String, Schema> schemas;
 
@@ -28,11 +28,13 @@ public class OpenApiComponentsIndex {
         return lookup(schemaName);
     }
 
+    @Override
     @Nonnull
     public Schema<?> schemaBy$ref(String $ref) {
         return resolveRef($ref);
     }
 
+    @Override
     @Nullable
     public RequestBody requestBodyBy$ref(String $ref) {
         String componentName = resolveComponentName($ref);

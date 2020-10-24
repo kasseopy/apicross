@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
 public class DataModelResolverHandlesAdditionalPropertiesTests extends DataModelSchemaResolverTestsBase {
     @Before
     public void setUp() throws IOException {
-        init("DataModelSchemaResolverHandlesAdditionalPropertiesTests.yaml");
+        load("DataModelSchemaResolverHandlesAdditionalPropertiesTests.yaml");
     }
 
     @Test
