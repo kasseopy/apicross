@@ -16,6 +16,9 @@ public class PrimitiveDataModel extends DataModel {
         super(source);
     }
 
+    /**
+     * @deprecated use {{@link #getTypeName()}}
+     */
     public String getType() {
         return getSource().getType();
     }
