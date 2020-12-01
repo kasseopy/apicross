@@ -1,4 +1,4 @@
-package apicross.core.handler.impl;
+package apicross.utils;
 
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -6,8 +6,8 @@ import io.swagger.v3.oas.models.PathItem;
 import java.util.HashMap;
 import java.util.Map;
 
-class PathItemsOperationsMapper {
-    static Map<String, Operation> mapOperationsByHttpMethod(PathItem pathItem) {
+public class PathItemsOperationsMapper {
+    public static Map<String, Operation> mapOperationsByHttpMethod(PathItem pathItem) {
         Map<String, Operation> result = new HashMap<>();
         if (pathItem.getGet() != null) {
             result.put("GET", pathItem.getGet());

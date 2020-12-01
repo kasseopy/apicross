@@ -26,9 +26,11 @@
         <module>apicross-support</module>
         <module>apicross-maven-plugin</module>
         <module>apicross-springmvc</module>
+        <module>apicross-spring-hateoas</module>
         <module>apicross-spring-cloud-feign</module>
         <module>apicross-wiremock</module>
         <module>apicross-demoapp</module>
+        <module>apicross-ext-processor</module>
     </modules>
 
     <dependencyManagement>
@@ -52,6 +54,17 @@
                 <groupId>itroadlabs.toolkits</groupId>
                 <artifactId>apicross-support</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-models</artifactId>
+                <version>2.1.4</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.parser.v3</groupId>
+                <artifactId>swagger-parser</artifactId>
+                <version>2.0.21</version>
             </dependency>
 
             <dependency>

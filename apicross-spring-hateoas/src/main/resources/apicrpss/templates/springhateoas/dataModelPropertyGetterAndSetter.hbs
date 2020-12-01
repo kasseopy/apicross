@@ -1,0 +1,80 @@
+{{!-- ObjectDataModelSchemaProperty --}}
+{{#if optional}}
+    {{#unless writeOnly}}
+        {{#if deprecated}}@Deprecated{{/if}}
+        @JsonGetter("{{{name}}}")
+        protected JsonNullable< {{#with type}}{{> type}}{{/with}} > {{resolvedName}}Json() {
+        return this.{{resolvedName}};
+        }
+    {{/unless}}
+
+    {{> documentation }}
+    @javax.annotation.Nullable
+    @JsonIgnore
+    {{#if deprecated}}@Deprecated{{/if}}
+    public {{#with type}}{{> type}}{{/with}} get{{capitalizeFirst resolvedName}}() throws NoSuchElementException {
+    return this.{{resolvedName}}.get();
+    }
+
+    {{> documentation }}
+    @javax.annotation.Nullable
+    @JsonIgnore
+    {{#if deprecated}}@Deprecated{{/if}}
+    public {{#with type}}{{> type}}{{/with}} get{{capitalizeFirst resolvedName}}OrElse({{#with type}}{{> type}}{{/with}} defaultValue) {
+    return this.{{resolvedName}}.isPresent()? this.{{resolvedName}}.get() : defaultValue;
+    }
+
+    @JsonIgnore
+    {{#if deprecated}}@Deprecated{{/if}}
+    public boolean is{{capitalizeFirst resolvedName}}Present() {
+    return this.{{resolvedName}}.isPresent();
+    }
+
+    @JsonIgnore
+    {{#if deprecated}}@Deprecated{{/if}}
+    public boolean is{{capitalizeFirst resolvedName}}PresentAndNotNull() {
+    return this.{{resolvedName}}.isPresent() && this.{{resolvedName}}.get() != null;
+    }
+
+    @Deprecated
+    public void if{{capitalizeFirst resolvedName}}Present(java.util.function.Consumer<{{#with type}}{{> type}}{{/with}}> consumer) {
+    if(this.{{resolvedName}}.isPresent()) { consumer.accept(this.{{resolvedName}}.get()); }
+    }
+
+    public void if{{capitalizeFirst resolvedName}}PresentAndNotNull(java.util.function.Consumer<{{#with type}}{{> type}}{{/with}}> consumer) {
+    if(this.{{resolvedName}}.isPresent()) {
+    {{#with type}}{{> type}}{{/with}} value = this.{{resolvedName}}.get();
+    if(value != null) { consumer.accept(value); }
+    }
+    }
+{{else}}
+    {{> documentation }}
+    {{#if deprecated}}@Deprecated{{/if}}
+    {{#if writeOnly}}
+        @JsonIgnore
+    {{else}}
+        @JsonGetter("{{{name}}}")
+    {{/if}}
+    public {{#with type}}{{> type}}{{/with}} get{{capitalizeFirst resolvedName}}() {
+    return this.{{resolvedName}};
+    }
+{{/if}}
+
+{{!-- Setters --}}
+{{#if deprecated}}@Deprecated{{/if}}
+{{#if readOnly}}
+    @JsonIgnore
+{{else}}
+    @JsonSetter("{{{name}}}")
+{{/if}}
+public void set{{capitalizeFirst resolvedName}}({{#with type}}{{> type}}{{/with}} value) {
+this.$specifiedProperties.add("{{name}}");
+this.{{resolvedName}} = {{#if optional}}JsonNullable.of(value){{else}}value{{/if}};
+}
+
+{{#if deprecated}}@Deprecated{{/if}}
+public {{../typeName}} {{resolvedName}}({{#with type}}{{> type}}{{/with}} value) {
+this.$specifiedProperties.add("{{name}}");
+this.{{resolvedName}} = {{#if optional}}JsonNullable.of(value){{else}}value{{/if}};
+return this;
+}

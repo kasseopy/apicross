@@ -5,6 +5,7 @@ import io.swagger.v3.oas.models.media.Schema;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Predicate;
 
 public class ObjectDataModel extends DataModel {
     private String typeName;
@@ -209,6 +210,10 @@ public class ObjectDataModel extends DataModel {
 
     public String getInheritanceParentTypeName() {
         return this.inheritanceParent != null ? this.inheritanceParent.getTypeName() : null;
+    }
+
+    public void removeProperty(String apiPropertyName) {
+        this.propertiesMap.remove(apiPropertyName);
     }
 
     @Override

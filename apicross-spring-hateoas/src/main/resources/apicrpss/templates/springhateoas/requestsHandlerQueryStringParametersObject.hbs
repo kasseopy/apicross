@@ -1,0 +1,80 @@
+package {{package}};
+{{#each imports}}
+    import {{this}};
+{{/each}}
+import javax.validation.constraints.*;
+import javax.validation.Valid;
+import java.util.*;
+{{#if anyOptionalQueryParameter}}
+    import java.util.Optional;
+{{/if}}
+
+{{#if extraOpts.enableApicrossJavaBeanValidationSupport}}
+    import apicross.beanvalidation.*;
+{{/if}}
+
+{{#if extraOpts.enableApicrossJavaBeanValidationSupport}}
+    {{#if queryObjectRequiredProperties}}
+        @RequiredProperties(value = {
+        {{#each requiredProperties}}
+            "{{this}}"
+            {{#unless @last}},{{/unless}}
+        {{/each}}
+        }, groups = {BeanPropertiesValidationGroup.class})
+    {{/if}}
+{{/if}}
+public class {{capitalizeFirst operationId}}Query
+    {{#if extraOpts.enableApicrossJavaBeanValidationSupport}}implements HasSpecifiedProperties{{/if}}
+    {{#if queryObjectTypeInterfaces}}
+        {{#if extraOpts.enableApicrossJavaBeanValidationSupport}},{{else}} implements {{/if}}
+        {{#each queryObjectTypeInterfaces}}
+            {{this}}
+            {{#unless @last}},{{/unless}}
+        {{/each}}
+    {{/if}}
+{
+private final Set< String > $specifiedProperties = new HashSet();
+{{#each queryParameters}}
+    {{#with type}}
+        {{> dataModelPropertyConstraints}}
+        private {{> type}} {{../resolvedName}}
+        {{#if defaultValueNotNull}}
+            {{#if string}}
+                = "{{{defaultValue}}}"
+            {{else}}
+                = {{{defaultValue}}}
+            {{/if}}
+        {{/if}};
+    {{/with}}
+{{/each}}
+{{#each queryParameters}}
+    {{#if optionalWithoutDefaultValue}}
+        {{#if deprecated}}@Deprecated{{/if}}
+        public Optional<{{#with type}}{{> type}}{{/with}}> get{{capitalizeFirst resolvedName}}() {
+        return $specifiedProperties.contains("{{name}}") ? Optional.of(this.{{resolvedName}}) : Optional.empty();
+        }
+    {{else}}
+        {{#if deprecated}}@Deprecated{{/if}}
+        public {{#with type}}{{> type}}{{/with}} get{{capitalizeFirst resolvedName}}() {
+        return this.{{resolvedName}};
+        }
+    {{/if}}
+    {{#if deprecated}}@Deprecated{{/if}}
+    public void set{{capitalizeFirst resolvedName}}({{#with type}}{{> type}}{{/with}} value) {
+    this.$specifiedProperties.add("{{name}}");
+    this.{{resolvedName}} = value;
+    }
+
+    {{#if deprecated}}@Deprecated{{/if}}
+    public {{capitalizeFirst operationId}}Query {{name}}({{#with type}}{{> type}}{{/with}} value) {
+    this.$specifiedProperties.add("{{name}}");
+    this.{{resolvedName}} = value;
+    return this;
+    }
+{{/each}}
+    {{#if extraOpts.enableApicrossJavaBeanValidationSupport}}
+        @Override public Set< String > $specifiedProperties() {
+        return Collections.unmodifiableSet(this.$specifiedProperties);
+        }
+    {{/if}}
+    }
