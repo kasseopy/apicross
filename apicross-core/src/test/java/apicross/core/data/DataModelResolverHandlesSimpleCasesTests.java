@@ -1,9 +1,6 @@
 package apicross.core.data;
 
-import apicross.core.data.model.ArrayDataModel;
-import apicross.core.data.model.DataModel;
-import apicross.core.data.model.ObjectDataModel;
-import apicross.core.data.model.ObjectDataModelProperty;
+import apicross.core.data.model.*;
 import io.swagger.v3.oas.models.media.Schema;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +21,8 @@ public class DataModelResolverHandlesSimpleCasesTests extends DataModelSchemaRes
 
         DataModel resolvedSchema = resolver.resolve(schema);
 
-        assertEquals("string", resolvedSchema.getTypeName());
+        assertTrue(resolvedSchema instanceof PrimitiveDataModel);
+        assertTrue(((PrimitiveDataModel) resolvedSchema).isString());
     }
 
     @Test
@@ -38,15 +36,16 @@ public class DataModelResolverHandlesSimpleCasesTests extends DataModelSchemaRes
         assertEquals(3, properties.size());
 
         ObjectDataModelProperty aProperty = resolvedSchema.getProperty("a");
-        assertEquals("integer", aProperty.getType().getTypeName());
+        assertTrue(aProperty.getType() instanceof PrimitiveDataModel);
+        assertTrue(((PrimitiveDataModel) aProperty.getType()).isInteger());
         assertTrue(aProperty.isOptional());
 
         ObjectDataModelProperty bProperty = resolvedSchema.getProperty("b");
-        assertEquals("string", bProperty.getType().getTypeName());
+        assertTrue(((PrimitiveDataModel) bProperty.getType()).isString());
         assertFalse(bProperty.isOptional());
 
         ObjectDataModelProperty cProperty = resolvedSchema.getProperty("c");
-        assertEquals("string", cProperty.getType().getTypeName());
+        assertTrue(((PrimitiveDataModel) cProperty.getType()).isString());
         assertTrue(cProperty.isOptional());
     }
 
@@ -61,11 +60,11 @@ public class DataModelResolverHandlesSimpleCasesTests extends DataModelSchemaRes
         assertEquals(2, properties.size());
 
         ObjectDataModelProperty aProperty = resolvedSchema.getProperty("s");
-        assertEquals("string", aProperty.getType().getTypeName());
+        assertTrue(((PrimitiveDataModel) aProperty.getType()).isString());
         assertTrue(aProperty.isOptional());
 
         ObjectDataModelProperty bProperty = resolvedSchema.getProperty("o");
-        assertEquals("SimpleObject", bProperty.getType().getTypeName());
+        assertEquals("SimpleObject", ((ObjectDataModel) bProperty.getType()).getTypeName());
         assertFalse(bProperty.isOptional());
     }
 
@@ -79,9 +78,9 @@ public class DataModelResolverHandlesSimpleCasesTests extends DataModelSchemaRes
         Set<ObjectDataModelProperty> properties = resolvedSchema.getProperties();
         assertEquals(2, properties.size());
         ObjectDataModelProperty a1Property = resolvedSchema.getProperty("a1");
-        assertEquals("string", ((ArrayDataModel) a1Property.getType()).getItemsDataModel().getTypeName());
+        assertTrue(((PrimitiveDataModel)((ArrayDataModel) a1Property.getType()).getItemsDataModel()).isString());
         ObjectDataModelProperty a2Property = resolvedSchema.getProperty("a2");
-        assertEquals("SimpleObject", ((ArrayDataModel) a2Property.getType()).getItemsDataModel().getTypeName());
+        assertEquals("SimpleObject", ((ObjectDataModel)((ArrayDataModel) a2Property.getType()).getItemsDataModel()).getTypeName());
     }
 
     @Test

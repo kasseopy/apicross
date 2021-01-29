@@ -1,6 +1,7 @@
 package apicross.core.data;
 
 import apicross.core.data.model.ArrayDataModel;
+import apicross.core.data.model.ObjectDataModel;
 import apicross.core.data.model.PrimitiveDataModel;
 import io.swagger.v3.oas.models.media.Schema;
 import org.junit.Test;
@@ -21,7 +22,7 @@ public class DataModelResolverHandlesArraysTests extends DataModelSchemaResolver
         ArrayDataModel resolvedSchema = (ArrayDataModel) resolver.resolve(schema);
 
         assertTrue(resolvedSchema.isArray());
-        assertEquals("string", resolvedSchema.getItemsDataModel().getTypeName());
+        assertTrue(((PrimitiveDataModel) resolvedSchema.getItemsDataModel()).isString());
     }
 
     @Test
@@ -32,7 +33,7 @@ public class DataModelResolverHandlesArraysTests extends DataModelSchemaResolver
         ArrayDataModel resolvedSchema = (ArrayDataModel) resolver.resolve(schema);
 
         assertTrue(resolvedSchema.isArray());
-        assertEquals("string", resolvedSchema.getItemsDataModel().getTypeName());
+        assertTrue(((PrimitiveDataModel) resolvedSchema.getItemsDataModel()).isString());
     }
 
     @Test
@@ -43,7 +44,7 @@ public class DataModelResolverHandlesArraysTests extends DataModelSchemaResolver
         ArrayDataModel resolvedSchema = (ArrayDataModel) resolver.resolve(schema);
 
         assertTrue(resolvedSchema.isArray());
-        assertEquals("SimpleObject", resolvedSchema.getItemsDataModel().getTypeName());
+        assertEquals("SimpleObject", ((ObjectDataModel) resolvedSchema.getItemsDataModel()).getTypeName());
     }
 
     @Test
@@ -64,7 +65,7 @@ public class DataModelResolverHandlesArraysTests extends DataModelSchemaResolver
         resolvedSchema = (ArrayDataModel) resolver.resolve(schema);
 
         assertTrue(resolvedSchema.isArray());
-        assertEquals("SimpleObject", resolvedSchema.getItemsDataModel().getTypeName());
+        assertEquals("SimpleObject", ((ObjectDataModel) resolvedSchema.getItemsDataModel()).getTypeName());
 
         assertEquals(1, resolvedSchema.getMinItems().intValue());
         assertEquals(10, resolvedSchema.getMaxItems().intValue());
@@ -75,7 +76,7 @@ public class DataModelResolverHandlesArraysTests extends DataModelSchemaResolver
 
     private void arrayConstraintsResolvedVerification(ArrayDataModel resolvedSchema) {
         assertTrue(resolvedSchema.isArray());
-        assertEquals("string", resolvedSchema.getItemsDataModel().getTypeName());
+        assertTrue(((PrimitiveDataModel) resolvedSchema.getItemsDataModel()).isString());
 
         assertEquals(1, resolvedSchema.getMinItems().intValue());
         assertEquals(10, resolvedSchema.getMaxItems().intValue());

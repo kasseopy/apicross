@@ -1,5 +1,6 @@
 package apicross.core.data.model;
 
+import com.google.common.base.Preconditions;
 import io.swagger.v3.oas.models.media.Schema;
 import apicross.core.NamedDatum;
 import org.apache.commons.lang3.BooleanUtils;
@@ -30,5 +31,10 @@ public class ObjectDataModelProperty extends NamedDatum {
 
     public void markRequired() {
         setOptional(false);
+    }
+
+    public void changeTypeToExternal(String newTypeName) {
+        Preconditions.checkState(getType().isObject());
+        ((ObjectDataModel) this.getType()).changeTypeName(newTypeName);
     }
 }

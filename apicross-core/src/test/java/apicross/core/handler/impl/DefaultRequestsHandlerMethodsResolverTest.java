@@ -2,6 +2,7 @@ package apicross.core.handler.impl;
 
 import apicross.core.data.model.DataModel;
 import apicross.core.data.DataModelResolver;
+import apicross.core.data.model.ObjectDataModel;
 import apicross.core.handler.model.HttpOperation;
 import apicross.core.handler.ParameterNameResolver;
 import apicross.core.handler.model.RequestsHandlerMethod;
@@ -66,7 +67,7 @@ public class DefaultRequestsHandlerMethodsResolverTest {
         when(dataModelResolver.resolve(any(Schema.class)))
                 .thenAnswer((Answer<DataModel>) invocationOnMock -> {
                     ObjectSchema objectSchema = invocationOnMock.getArgument(0);
-                    return DataModel.newObjectType(objectSchema, objectSchema.getName());
+                    return DataModel.newObjectDataModel(objectSchema, objectSchema.getName());
                 });
 
         List<RequestsHandlerMethod> methods = resolver.resolve(new HttpOperation("/test", PathItem.HttpMethod.GET, operation), methodNameResolver, parameterNameResolver);
@@ -77,8 +78,8 @@ public class DefaultRequestsHandlerMethodsResolverTest {
         assertEquals("GET", requestsHandlerMethod.getHttpMethod());
         assertEquals("application/xml", requestsHandlerMethod.getResponseBody().getMediaType());
         assertEquals("application/json", requestsHandlerMethod.getRequestBody().getMediaType());
-        assertEquals("TestRequest", requestsHandlerMethod.getRequestBody().getContent().getTypeName());
-        assertEquals("TestResponse", requestsHandlerMethod.getResponseBody().getContent().getTypeName());
+        assertEquals("TestRequest", ((ObjectDataModel)requestsHandlerMethod.getRequestBody().getContent()).getTypeName());
+        assertEquals("TestResponse", ((ObjectDataModel)requestsHandlerMethod.getResponseBody().getContent()).getTypeName());
     }
 
     private static final ParameterNameResolver PARAMETER_NAME_RESOLVER = new ParameterNameResolver() {

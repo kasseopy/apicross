@@ -1,0 +1,11 @@
+{{#if primitive}}
+    {{#if defaultValueNotNull}}
+        {{#if string}}
+            = JsonNullable.of("{{{defaultValue}}}")
+        {{else}}
+            = JsonNullable.of({{{defaultValue}}})
+        {{/if}}
+    {{else}}
+        = JsonNullable.undefined()
+    {{/if}}
+{{/if}}

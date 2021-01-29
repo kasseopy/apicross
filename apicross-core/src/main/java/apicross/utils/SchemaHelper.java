@@ -27,14 +27,14 @@ public class SchemaHelper {
     public static boolean isPrimitiveLikeSchema(Schema<?> schema) {
         return schema.getClass().equals(Schema.class)
                 && schema.get$ref() == null
-                && hasObjectSchemaAttributes(schema);
+                && hasNoObjectSchemaAttributes(schema);
     }
 
     public static boolean isAnyObjectLikeSchema(Schema<?> schema) {
-        return (schema instanceof ObjectSchema) && hasObjectSchemaAttributes(schema);
+        return (schema instanceof ObjectSchema) && hasNoObjectSchemaAttributes(schema);
     }
 
-    private static boolean hasObjectSchemaAttributes(Schema<?> schema) {
+    private static boolean hasNoObjectSchemaAttributes(Schema<?> schema) {
         return schema.getProperties() == null
                 && schema.getRequired() == null
                 && schema.getMinProperties() == null

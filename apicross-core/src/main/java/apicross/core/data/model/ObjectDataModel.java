@@ -23,8 +23,7 @@ public class ObjectDataModel extends DataModel {
         this.typeName = typeName;
     }
 
-    ObjectDataModel(String typeName, Schema<?> source, Set<ObjectDataModelProperty> properties,
-                    DataModel additionalPropertiesDataModel) {
+    ObjectDataModel(String typeName, Schema<?> source, Set<ObjectDataModelProperty> properties, DataModel additionalPropertiesDataModel) {
         this(typeName, source);
         this.propertiesMap = new LinkedHashMap<>();
         this.additionalPropertiesDataModel = additionalPropertiesDataModel;
@@ -41,39 +40,39 @@ public class ObjectDataModel extends DataModel {
                     mapping.getOrDefault(childModel.typeName, childModel.typeName) : childModel.typeName;
         }
 
-        // Some properties from child schemas might be declared in the same schamas.
+        // Some properties from child schemas might be declared in the same schemas.
         // For example SchemaA is a AllOf(SchemaX and something else), SchemaB is AllOf(SchemaX and something else),
         // so when SchemaA and SchemaB is child data models for this model, so their common properties can be moved to this data model
 
-        Set<String> originSchemasNamesForCommonProperties = collectCommonPropertiesOriginSchemasNames(this.inheritanceChildModels);
+        Set<String> originSchemasNamesForCommonProperties = collectCommonPropertiesOriginSchemasNames();
 
         List<ObjectDataModelProperty> collectedCommonProperties = new ArrayList<>();
         for (ObjectDataModel childModel : this.inheritanceChildModels.values()) {
-            List<ObjectDataModelProperty> propsToBeMovedToParent = removePropertiesForOriginSources(childModel, originSchemasNamesForCommonProperties);
+            List<ObjectDataModelProperty> propsToBeMovedToParent = childModel.removePropertiesForOriginSources(originSchemasNamesForCommonProperties);
             propsToBeMovedToParent.removeIf(property -> property.getName().equals(this.inheritanceDiscriminatorPropertyName));
             childModel.removeRequiredProperty(this.inheritanceDiscriminatorPropertyName);
             collectedCommonProperties.addAll(propsToBeMovedToParent);
         }
-        this.initPropertiesFrom(collectedCommonProperties); // TODO: here in the collectedCommonProperties might be duplicates, but these are avoided in the initPropertiesFrom(), and it's not clear :(
+        this.initPropertiesFrom(collectedCommonProperties); // TODO: here in the collectedCommonProperties might be duplicates, but they are avoid in the initPropertiesFrom(), and it's not clear :(
     }
 
-    private static Set<String> collectCommonPropertiesOriginSchemasNames(Map<String, ObjectDataModel> childSchemasMap) {
+    private Set<String> collectCommonPropertiesOriginSchemasNames() {
         Set<String> commonSchemasNames = new HashSet<>();
 
-        for (ObjectDataModel childSchema : childSchemasMap.values()) {
+        for (ObjectDataModel childSchema : this.inheritanceChildModels.values()) {
             commonSchemasNames.addAll(childSchema.propertiesOriginSchemasNames);
         }
-        for (ObjectDataModel childSchema : childSchemasMap.values()) {
+        for (ObjectDataModel childSchema : this.inheritanceChildModels.values()) {
             commonSchemasNames.retainAll(childSchema.propertiesOriginSchemasNames);
         }
         commonSchemasNames.removeIf(Objects::isNull);
         return commonSchemasNames;
     }
 
-    private static List<ObjectDataModelProperty> removePropertiesForOriginSources(ObjectDataModel removeFromDataModel, Set<String> originSchemasNames) {
+    private List<ObjectDataModelProperty> removePropertiesForOriginSources(Set<String> originSchemasNames) {
         List<ObjectDataModelProperty> propsToBeRemoved = new ArrayList<>();
         List<ObjectDataModelProperty> propsToBeLeft = new ArrayList<>();
-        for (ObjectDataModelProperty property : removeFromDataModel.propertiesMap.values()) {
+        for (ObjectDataModelProperty property : propertiesMap.values()) {
             String originSchemaName = property.getOriginSchemaName();
             if ((originSchemaName != null) && originSchemasNames.contains(originSchemaName)) {
                 propsToBeRemoved.add(property);
@@ -81,12 +80,11 @@ public class ObjectDataModel extends DataModel {
                 propsToBeLeft.add(property);
             }
         }
-        removeFromDataModel.propertiesMap.clear();
-        removeFromDataModel.initPropertiesFrom(propsToBeLeft);
+        propertiesMap.clear();
+        initPropertiesFrom(propsToBeLeft);
         return propsToBeRemoved;
     }
 
-    @Override
     public String getTypeName() {
         return typeName;
     }
@@ -142,6 +140,7 @@ public class ObjectDataModel extends DataModel {
         return inheritanceChildModels;
     }
 
+    @Nullable
     public Collection<ObjectDataModel> getInheritanceChildModels() {
         return inheritanceChildModels != null ? inheritanceChildModels.values() : null;
     }
@@ -158,9 +157,9 @@ public class ObjectDataModel extends DataModel {
         return inheritanceDiscriminatorValue;
     }
 
-    public void changeTypeName(String newTypeName, boolean clear) {
+    public void changeTypeName(String newTypeName, boolean clearPropertiesAndInheritance) {
         this.typeName = newTypeName;
-        if (clear) {
+        if (clearPropertiesAndInheritance) {
             this.propertiesMap.clear();
             this.inheritanceChildModels = null;
             this.inheritanceDiscriminatorPropertyName = null;
@@ -194,8 +193,8 @@ public class ObjectDataModel extends DataModel {
         Set<ObjectDataModelProperty> properties = this.getProperties();
         for (ObjectDataModelProperty property : properties) {
             DataModel type = property.getType();
-            if (type.isObject()) {
-                String typeName = type.getTypeName();
+            if (type instanceof ObjectDataModel) {
+                String typeName = ((ObjectDataModel) type).getTypeName();
                 if (externalTypesMap.containsKey(typeName)) {
                     property.changeTypeToExternal(externalTypesMap.get(typeName));
                 }
@@ -204,16 +203,32 @@ public class ObjectDataModel extends DataModel {
     }
 
     public boolean isInheritanceChild() {
-        return getInheritanceParent() != null;
+        return inheritanceParent != null;
     }
 
     public String getInheritanceParentTypeName() {
         return inheritanceParent != null ? inheritanceParent.getTypeName() : null;
     }
+    @Override
+    public boolean equals(Object object) {
+        if (!(object instanceof ObjectDataModel)) {
+            return false;
+        }
+        ObjectDataModel dataModel = (ObjectDataModel) object;
+        if (!dataModel.getClass().equals(this.getClass())) {
+            return false;
+        }
+        return this.typeName != null && this.typeName.equals(dataModel.typeName);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.getSource().getType() != null ? this.getSource().getType().hashCode() : 0;
+    }
 
     @Override
     public String toString() {
-        return "ObjectDataModelSchema{" +
+        return "ObjectDataModel{" +
                 "typeName='" + typeName + '\'' +
                 '}';
     }

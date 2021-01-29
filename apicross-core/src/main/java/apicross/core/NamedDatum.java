@@ -80,10 +80,6 @@ public abstract class NamedDatum extends HasCustomModelAttributes {
         return getType().getSource();
     }
 
-    public void changeTypeToExternal(String newTypeName) {
-        ((ObjectDataModel) this.type).changeTypeName(newTypeName);
-    }
-
     public boolean isOptionalWithoutDefaultValue() {
         return this.isOptional() && !this.isDefaultValueNotNull();
     }

@@ -63,25 +63,13 @@ public class PrimitiveDataModel extends DataModel {
         return BooleanUtils.isTrue(getSource().getExclusiveMaximum());
     }
 
-//    public boolean isConstrainedStringLength() {
-//        return isMaxLengthDefined() || isMinLengthDefined();
-//    }
-//
-//    public boolean isMinLengthDefined() {
-//        return getSource().getMinLength() != null;
-//    }
-//
-//    public boolean isMinimumDefined() {
-//        return getSource().getMinimum() != null;
-//    }
-//
-//    public boolean isMaxLengthDefined() {
-//        return getSource().getMaxLength() != null;
-//    }
-//
-//    public boolean isMaximumDefined() {
-//        return getSource().getMaximum() != null;
-//    }
+    public boolean isString() {
+        return isPrimitive() && "string".equals(getSource().getType());
+    }
+
+    public boolean isInteger() {
+        return isPrimitive() && "integer".equals(getSource().getType());
+    }
 
     private Number toNumberAccordingType(BigDecimal value) {
         Schema<?> source = getSource();
@@ -95,7 +83,24 @@ public class PrimitiveDataModel extends DataModel {
     }
 
     @Override
+    public boolean equals(Object object) {
+        if (!(object instanceof PrimitiveDataModel)) {
+            return false;
+        }
+        PrimitiveDataModel dataModel = (PrimitiveDataModel) object;
+        if (!dataModel.getClass().equals(this.getClass())) {
+            return false;
+        }
+        return this.getSource().getType() != null && this.getSource().getType().equals(dataModel.getSource().getType());
+    }
+
+    @Override
+    public int hashCode() {
+        return this.getSource().getType() != null ? this.getSource().getType().hashCode() : 0;
+    }
+
+    @Override
     public String toString() {
-        return "PrimitiveDataModelSchema{" + getType() + "}";
+        return "PrimitiveDataModel{" + getType() + "}";
     }
 }

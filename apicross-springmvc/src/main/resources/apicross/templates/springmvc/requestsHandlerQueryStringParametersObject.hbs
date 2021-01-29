@@ -24,27 +24,20 @@ import java.util.*;
     {{/if}}
 {{/if}}
 public class {{capitalizeFirst operationId}}Query
-    {{#if extraOpts.enableApicrossJavaBeanValidationSupport}}implements HasSpecifiedProperties{{/if}}
-    {{#if queryObjectTypeInterfaces}}
-        {{#if extraOpts.enableApicrossJavaBeanValidationSupport}},{{else}} implements {{/if}}
-        {{#each queryObjectTypeInterfaces}}
-            {{this}}
-            {{#unless @last}},{{/unless}}
-        {{/each}}
-    {{/if}}
+{{#if extraOpts.enableApicrossJavaBeanValidationSupport}}implements HasSpecifiedProperties{{/if}}
+{{#if queryObjectTypeInterfaces}}
+    {{#if extraOpts.enableApicrossJavaBeanValidationSupport}},{{else}} implements {{/if}}
+    {{#each queryObjectTypeInterfaces}}
+        {{this}}
+        {{#unless @last}},{{/unless}}
+    {{/each}}
+{{/if}}
 {
 private final Set< String > $specifiedProperties = new HashSet();
 {{#each queryParameters}}
     {{#with type}}
         {{> dataModelPropertyConstraints}}
-        private {{> type}} {{../resolvedName}}
-        {{#if defaultValueNotNull}}
-            {{#if string}}
-                = "{{{defaultValue}}}"
-            {{else}}
-                = {{{defaultValue}}}
-            {{/if}}
-        {{/if}};
+        private {{> type}} {{../resolvedName}} {{> dataModelPropertyDefaultValue}};
     {{/with}}
 {{/each}}
 {{#each queryParameters}}
@@ -72,9 +65,9 @@ private final Set< String > $specifiedProperties = new HashSet();
     return this;
     }
 {{/each}}
-    {{#if extraOpts.enableApicrossJavaBeanValidationSupport}}
-        @Override public Set< String > $specifiedProperties() {
-        return Collections.unmodifiableSet(this.$specifiedProperties);
-        }
-    {{/if}}
+{{#if extraOpts.enableApicrossJavaBeanValidationSupport}}
+    @Override public Set< String > $specifiedProperties() {
+    return Collections.unmodifiableSet(this.$specifiedProperties);
     }
+{{/if}}
+}

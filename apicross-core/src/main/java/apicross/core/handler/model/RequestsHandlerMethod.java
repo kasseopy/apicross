@@ -158,8 +158,8 @@ public class RequestsHandlerMethod extends HasCustomModelAttributes {
     private void replaceMediaTypeContentModelByExternalTypesMap(Map<String, String> externalTypesMap, MediaTypeContentModel contentModel) {
         for (String internalSchemaName : externalTypesMap.keySet()) {
             DataModel content = contentModel.getContent();
-            if (content.getTypeName().equals(internalSchemaName)) {
-                if (content instanceof ObjectDataModel) {
+            if (content instanceof ObjectDataModel) {
+                if (((ObjectDataModel) content).getTypeName().equals(internalSchemaName)) {
                     ((ObjectDataModel) content).changeTypeName(externalTypesMap.get(internalSchemaName));
                 }
             }

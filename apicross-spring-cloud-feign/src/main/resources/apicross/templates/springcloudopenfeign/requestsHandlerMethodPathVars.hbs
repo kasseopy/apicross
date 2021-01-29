@@ -1,4 +1,0 @@
-{{#each pathParameters}}
-    @PathVariable("{{name}}") {{#with type}}{{> type}}{{/with}} {{resolvedName}}
-    {{#unless @last}},{{/unless}}
-{{/each}}

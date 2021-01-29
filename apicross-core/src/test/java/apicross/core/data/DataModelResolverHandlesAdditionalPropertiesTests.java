@@ -1,6 +1,7 @@
 package apicross.core.data;
 
 import apicross.core.data.model.ObjectDataModel;
+import apicross.core.data.model.PrimitiveDataModel;
 import io.swagger.v3.oas.models.media.Schema;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +34,7 @@ public class DataModelResolverHandlesAdditionalPropertiesTests extends DataModel
 
         ObjectDataModel resolvedSchema = (ObjectDataModel) resolver.resolve(schema);
         assertNotNull(resolvedSchema.getAdditionalPropertiesDataModel());
-        assertEquals("AdditionalPropertyType", resolvedSchema.getAdditionalPropertiesDataModel().getTypeName());
+        assertEquals("AdditionalPropertyType", ((ObjectDataModel)resolvedSchema.getAdditionalPropertiesDataModel()).getTypeName());
     }
 
     @Test
@@ -42,6 +43,6 @@ public class DataModelResolverHandlesAdditionalPropertiesTests extends DataModel
 
         ObjectDataModel resolvedSchema = (ObjectDataModel) resolver.resolve(schema);
         assertNotNull(resolvedSchema.getAdditionalPropertiesDataModel());
-        assertEquals("string", resolvedSchema.getAdditionalPropertiesDataModel().getTypeName());
+        assertTrue(((PrimitiveDataModel)resolvedSchema.getAdditionalPropertiesDataModel()).isString());
     }
 }

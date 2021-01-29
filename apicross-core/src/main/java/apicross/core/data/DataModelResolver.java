@@ -23,61 +23,7 @@ public class DataModelResolver {
     }
 
     @Nonnull
-    public static List<ObjectDataModel> resolveInlineModels(InlineModelTypeNameResolver resolver, ObjectDataModel source) {
-        List<ObjectDataModel> result = new ArrayList<>();
-        doResolveInlineModels(result, resolver, source);
-        return result;
-    }
-
-    @Nonnull
-    public static List<ObjectDataModel> resolveInlineModels(InlineModelTypeNameResolver resolver, ArrayDataModel arrayDataModel) {
-        List<ObjectDataModel> result = new ArrayList<>();
-        DataModel arrayItemType = arrayDataModel.getItemsDataModel();
-        if (arrayItemType.isObject() && arrayItemType.getTypeName() == null) {
-            ObjectDataModel objectArrayItemType = (ObjectDataModel) arrayItemType;
-            objectArrayItemType.setTypeName(resolver.resolveArrayItemTypeName(arrayDataModel.getTypeName(), ""));
-            result.add(objectArrayItemType); // TODO: really needed?
-            List<ObjectDataModel> objectDataModels = resolveInlineModels(resolver, objectArrayItemType);
-            result.addAll(objectDataModels);
-        }
-        return result;
-    }
-
-    private static void doResolveInlineModels(List<ObjectDataModel> collectTo, InlineModelTypeNameResolver resolver,
-                                              ObjectDataModel source) {
-        Collection<ObjectDataModelProperty> properties = source.getProperties();
-        for (ObjectDataModelProperty property : properties) {
-            DataModel type = property.getType();
-            if (type.isObject() && type.getTypeName() == null) {
-                ObjectDataModel propertyType = (ObjectDataModel) type;
-                propertyType.setTypeName(resolver.resolveTypeName(source.getTypeName(), property.getResolvedName()));
-                collectTo.add(propertyType);
-                doResolveInlineModels(collectTo, resolver, propertyType);
-            } else if (type.isArray()) {
-                ArrayDataModel propertyType = (ArrayDataModel) type;
-                DataModel arrayItemType = propertyType.getItemsDataModel();
-                if (arrayItemType.isObject() && arrayItemType.getTypeName() == null) {
-                    ObjectDataModel objectArrayItemType = (ObjectDataModel) arrayItemType;
-                    objectArrayItemType.setTypeName(resolver.resolveArrayItemTypeName(source.getTypeName(), property.getResolvedName()));
-                    collectTo.add(objectArrayItemType);
-                    doResolveInlineModels(collectTo, resolver, objectArrayItemType);
-                }
-            }
-        }
-
-        DataModel additionalPropertiesType = source.getAdditionalPropertiesDataModel();
-        if (additionalPropertiesType != null && additionalPropertiesType.isObject()) {
-            if (additionalPropertiesType.getTypeName() == null) {
-                ObjectDataModel objectType = (ObjectDataModel) additionalPropertiesType;
-                objectType.setTypeName(resolver.resolveTypeName(source.getTypeName(), "additionalProperties"));
-                collectTo.add(objectType);
-                doResolveInlineModels(collectTo, resolver, objectType);
-            }
-        }
-    }
-
-    @Nonnull
-    public DataModel resolve(Schema<?> schema) {
+    public DataModel resolve(@Nonnull Schema<?> schema) {
         String schema$ref = schema.get$ref();
         String schemaName = schema.getName();
 
@@ -85,14 +31,14 @@ public class DataModelResolver {
             schema$ref = "#/components/schemas/" + schemaName;
         }
 
-        log.info("Resolving schema, name: {}, $ref: {}, description: {}", schemaName, schema$ref, schema.getDescription());
+        log.debug("Resolving schema, name: {}, $ref: {}, description: {}", schemaName, schema$ref, schema.getDescription());
 
         if (schema$ref != null && by$refResolutionCache.containsKey(schema$ref)) {
             log.info("Found cached schema (by $ref), name: {}, $ref: {}, description: {}", schemaName, schema$ref, schema.getDescription());
             return by$refResolutionCache.get(schema$ref);
         }
 
-        log.info("No cached schema, name: {}, $ref: {}, description: {}", schemaName, schema$ref, schema.getDescription());
+        log.debug("No cached schema, name: {}, $ref: {}, description: {}", schemaName, schema$ref, schema.getDescription());
 
         DataModel dataModel = doResolve(schema);
 
@@ -112,7 +58,7 @@ public class DataModelResolver {
         if (schema$ref != null) {
             return resolveFrom$ref(schema$ref);
         } else if (SchemaHelper.isPrimitiveTypeSchema(schema) || SchemaHelper.isPrimitiveLikeSchema(schema)) {
-            return DataModel.newPrimitiveType(schema);
+            return DataModel.newPrimitiveDataModel(schema);
         } else if (schema instanceof ArraySchema) {
             return resolveArraySchema((ArraySchema) schema);
         } else if (schema instanceof ComposedSchema) {
@@ -162,7 +108,8 @@ public class DataModelResolver {
             }
             DataModel childDataModel = resolveFrom$ref(partSchema.get$ref());
             if (childDataModel instanceof ObjectDataModel) {
-                childTypes.put(childDataModel.getTypeName(), (ObjectDataModel) childDataModel);
+                ObjectDataModel objectDataModel = (ObjectDataModel) childDataModel;
+                childTypes.put(objectDataModel.getTypeName(), objectDataModel);
             } else {
                 throw new DataModelResolverException("Only object type schemas can be inheritance child");
             }
@@ -177,7 +124,7 @@ public class DataModelResolver {
             }
         }
 
-        return DataModel.newObjectType(schema, schema.getName(),
+        return DataModel.newObjectDataModel(schema, schema.getName(),
                 childTypes, discriminator.getPropertyName(), mappingKeysByTypes);
     }
 
@@ -206,7 +153,7 @@ public class DataModelResolver {
                 allProperties.addAll(objectDataModel.getProperties());
             }
 
-            if (partTypeSchema.isPrimitive()) {
+            if (partTypeSchema instanceof PrimitiveDataModel) {
                 primitivePartsModels.add((PrimitiveDataModel) partTypeSchema);
             }
 
@@ -251,7 +198,7 @@ public class DataModelResolver {
             schema.setDescription(description);
         }
 
-        return DataModel.newObjectType(schema, schema.getName(), allProperties, null);
+        return DataModel.newObjectDataModel(schema, schema.getName(), allProperties, null);
     }
 
     private void mixInPrimitiveDataModelConstraints(Schema<?> source, Schema<?> target) {
@@ -309,7 +256,7 @@ public class DataModelResolver {
     private ArrayDataModel resolveArraySchema(ArraySchema schema) {
         Schema<?> arrayItemsSchema = schema.getItems();
         DataModel arrayItemsDataModel = resolveMayBe$ref(arrayItemsSchema);
-        return DataModel.newArrayType(schema, arrayItemsDataModel);
+        return DataModel.newArrayDataModel(schema, arrayItemsDataModel);
     }
 
     private ObjectDataModel resolveObjectSchema(Schema<?> schema) {
@@ -318,7 +265,7 @@ public class DataModelResolver {
 
     private ObjectDataModel resolveObjectSchema(Schema<?> schema, DataModel additionalPropertiesDataModel) {
         Set<ObjectDataModelProperty> properties = resolveObjectSchemaProperties(schema);
-        return DataModel.newObjectType(schema, schema.getName(), properties, additionalPropertiesDataModel);
+        return DataModel.newObjectDataModel(schema, schema.getName(), properties, additionalPropertiesDataModel);
     }
 
     private Set<ObjectDataModelProperty> resolveObjectSchemaProperties(Schema<?> schema) {

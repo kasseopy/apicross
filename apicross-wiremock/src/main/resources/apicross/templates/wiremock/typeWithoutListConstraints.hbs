@@ -1,8 +1,0 @@
-{{!-- DataModel --}}
-{{#if array}}
-    List< {{#with itemsDataModel}} {{> typeWithoutListConstraints}} {{/with}} >
-{{else if primitive}}
-    {{> primitiveType}}
-{{else}}
-    {{{typeName}}}
-{{/if}}

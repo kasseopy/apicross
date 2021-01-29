@@ -26,8 +26,6 @@
         <module>apicross-support</module>
         <module>apicross-maven-plugin</module>
         <module>apicross-springmvc</module>
-        <module>apicross-spring-cloud-feign</module>
-        <module>apicross-wiremock</module>
         <module>apicross-demoapp</module>
     </modules>
 

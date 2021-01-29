@@ -20,7 +20,7 @@
         @org.hibernate.validator.constraints.UniqueElements
     {{/if}}
 {{else if primitive}}
-    {{#eq type 'string'}}
+    {{#if string}}
         {{#if customAttributes.constrainedLength}}
             @Size(
             {{#if customAttributes.minLengthDefined}}
@@ -38,7 +38,7 @@
         {{#if enumValues}}
             @Pattern(regexp = "({{{join enumValues '|'}}})")
         {{/if}}
-    {{/eq}}
+    {{/if}}
     {{#eq type 'integer'}}
         {{#if customAttributes.minimumDefined}}
             @DecimalMin(value = "{{minimum}}" {{#if exclusiveMinimum}}, inclusive = false{{/if}})

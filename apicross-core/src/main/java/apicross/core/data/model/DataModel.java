@@ -21,27 +21,27 @@ public abstract class DataModel extends HasCustomModelAttributes {
         return source;
     }
 
-    public static PrimitiveDataModel newPrimitiveType(@Nonnull Schema<?> source) {
+    public static PrimitiveDataModel newPrimitiveDataModel(@Nonnull Schema<?> source) {
         return new PrimitiveDataModel(source);
     }
 
-    public static ArrayDataModel newArrayType(@Nonnull ArraySchema source, @Nonnull DataModel arrayItemType) {
+    public static ArrayDataModel newArrayDataModel(@Nonnull ArraySchema source, @Nonnull DataModel arrayItemType) {
         return new ArrayDataModel(arrayItemType, source);
     }
 
-    public static ObjectDataModel newObjectType(@Nonnull Schema<?> source, @Nonnull String typeName) {
+    public static ObjectDataModel newObjectDataModel(@Nonnull Schema<?> source, @Nonnull String typeName) {
         return new ObjectDataModel(typeName, source);
     }
 
-    public static ObjectDataModel newObjectType(@Nonnull Schema<?> source, @Nonnull String typeName,
-                                                @Nonnull Set<ObjectDataModelProperty> properties,
-                                                DataModel additionalPropertiesDataModel) {
+    public static ObjectDataModel newObjectDataModel(@Nonnull Schema<?> source, @Nonnull String typeName,
+                                                     @Nonnull Set<ObjectDataModelProperty> properties,
+                                                     DataModel additionalPropertiesDataModel) {
         return new ObjectDataModel(typeName, source, properties, additionalPropertiesDataModel);
     }
 
-    public static ObjectDataModel newObjectType(@Nonnull Schema<?> source, @Nonnull String typeName,
-                                                @Nonnull Map<String, ObjectDataModel> childSchemas,
-                                                @Nonnull String discriminatorPropertyName, @Nonnull Map<String, String> mapping) {
+    public static ObjectDataModel newObjectDataModel(@Nonnull Schema<?> source, @Nonnull String typeName,
+                                                     @Nonnull Map<String, ObjectDataModel> childSchemas,
+                                                     @Nonnull String discriminatorPropertyName, @Nonnull Map<String, String> mapping) {
         return new ObjectDataModel(typeName, source, childSchemas, discriminatorPropertyName, mapping);
     }
 
@@ -49,8 +49,8 @@ public abstract class DataModel extends HasCustomModelAttributes {
         return new AnyTypeDataModel(source);
     }
 
-    public boolean isAnyType() {
-        return false;
+    public final boolean isAnyType() {
+        return getClass().equals(AnyTypeDataModel.class);
     }
 
     public boolean isObject() {
@@ -61,24 +61,12 @@ public abstract class DataModel extends HasCustomModelAttributes {
         return (this instanceof PrimitiveDataModel);
     }
 
-    public boolean isAnonymous() {
-        return getSource().getType() == null;
-    }
-
     public boolean isArray() {
         return (this instanceof ArrayDataModel);
     }
 
     public boolean isNullable() {
         return BooleanUtils.isTrue(source.getNullable());
-    }
-
-    public boolean isString() {
-        return isPrimitive() && "string".equals(source.getType());
-    }
-
-    public String getTypeName() {
-        return source.getType();
     }
 
     public String getDescription() {
@@ -93,31 +81,9 @@ public abstract class DataModel extends HasCustomModelAttributes {
         return source.getDefault() != null;
     }
 
-    @Override
-    public boolean equals(Object object) {
-        if (!(object instanceof DataModel)) {
-            return false;
-        }
-        DataModel dataModel = (DataModel) object;
-        if (!dataModel.getClass().equals(this.getClass())) {
-            return false;
-        }
-        return this.getTypeName() != null && this.getTypeName().equals(dataModel.getTypeName());
-    }
-
-    @Override
-    public int hashCode() {
-        return this.getTypeName() != null ? this.getTypeName().hashCode() : 0;
-    }
-
     private static class AnyTypeDataModel extends DataModel {
         public AnyTypeDataModel(@Nonnull Schema<?> source) {
             super(source);
-        }
-
-        @Override
-        public boolean isAnyType() {
-            return true;
         }
 
         @Override
@@ -131,6 +97,11 @@ public abstract class DataModel extends HasCustomModelAttributes {
                 return ((AnyTypeDataModel) object).getSource().equals(this.getSource());
             }
             return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return super.hashCode();
         }
     }
 }

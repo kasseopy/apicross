@@ -24,9 +24,9 @@ public class DataModelResolverHandlesAllOfTests extends DataModelSchemaResolverT
         ObjectDataModel resolvedSchema = (ObjectDataModel) resolver.resolve(schema);
 
         assertEquals(4, resolvedSchema.getProperties().size());
-        assertEquals("string", resolvedSchema.getProperty("a").getType().getTypeName());
-        assertEquals("string", resolvedSchema.getProperty("b").getType().getTypeName());
-        assertEquals("AllOfSchemaTypePart1", resolvedSchema.getProperty("d").getType().getTypeName());
+        assertTrue(((PrimitiveDataModel) resolvedSchema.getProperty("a").getType()).isString());
+        assertTrue(((PrimitiveDataModel) resolvedSchema.getProperty("b").getType()).isString());
+        assertEquals("AllOfSchemaTypePart1", ((ObjectDataModel)resolvedSchema.getProperty("d").getType()).getTypeName());
     }
 
     @Test
@@ -50,7 +50,7 @@ public class DataModelResolverHandlesAllOfTests extends DataModelSchemaResolverT
 
         ObjectDataModel resolvedSchema = (ObjectDataModel) resolver.resolve(schema);
         assertEquals(1, resolvedSchema.getProperties().size());
-        assertEquals("AllOfSchemaTypePart1", resolvedSchema.getProperty("c").getType().getTypeName());
+        assertEquals("AllOfSchemaTypePart1", ((ObjectDataModel)resolvedSchema.getProperty("c").getType()).getTypeName());
     }
 
     @Test
@@ -60,7 +60,7 @@ public class DataModelResolverHandlesAllOfTests extends DataModelSchemaResolverT
 
         ObjectDataModel resolvedSchema = (ObjectDataModel) resolver.resolve(schema);
         assertEquals(1, resolvedSchema.getProperties().size());
-        assertEquals("AllOfSchemaTypePart1", resolvedSchema.getProperty("c").getType().getTypeName());
+        assertEquals("AllOfSchemaTypePart1", ((ObjectDataModel)resolvedSchema.getProperty("c").getType()).getTypeName());
     }
 
     @Test

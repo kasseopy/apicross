@@ -3,6 +3,7 @@ package apicross.java;
 import apicross.CodeGenerator;
 import apicross.CodeGeneratorException;
 import apicross.core.data.DataModelResolver;
+import apicross.core.data.InlineDataModelResolver;
 import apicross.core.data.model.ArrayDataModel;
 import apicross.core.data.model.ObjectDataModel;
 import apicross.core.data.PropertyNameResolver;
@@ -130,7 +131,7 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
             for (RequestsHandlerMethod method : handler.getMethods()) {
                 if (method.getRequestBody() != null && method.getRequestBody().getContent().isArray()) {
                     ArrayDataModel requestBodyModel = (ArrayDataModel) method.getRequestBody().getContent();
-                    List<ObjectDataModel> objectDataModels = DataModelResolver.resolveInlineModels((typeName, propertyResolvedName) -> typeName + StringUtils.capitalize(propertyResolvedName), requestBodyModel);
+                    List<ObjectDataModel> objectDataModels = InlineDataModelResolver.resolveInlineModels((typeName, propertyResolvedName) -> typeName + StringUtils.capitalize(propertyResolvedName), requestBodyModel);
                     result.addAll(objectDataModels);
                 }
             }
@@ -141,7 +142,7 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         for (ObjectDataModel model : schemas) {
             result.add(model);
             List<ObjectDataModel> inlineModels =
-                    DataModelResolver.resolveInlineModels((typeName, propertyName) -> typeName + StringUtils.capitalize(propertyName), model);
+                    InlineDataModelResolver.resolveInlineModels((typeName, propertyName) -> typeName + StringUtils.capitalize(propertyName), model);
             if (!inlineModels.isEmpty()) {
                 result.addAll(inlineModels);
                 resolveInlineModels(result, inlineModels);

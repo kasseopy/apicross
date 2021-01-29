@@ -1,10 +1,10 @@
 {{!-- DataModel --}}
-{{#if anyType}}
-    Object
-{{else if array}}
+{{#if array}}
     List< {{#with itemsDataModel}} {{> dataModelPropertyConstraints}} {{> type}} {{/with}} >
 {{else if primitive}}
     {{> primitiveType}}
-{{else}}
+{{else if object}}
     {{{typeName}}}
+{{else}}
+    Object
 {{/if}}
