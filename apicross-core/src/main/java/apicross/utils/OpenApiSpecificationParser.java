@@ -9,6 +9,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 public class OpenApiSpecificationParser {
@@ -17,7 +18,7 @@ public class OpenApiSpecificationParser {
     }
 
     public static OpenAPI parse(final InputStream in) throws IOException {
-        return parse((parser, options) -> parser.readContents(IOUtils.toString(in), null, options));
+        return parse((parser, options) -> parser.readContents(IOUtils.toString(in, StandardCharsets.UTF_8), null, options));
     }
 
     private static OpenAPI parse(DoParse call) throws IOException {

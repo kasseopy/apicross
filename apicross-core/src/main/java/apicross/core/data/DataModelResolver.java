@@ -121,13 +121,16 @@ public class DataModelResolver {
             } else if (((ComposedSchema) schema).getOneOf() != null) {
                 return resolveOneOfSchema(schema);
             } else if ((((ComposedSchema) schema).getAnyOf() != null)) {
-                // TODO: how to resolve anyOf ???
-                return DataModel.newPrimitiveType(schema);
+                return DataModel.anyType(schema);
             }
         } else if (schema instanceof MapSchema) {
             return resolveMapSchema(schema);
         } else if (schema instanceof ObjectSchema || schema.getProperties() != null) {
-            return resolveObjectSchema(schema);
+            if (SchemaHelper.isAnyObjectLikeSchema(schema) && schemaName == null) {
+                return DataModel.anyType(schema);
+            } else {
+                return resolveObjectSchema(schema);
+            }
         }
 
         throw new DataModelResolverException("Unsupported schema: " + schema);
@@ -142,7 +145,7 @@ public class DataModelResolver {
             Schema<?> additionalPropertiesSchema = (Schema<?>) additionalProperties;
             additionalPropertiesDataModel = resolveMayBe$ref(additionalPropertiesSchema);
         } else if (additionalProperties instanceof Boolean) {
-            additionalPropertiesDataModel = DataModel.anyType();
+            additionalPropertiesDataModel = DataModel.anyType(new ObjectSchema());
         } else {
             throw new DataModelResolverException("Only 'additionalProperties : true' and 'additionalProperties: <schema>' supported");
         }

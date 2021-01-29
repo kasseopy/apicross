@@ -11,13 +11,10 @@ import java.util.Objects;
 import java.util.Set;
 
 public abstract class DataModel extends HasCustomModelAttributes {
-    private Schema<?> source;
+    private final Schema<?> source;
 
     protected DataModel(@Nonnull Schema<?> source) {
         this.source = Objects.requireNonNull(source);
-    }
-
-    private DataModel() {
     }
 
     public Schema<?> getSource() {
@@ -48,8 +45,8 @@ public abstract class DataModel extends HasCustomModelAttributes {
         return new ObjectDataModel(typeName, source, childSchemas, discriminatorPropertyName, mapping);
     }
 
-    public static DataModel anyType() {
-        return ANY_TYPE;
+    public static DataModel anyType(Schema<?> source) {
+        return new AnyTypeDataModel(source);
     }
 
     public boolean isAnyType() {
@@ -113,7 +110,11 @@ public abstract class DataModel extends HasCustomModelAttributes {
         return this.getTypeName() != null ? this.getTypeName().hashCode() : 0;
     }
 
-    private static final DataModel ANY_TYPE = new DataModel() {
+    private static class AnyTypeDataModel extends DataModel {
+        public AnyTypeDataModel(@Nonnull Schema<?> source) {
+            super(source);
+        }
+
         @Override
         public boolean isAnyType() {
             return true;
@@ -123,5 +124,13 @@ public abstract class DataModel extends HasCustomModelAttributes {
         public String toString() {
             return "DataModelSchema{AnyType}";
         }
-    };
+
+        @Override
+        public boolean equals(Object object) {
+            if (object.getClass().equals(AnyTypeDataModel.class)) {
+                return ((AnyTypeDataModel) object).getSource().equals(this.getSource());
+            }
+            return false;
+        }
+    }
 }

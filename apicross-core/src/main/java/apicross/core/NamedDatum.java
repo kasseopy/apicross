@@ -8,12 +8,12 @@ import org.apache.commons.lang3.BooleanUtils;
 import java.util.Objects;
 
 public abstract class NamedDatum extends HasCustomModelAttributes {
-    private String name;
-    private String resolvedName;
-    private String description;
-    private DataModel type;
+    private final String name;
+    private final String resolvedName;
+    private final String description;
+    private final DataModel type;
+    private final boolean deprecated;
     private boolean required;
-    private boolean deprecated;
 
     public NamedDatum(String name, String resolvedName, String description, DataModel dataModel, boolean required, boolean deprecated) {
         this.name = name;

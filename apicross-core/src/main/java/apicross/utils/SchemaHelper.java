@@ -27,7 +27,15 @@ public class SchemaHelper {
     public static boolean isPrimitiveLikeSchema(Schema<?> schema) {
         return schema.getClass().equals(Schema.class)
                 && schema.get$ref() == null
-                && schema.getProperties() == null
+                && hasObjectSchemaAttributes(schema);
+    }
+
+    public static boolean isAnyObjectLikeSchema(Schema<?> schema) {
+        return (schema instanceof ObjectSchema) && hasObjectSchemaAttributes(schema);
+    }
+
+    private static boolean hasObjectSchemaAttributes(Schema<?> schema) {
+        return schema.getProperties() == null
                 && schema.getRequired() == null
                 && schema.getMinProperties() == null
                 && schema.getMaxProperties() == null;
