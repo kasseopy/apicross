@@ -4,9 +4,7 @@ import com.google.common.base.Preconditions;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.Nonnull;
-
-class DefaultMethodNameBuilder {
+public class DefaultMethodNameBuilder {
     private String operationId;
     private String consumingsMediaType = null;
     private String producingMediaType = null;
@@ -24,12 +22,12 @@ class DefaultMethodNameBuilder {
 
     public DefaultMethodNameBuilder producingMediaType(String producingMediaType) {
         Preconditions.checkArgument((producingMediaType == null) || !producingMediaType.contains("*"),
-                "'*' symbol is not allowed in 'producingMediaType' argument - i.e. server handler always must return specific content type");
+                "'*' symbol is not allowed in 'producingMediaType' argument - i.e. server handler always must return specific content media-type");
         this.producingMediaType = producingMediaType;
         return this;
     }
 
-    String build() {
+    public String build() {
         Preconditions.checkState(!StringUtils.isEmpty(operationId), "'operationId' was not defined");
 
         StringBuilder methodNameBuilder = new StringBuilder(operationId);
@@ -62,7 +60,6 @@ class DefaultMethodNameBuilder {
         return methodNameBuilder.toString();
     }
 
-    @Nonnull
     private static String mediaTypeMethodNamePart(String mediaType) {
         String[] parts;
         StringBuilder builder = new StringBuilder();

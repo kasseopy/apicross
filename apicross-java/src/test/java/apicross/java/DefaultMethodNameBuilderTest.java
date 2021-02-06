@@ -3,9 +3,6 @@ package apicross.java;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 public class DefaultMethodNameBuilderTest {
     @Test
     public void whenNoOperationPayloads_thenMethodNameIsOperationId() {
@@ -86,6 +83,14 @@ public class DefaultMethodNameBuilderTest {
         } catch (IllegalArgumentException e) {
             // it's ok
         }
+    }
+
+    @Test
+    public void nullsAreAllowedInPropducingMediaType() {
+        new DefaultMethodNameBuilder()
+                .operationId("getResource")
+                .producingMediaType(null)
+                .build();
     }
 
     @Test

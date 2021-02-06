@@ -1,5 +1,6 @@
 package apicross.java;
 
+import apicross.CodeGeneratorException;
 import apicross.core.data.PropertyNameResolver;
 import apicross.core.handler.ParameterNameResolver;
 import com.github.jknack.handlebars.internal.lang3.CharUtils;
@@ -25,17 +26,28 @@ public class DefaultJavaPropertyAndParameterNameResolver implements PropertyName
     }
 
     private String doResolve(@Nonnull String apiPropertyName) {
-        String javaIdentifier = cutOffFirstNonJavaSymbols(apiPropertyName);
+        String javaIdentifier = removeNonJavaSymbols(apiPropertyName);
         return javaIdentifier.contains("_") ? CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, javaIdentifier) : javaIdentifier;
     }
 
-    private String cutOffFirstNonJavaSymbols(@Nonnull String apiPropertyName) {
-        String javaIdentifier = apiPropertyName;
-        if (!CharUtils.isAsciiAlpha(javaIdentifier.charAt(0))) {
-            javaIdentifier = javaIdentifier.substring(1);
+    private String removeNonJavaSymbols(@Nonnull String apiPropertyName) {
+        StringBuilder buff = new StringBuilder();
+
+        for (int i = 0; i < apiPropertyName.length(); i++) {
+            char ch = apiPropertyName.charAt(i);
+            if (CharUtils.isAsciiAlpha(ch) || ch == '_' || ch == '$' || CharUtils.isAsciiNumeric(ch)) {
+                buff.append(ch);
+            }
         }
-        if (javaIdentifier.startsWith("_")) {
-            javaIdentifier = javaIdentifier.substring(1);
+
+        String javaIdentifier = buff.toString();
+
+        while (CharUtils.isAsciiNumeric(javaIdentifier.charAt(0)) || javaIdentifier.charAt(0) == '_') {
+            if (javaIdentifier.length() > 1) {
+                javaIdentifier = javaIdentifier.substring(1);
+            } else {
+                throw new CodeGeneratorException("Unable to resolve java identifier from property name '" + apiPropertyName + "'");
+            }
         }
         return javaIdentifier;
     }
