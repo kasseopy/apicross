@@ -1,4 +1,4 @@
-package apicross.demo.myspace.ports.adapters.web;
+package apicross.demo.myspace.ports.adapters.web.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

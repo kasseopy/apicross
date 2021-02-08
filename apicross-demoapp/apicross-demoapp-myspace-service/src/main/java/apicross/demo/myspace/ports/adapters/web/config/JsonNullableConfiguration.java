@@ -1,4 +1,4 @@
-package apicross.demo.myspace.ports.adapters.web;
+package apicross.demo.myspace.ports.adapters.web.config;
 
 import org.openapitools.jackson.nullable.JsonNullableModule;
 import org.springframework.context.annotation.Bean;

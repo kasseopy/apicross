@@ -25,6 +25,8 @@ paths:
       responses:
         '201':
           description: Запрос на регистрацию конкурса принят
+      security:
+        - Basic: [ ]
     get:
       summary: Получение списка управляемых конкурсов
       tags:
@@ -37,6 +39,8 @@ paths:
             'application/vnd.demoapp.v1+json':
               schema:
                 $ref: '#/components/schemas/CmListCompetitionsResponse'
+      security:
+        - Basic: [ ]
 
   '/my/competitions/{competitionId}':
     parameters:
@@ -53,6 +57,8 @@ paths:
             'application/vnd.demoapp.v1+json':
               schema:
                 $ref: '#/components/schemas/CmGetCompetitionResponse'
+      security:
+        - Basic: [ ]
     patch:
       summary: Изменение условий конкурса
       tags:
@@ -67,6 +73,8 @@ paths:
       responses:
         '204':
           description: Условия конкурса изменены
+      security:
+        - Basic: [ ]
     delete:
       summary: Удалить конкурс
       tags:
@@ -75,6 +83,8 @@ paths:
       responses:
         '204':
           description: Конкурс удалён
+      security:
+        - Basic: [ ]
 
   '/my/competitions/{competitionId}/open':
     put:
@@ -98,6 +108,8 @@ paths:
           description: Запрос на открытие конкурса принят
         '409':
           description: Запрос на открытие конкурса в процессе рассмотрения
+      security:
+        - Basic: [ ]
 
   '/my/competitions/{competitionId}/start-voting':
     put:
@@ -112,6 +124,8 @@ paths:
           description: Голосование открыто
         '409':
           description: Голосование уже открыто
+      security:
+        - Basic: [ ]
 
   '/my/competitions/{competitionId}/close':
     put:
@@ -126,6 +140,8 @@ paths:
           description: Конкурс завершен
         '409':
           description: Конкурс уже закрыт
+      security:
+        - Basic: [ ]
 
   '/my/works':
     post:
@@ -138,6 +154,8 @@ paths:
       responses:
         '201':
           description: Работа размещена
+      security:
+        - Basic: [ ]
     get:
       summary: Список конкурсных работ
       operationId: listWorks
@@ -150,6 +168,8 @@ paths:
             'application/vnd.demoapp.v1+json':
               schema:
                 $ref: '#/components/schemas/WpListWorksResponse'
+      security:
+        - Basic: [ ]
 
   '/my/works/{workId}':
     parameters:
@@ -166,6 +186,8 @@ paths:
             'application/vnd.demoapp.v1+json':
               schema:
                 $ref: '#/components/schemas/WpGetWorkResponse'
+      security:
+        - Basic: [ ]
     delete:
       summary: Удаление конкурсной работы
       operationId: deleteWork
@@ -174,8 +196,10 @@ paths:
       responses:
         '204':
           description: Конкурсная работа удалена
+      security:
+        - Basic: [ ]
 
-  '/my/works/{workId}/publish':
+  '/my/works/{workId}/publish/{competitionId}':
     put:
       summary: Опубликовать работу
       description: Перед публикацией работа проходит модерацию. Это занимает некоторое время.
@@ -184,9 +208,12 @@ paths:
         - Works
       parameters:
         - $ref: 'common-models.yaml#/components/parameters/WorkIdPathParameter'
+        - $ref: 'common-models.yaml#/components/parameters/CompetitionIdPathParameter'
       responses:
-        '202':
-          description: Запрос на публикацию принят
+        '204':
+          description: Работа опубликована
+      security:
+        - Basic: [ ]
 
   '/my/works/{workId}/files':
     parameters:
@@ -213,14 +240,8 @@ paths:
           description: Файл добавлен к конкурсной работе
         '409':
           description: Файл не может быть добавлен в уже опубликованную работу
-    get:
-      summary: Список прикреплённых к конкурсной работе файлов
-      operationId: listWorkFiles
-      tags:
-        - Works
-      responses:
-        '200':
-          description: Список файлов в теле ответа
+      security:
+        - Basic: [ ]
 
   '/my/files/{fileId}':
     parameters:
@@ -243,6 +264,9 @@ paths:
             'video/mp4':
               schema:
                 $ref: 'common-models.yaml#/components/schemas/BinaryContent'
+      security:
+        - Basic: [ ]
+
     delete:
       summary: Уделение файла конкурсной работы
       operationId: deleteWorkFile
@@ -251,6 +275,8 @@ paths:
       responses:
         '204':
           description: Файл удалён
+      security:
+        - Basic: [ ]
 
   '/my/notifications':
     get:
@@ -268,6 +294,8 @@ paths:
             'application/vnd.demoapp.v1+json':
               schema:
                 $ref: '#/components/schemas/NfListNotificationsResponse'
+      security:
+        - Basic: [ ]
 
   '/my/read-notifications':
     post:
@@ -284,8 +312,15 @@ paths:
       responses:
         '204':
           description: Оповещения помечены как прочтённые
+      security:
+        - Basic: [ ]
 
 components:
+  securitySchemes:
+    Basic:
+      type: http
+      scheme: basic
+
   schemas:
     CmRegisterCompetitionRequest:
       type: object
@@ -386,23 +421,26 @@ components:
           $ref: 'common-models.yaml#/components/schemas/WorkDescription'
         author:
           $ref: 'common-models.yaml#/components/schemas/WorkAuthor'
+        author_age:
+          type: integer
+          format: 'int32'
+          maximum: 18
+          minimum: 2
       required:
         - title
         - description
         - author
+        - author_age
 
     WpListWorksResponse:
       type: object
       properties:
-        page:
-          $ref: 'common-models.yaml#/components/schemas/Page'
-        pageContent:
+        works:
           type: array
           items:
             $ref: 'common-models.yaml#/components/schemas/WorkSummary'
       required:
-        - page
-        - pageContent
+        - works
 
     WpGetWorkResponse:
       type: object
@@ -476,37 +514,34 @@ components:
         - text
         - timestamp
 
-    WpMultipartPlaceWorkRequest:
-      allOf:
-        - $ref: '#/components/schemas/WpPlaceWorkRequest'
-        - type: object
-          properties:
-            file1:
-              $ref: 'common-models.yaml#/components/schemas/BinaryContent'
-            file2:
-              $ref: 'common-models.yaml#/components/schemas/BinaryContent'
-            file3:
-              $ref: 'common-models.yaml#/components/schemas/BinaryContent'
-          required:
-            - work
-            - file1
+#    WpMultipartPlaceWorkRequest:
+#      allOf:
+#        - $ref: '#/components/schemas/WpPlaceWorkRequest'
+#        - type: object
+#          properties:
+#            file1:
+#              $ref: 'common-models.yaml#/components/schemas/BinaryContent'
+#            file2:
+#              $ref: 'common-models.yaml#/components/schemas/BinaryContent'
+#            file3:
+#              $ref: 'common-models.yaml#/components/schemas/BinaryContent'
 
   requestBodies:
     WpPlaceWorkRequestBody:
       required: true
       content:
-        'multipart/form-data':
-          schema:
-            $ref: '#/components/schemas/WpMultipartPlaceWorkRequest'
-          encoding:
-            work:
-              contentType: application/json
-            file1:
-              contentType: image/jpeg, audio/mp4, video/mp4
-            file2:
-              contentType: image/jpeg, audio/mp4, video/mp4
-            file3:
-              contentType: image/jpeg, audio/mp4, video/mp4
+#        'multipart/form-data':
+#          schema:
+#            $ref: '#/components/schemas/WpMultipartPlaceWorkRequest'
+#          encoding:
+#            work:
+#              contentType: application/json
+#            file1:
+#              contentType: image/jpeg, audio/mp4, video/mp4
+#            file2:
+#              contentType: image/jpeg, audio/mp4, video/mp4
+#            file3:
+#              contentType: image/jpeg, audio/mp4, video/mp4
         'application/vnd.demoapp.v1+json':
           schema:
             $ref: '#/components/schemas/WpPlaceWorkRequest'

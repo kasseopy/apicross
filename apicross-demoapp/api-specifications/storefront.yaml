@@ -169,6 +169,7 @@ paths:
             'application/vnd.demoapp.v1+json':
               schema:
                 $ref: '#/components/schemas/VtCompetitionResultsResponse'
+
   '/ads':
     get:
       summary: Получение рекламы

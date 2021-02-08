@@ -1,5 +1,5 @@
 package apicross.demo.common.models;
 
-public interface QueryResultTransformer<S, R> {
+public interface ModelTransformer<S, R> {
     R transform(S source);
 }

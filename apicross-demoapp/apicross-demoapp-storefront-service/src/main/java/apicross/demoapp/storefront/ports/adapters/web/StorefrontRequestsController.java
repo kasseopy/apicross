@@ -4,6 +4,7 @@ import apicross.demoapp.storefront.app.dto.*;
 import apicross.demo.common.models.PaginatedResult;
 import apicross.demoapp.storefront.app.StorefrontService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,17 +44,17 @@ public class StorefrontRequestsController implements StorefrontRequestsHandler {
     }
 
     @Override
-    public ResponseEntity<InputStream> getWorkMediaProduceImageJpeg(String fileId, HttpHeaders headers) {
+    public ResponseEntity<InputStreamResource> getWorkMediaProduceImageJpeg(String fileId, HttpHeaders headers) {
         throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
-    public ResponseEntity<InputStream> getWorkMediaProduceAudioMp4(String fileId, HttpHeaders headers) {
+    public ResponseEntity<InputStreamResource> getWorkMediaProduceAudioMp4(String fileId, HttpHeaders headers) {
         throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
-    public ResponseEntity<InputStream> getWorkMediaProduceVideoMp4(String fileId, HttpHeaders headers) {
+    public ResponseEntity<InputStreamResource> getWorkMediaProduceVideoMp4(String fileId, HttpHeaders headers) {
         throw new UnsupportedOperationException("not implemented yet");
     }
 }

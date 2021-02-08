@@ -1,6 +1,7 @@
-package apicross.demo.myspace.ports.adapters.web;
+package apicross.demo.myspace.ports.adapters.web.config;
 
 import apicross.demo.common.models.ProblemDescription;
+import apicross.demo.myspace.ports.adapters.web.ExceptionsHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;

@@ -27,4 +27,8 @@ public class CompetitionParticipantRequirements {
         this.maxAge = maxAge;
         return this;
     }
+
+    public boolean isAuthorAgeSatisfied(int authorAge) {
+        return ((minAge == null) || (authorAge >= minAge)) && ((maxAge == null) || (authorAge <= maxAge));
+    }
 }

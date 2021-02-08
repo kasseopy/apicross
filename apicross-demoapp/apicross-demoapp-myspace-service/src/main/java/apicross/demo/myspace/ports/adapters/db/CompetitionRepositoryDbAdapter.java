@@ -3,14 +3,14 @@ package apicross.demo.myspace.ports.adapters.db;
 import apicross.demo.myspace.domain.Competition;
 import apicross.demo.myspace.domain.CompetitionNotFoundException;
 import apicross.demo.myspace.domain.CompetitionRepository;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Optional;
 
 @Component
-public class CompetitionRepositoryDbAdapter implements CompetitionRepository {
+class CompetitionRepositoryDbAdapter implements CompetitionRepository {
     private final CompetitionDao competitionDao;
 
     public CompetitionRepositoryDbAdapter(CompetitionDao competitionDao) {
@@ -18,26 +18,37 @@ public class CompetitionRepositoryDbAdapter implements CompetitionRepository {
     }
 
     @Override
-    public void add(@Nonnull Competition competition) {
+    public void add(Competition competition) {
         competitionDao.save(competition);
     }
 
-    @Nonnull
+
     @Override
-    public Competition findCompetitionManagedByUser(@Nonnull String competitionId, @Nonnull String userId) {
+    public Competition findForUser(String competitionId, User user) {
         Optional<Competition> competitionOpt = competitionDao.findById(competitionId);
         if (competitionOpt.isPresent()) {
             Competition competition = competitionOpt.get();
-            if (competition.getOwnerId().equals(userId)) {
+            if (competition.getOwnerId().equals(user.getUsername())) {
                 return competition;
             }
         }
         throw new CompetitionNotFoundException(competitionId);
     }
 
-    @Nonnull
     @Override
-    public List<Competition> findAllForUser(@Nonnull String userId) {
-        return competitionDao.findAllForUserId(userId);
+    public List<Competition> findAllForUser(User user) {
+        return competitionDao.findAllForUserId(user.getUsername());
+    }
+
+    @Override
+    public void delete(String competitionId, User user) {
+        Competition competition = findForUser(competitionId, user);
+        competitionDao.delete(competition);
+    }
+
+    @Override
+    public Competition find(String competitionId) {
+        Optional<Competition> optionalCompetition = competitionDao.findById(competitionId);
+        return optionalCompetition.orElseThrow(() -> new CompetitionNotFoundException(competitionId));
     }
 }

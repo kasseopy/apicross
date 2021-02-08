@@ -4,7 +4,7 @@ import apicross.demoapp.storefront.app.dto.ListOpenCompetitionsQuery;
 import apicross.demo.common.utils.ValidationStages;
 import apicross.demo.common.models.Page;
 import apicross.demo.common.models.PaginatedResult;
-import apicross.demo.common.models.QueryResultTransformer;
+import apicross.demo.common.models.ModelTransformer;
 import apicross.demoapp.storefront.domain.Competition;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -16,7 +16,7 @@ import java.util.Collections;
 @Validated(ValidationStages.class)
 public class StorefrontService {
     public <T> PaginatedResult<T> search(@Valid ListOpenCompetitionsQuery queryParameters,
-                                         QueryResultTransformer<Competition, T> resultTransformer) {
+                                         ModelTransformer<Competition, T> resultTransformer) {
 
         return new PaginatedResult<>(
                 new Page(0, queryParameters.getPage(), queryParameters.getPageSize(), 0),

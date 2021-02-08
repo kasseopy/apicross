@@ -6,7 +6,11 @@
     {{else eq format 'byte'}}
         byte[]
     {{else eq format 'binary'}}
-        java.io.InputStream
+        {{#if responseBody}}
+            org.springframework.core.io.InputStreamResource
+        {{else}}
+            java.io.InputStream
+        {{/if}}
     {{else}}
         String
     {{/eq}}

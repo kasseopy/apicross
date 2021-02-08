@@ -1,14 +1,17 @@
 package apicross.demo.myspace.domain;
 
-import javax.annotation.Nonnull;
+import org.springframework.security.core.userdetails.User;
+
 import java.util.List;
 
 public interface CompetitionRepository {
-    void add(@Nonnull Competition competition);
+    void add(Competition competition);
 
-    @Nonnull
-    Competition findCompetitionManagedByUser(@Nonnull String competitionId, @Nonnull String userId) throws CompetitionNotFoundException;
+    Competition findForUser(String competitionId, User user) throws CompetitionNotFoundException;
 
-    @Nonnull
-    List<Competition> findAllForUser(@Nonnull String userId);
+    List<Competition> findAllForUser(User user);
+
+    void delete(String competitionId, User user);
+
+    Competition find(String competitionId);
 }
