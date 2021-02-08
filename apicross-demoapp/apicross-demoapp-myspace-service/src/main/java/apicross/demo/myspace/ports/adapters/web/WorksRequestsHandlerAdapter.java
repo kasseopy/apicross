@@ -62,7 +62,7 @@ public class WorksRequestsHandlerAdapter implements WorksRequestsHandler {
     }
 
     @Override
-    public ResponseEntity<?> publishWork(String competitionId, String workId, HttpHeaders headers) {
+    public ResponseEntity<?> publishWork(String workId, String competitionId, HttpHeaders headers) {
         manageWorksService.publishWork(currentUser(), competitionId, workId);
         return ResponseEntity.noContent().build();
     }

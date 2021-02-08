@@ -6,6 +6,7 @@ import apicross.core.NamedDatum;
 import apicross.core.data.model.DataModel;
 import apicross.core.data.model.ObjectDataModel;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,13 +14,13 @@ public class RequestsHandlerMethod extends HasCustomModelAttributes {
     private String httpMethod;
     private MediaTypeContentModel responseBody;
     private MediaTypeContentModel requestBody;
-    private Set<RequestQueryParameter> queryParameters;
+    private Collection<RequestQueryParameter> queryParameters;
+    private Collection<RequestUriPathParameter> pathParameters;
     private String uriPath;
     private String methodName;
     private String documentation;
     private String requestDocumentation;
     private String responseDocumentation;
-    private Set<RequestUriPathParameter> pathParameters;
     private Operation operation;
     private boolean requestBodyRequired;
 
@@ -58,11 +59,15 @@ public class RequestsHandlerMethod extends HasCustomModelAttributes {
         return requestBody != null ? requestBody.getContent() : null;
     }
 
-    public Set<RequestQueryParameter> getQueryParameters() {
+    public Collection<RequestQueryParameter> getQueryParameters() {
         return queryParameters;
     }
 
-    public RequestsHandlerMethod setQueryParameters(Set<RequestQueryParameter> queryParameters) {
+    public Collection<RequestUriPathParameter> getPathParameters() {
+        return pathParameters;
+    }
+
+    public RequestsHandlerMethod setQueryParameters(Collection<RequestQueryParameter> queryParameters) {
         this.queryParameters = queryParameters;
         return this;
     }
@@ -112,11 +117,7 @@ public class RequestsHandlerMethod extends HasCustomModelAttributes {
         return this;
     }
 
-    public Set<RequestUriPathParameter> getPathParameters() {
-        return pathParameters;
-    }
-
-    public RequestsHandlerMethod setPathParameters(Set<RequestUriPathParameter> pathParameters) {
+    public RequestsHandlerMethod setPathParameters(Collection<RequestUriPathParameter> pathParameters) {
         this.pathParameters = pathParameters;
         return this;
     }

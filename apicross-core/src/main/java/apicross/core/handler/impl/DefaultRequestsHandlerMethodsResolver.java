@@ -14,10 +14,7 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import org.apache.commons.lang3.BooleanUtils;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,8 +43,8 @@ public class DefaultRequestsHandlerMethodsResolver implements RequestsHandlerMet
         List<OperationRequestAndResponse> requestAndResponses = operationRequestAndResponseResolver.resolve(operation);
 
         List<Parameter> allParameters = operation.getParameters();
-        Set<RequestQueryParameter> queryParameters = allParameters == null ? Collections.emptySet() : resolveQueryStringParameters(allParameters, parameterNameResolver);
-        Set<RequestUriPathParameter> pathParameters = allParameters == null ? Collections.emptySet() : resolvePathParameters(allParameters, parameterNameResolver);
+        List<RequestQueryParameter> queryParameters = allParameters == null ? Collections.emptyList() : resolveQueryStringParameters(allParameters, parameterNameResolver);
+        List<RequestUriPathParameter> pathParameters = allParameters == null ? Collections.emptyList() : resolvePathParameters(allParameters, parameterNameResolver);
 
         return requestAndResponses.stream()
                 .map(operationInputOutput ->
@@ -57,8 +54,8 @@ public class DefaultRequestsHandlerMethodsResolver implements RequestsHandlerMet
 
     private RequestsHandlerMethod createRequestsHandlerMethod(HttpOperation httpOperation,
                                                               OperationRequestAndResponse requestAndResponse,
-                                                              Set<RequestQueryParameter> queryParameters,
-                                                              Set<RequestUriPathParameter> pathParameters,
+                                                              Collection<RequestQueryParameter> queryParameters,
+                                                              Collection<RequestUriPathParameter> pathParameters,
                                                               RequestsHandlerMethodNameResolver methodNameResolver) {
         Operation operation = httpOperation.getOperation();
         String uriPath = httpOperation.getUriPath();
@@ -99,7 +96,7 @@ public class DefaultRequestsHandlerMethodsResolver implements RequestsHandlerMet
         return new MediaTypeContentModel(dataModel, mediaType);
     }
 
-    private Set<RequestQueryParameter> resolveQueryStringParameters(List<Parameter> parameters, ParameterNameResolver parameterNameResolver) {
+    private List<RequestQueryParameter> resolveQueryStringParameters(List<Parameter> parameters, ParameterNameResolver parameterNameResolver) {
         return parametersOf("query", parameters)
                 .map((Function<Parameter, RequestQueryParameter>) parameter -> {
                     Preconditions.checkArgument(parameter != null);
@@ -113,10 +110,10 @@ public class DefaultRequestsHandlerMethodsResolver implements RequestsHandlerMet
                             BooleanUtils.isTrue(parameter.getRequired()),
                             BooleanUtils.isTrue(parameter.getDeprecated()));
                 })
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
-    private Set<RequestUriPathParameter> resolvePathParameters(List<Parameter> parameters, ParameterNameResolver parameterNameResolver) {
+    private List<RequestUriPathParameter> resolvePathParameters(List<Parameter> parameters, ParameterNameResolver parameterNameResolver) {
         return parametersOf("path", parameters)
                 .map((Function<Parameter, RequestUriPathParameter>) parameter -> {
                     Preconditions.checkArgument(parameter != null);
@@ -130,7 +127,7 @@ public class DefaultRequestsHandlerMethodsResolver implements RequestsHandlerMet
                             BooleanUtils.isTrue(parameter.getRequired()),
                             BooleanUtils.isTrue(parameter.getDeprecated()));
                 })
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     private Stream<Parameter> parametersOf(@Nonnull String inType, @Nonnull List<Parameter> source) {
