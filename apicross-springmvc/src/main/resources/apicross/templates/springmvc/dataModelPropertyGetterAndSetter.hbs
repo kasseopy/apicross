@@ -9,7 +9,7 @@
     {{/unless}}
 
     {{> documentation }}
-    @javax.annotation.Nullable
+    {{#if nullable}}@javax.annotation.Nullable{{/if}}
     @JsonIgnore
     {{#if deprecated}}@Deprecated{{/if}}
     public {{#with type}}{{> type}}{{/with}} get{{capitalizeFirst resolvedName}}() throws NoSuchElementException {
@@ -17,7 +17,7 @@
     }
 
     {{> documentation }}
-    @javax.annotation.Nullable
+    {{#if nullable}}@javax.annotation.Nullable{{/if}}
     @JsonIgnore
     {{#if deprecated}}@Deprecated{{/if}}
     public {{#with type}}{{> type}}{{/with}} get{{capitalizeFirst resolvedName}}OrElse({{#with type}}{{> type}}{{/with}} defaultValue) {
