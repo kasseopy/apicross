@@ -36,7 +36,6 @@
     return this.{{resolvedName}}.isPresent() && this.{{resolvedName}}.get() != null;
     }
 
-    @Deprecated
     public void if{{capitalizeFirst resolvedName}}Present(java.util.function.Consumer<{{#with type}}{{> type}}{{/with}}> consumer) {
     if(this.{{resolvedName}}.isPresent()) { consumer.accept(this.{{resolvedName}}.get()); }
     }
@@ -73,7 +72,7 @@ this.{{resolvedName}} = {{#if optional}}JsonNullable.of(value){{else}}value{{/if
 }
 
 {{#if deprecated}}@Deprecated{{/if}}
-public {{../typeName}} {{resolvedName}}({{#unless nullable}}@javax.annotation.Nonnull{{/unless}} {{#with type}}{{> type}}{{/with}} value) {
+public {{../typeName}} with{{capitalizeFirst resolvedName}}({{#unless nullable}}@javax.annotation.Nonnull{{/unless}} {{#with type}}{{> type}}{{/with}} value) {
 this.$specifiedProperties.add("{{name}}");
 this.{{resolvedName}} = {{#if optional}}JsonNullable.of(value){{else}}value{{/if}};
 return this;
@@ -81,14 +80,7 @@ return this;
 
 {{#unless nullable}}
     {{#if deprecated}}@Deprecated{{/if}}
-    public void set{{capitalizeFirst resolvedName}}IfNotNull({{#with type}}{{> type}}{{/with}} value) {
-    if(value != null) {
-    this.$specifiedProperties.add("{{name}}");
-    this.{{resolvedName}} = {{#if optional}}JsonNullable.of(value){{else}}value{{/if}};
-    }
-    }
-    {{#if deprecated}}@Deprecated{{/if}}
-    public  {{../typeName}} {{resolvedName}}IfNotNull({{#with type}}{{> type}}{{/with}} value) {
+    public  {{../typeName}} with{{capitalizeFirst resolvedName}}IfNotNull({{#with type}}{{> type}}{{/with}} value) {
     if(value != null) {
     this.$specifiedProperties.add("{{name}}");
     this.{{resolvedName}} = {{#if optional}}JsonNullable.of(value){{else}}value{{/if}};
