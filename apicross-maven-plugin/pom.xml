@@ -7,7 +7,7 @@
     <parent>
         <groupId>itroadlabs.toolkits</groupId>
         <artifactId>apicross</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>apicross-maven-plugin</artifactId>
