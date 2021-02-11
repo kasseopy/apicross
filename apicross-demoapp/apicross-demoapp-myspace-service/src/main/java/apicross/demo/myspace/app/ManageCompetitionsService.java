@@ -1,7 +1,7 @@
 package apicross.demo.myspace.app;
 
 import apicross.demo.common.utils.*;
-import apicross.demo.common.models.ModelTransformer;
+import apicross.demo.common.models.ModelConverter;
 import apicross.demo.myspace.app.dto.RpmCmOpenCompetitionRequest;
 import apicross.demo.myspace.app.dto.RpmCmRegisterCompetitionRequest;
 import apicross.demo.myspace.app.dto.RpmCmUpdateCompetitionRequest;
@@ -49,16 +49,16 @@ public class ManageCompetitionsService {
     }
 
     @Transactional(readOnly = true)
-    public <T> T listAllCompetitionsForCurrentUser(@NonNull User user, @NonNull ModelTransformer<List<Competition>, T> resultTransformer) {
+    public <T> T listAllCompetitionsForCurrentUser(@NonNull User user, @NonNull ModelConverter<List<Competition>, T> resultTransformer) {
         List<Competition> result = competitionRepository.findAllForUser(user);
-        return resultTransformer.transform(result);
+        return resultTransformer.convert(result);
     }
 
     @Transactional(readOnly = true)
     public <T> EntityWithTag<T> getCompetition(@NonNull User user, @NonNull String competitionId,
-                                               @NonNull ModelTransformer<Competition, T> resultTransformer) {
+                                               @NonNull ModelConverter<Competition, T> resultTransformer) {
         Competition competition = competitionRepository.findForUser(competitionId, user);
-        return new EntityWithTag<>(resultTransformer.transform(competition), competition::etag);
+        return new EntityWithTag<>(resultTransformer.convert(competition), competition::etag);
     }
 
     @Transactional

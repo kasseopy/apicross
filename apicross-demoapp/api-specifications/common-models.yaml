@@ -84,9 +84,11 @@ components:
       type: string
       description: Статус конкурса
       enum:
-        - open
-        - closed
-        - rejected
+        - Pending
+        - Open
+        - Voting
+        - Closed
+        - Rejected
 
     ParticipantRequirements:
       type: object

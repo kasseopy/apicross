@@ -24,8 +24,8 @@ public class StorefrontRequestsController implements StorefrontRequestsHandler {
     public ResponseEntity<SfListCompetitionsResponseRepresentationModel> listOpenCompetitions(ListOpenCompetitionsQuery queryParameters, HttpHeaders headers) {
         PaginatedResult<SfCompetitionsShortDescriptionRepresentationModel> result = storefrontService.search(queryParameters, new SfCompetitionShortDescriptionViewAssembler());
         return ResponseEntity.ok(new SfListCompetitionsResponseRepresentationModel()
-                .page(result.getPage())
-                .pageContent(result.getContent()));
+                .withPage(result.getPage())
+                .withPageContent(result.getContent()));
     }
 
     @Override

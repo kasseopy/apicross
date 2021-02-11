@@ -1,6 +1,6 @@
 package apicross.demo.myspace.app;
 
-import apicross.demo.common.models.ModelTransformer;
+import apicross.demo.common.models.ModelConverter;
 import apicross.demo.common.utils.EntityWithTag;
 import apicross.demo.common.utils.ValidationStages;
 import apicross.demo.myspace.app.dto.RpmWpPlaceWorkRequest;
@@ -50,9 +50,9 @@ public class ManageWorksService {
     }
 
     @Transactional(readOnly = true)
-    public <T> T listWorks(@NonNull User user, @NonNull ModelTransformer<List<Work>, T> resultTransformer) {
+    public <T> T listWorks(@NonNull User user, @NonNull ModelConverter<List<Work>, T> resultTransformer) {
         List<Work> works = workRepository.findAllForUser(user);
-        return resultTransformer.transform(works);
+        return resultTransformer.convert(works);
     }
 
     @Transactional
@@ -61,9 +61,9 @@ public class ManageWorksService {
     }
 
     @Transactional(readOnly = true)
-    public <T> T getWork(@NonNull User user, @NonNull String workId, @NonNull ModelTransformer<Work, T> resultTransformer) {
+    public <T> T getWork(@NonNull User user, @NonNull String workId, @NonNull ModelConverter<Work, T> resultTransformer) {
         Work work = workRepository.findForUser(user, workId);
-        return resultTransformer.transform(work);
+        return resultTransformer.convert(work);
     }
 
     @Transactional

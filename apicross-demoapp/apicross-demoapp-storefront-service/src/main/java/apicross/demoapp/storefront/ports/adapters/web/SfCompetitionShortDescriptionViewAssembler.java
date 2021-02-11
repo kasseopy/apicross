@@ -2,11 +2,11 @@ package apicross.demoapp.storefront.ports.adapters.web;
 
 import apicross.demoapp.storefront.app.dto.SfCompetitionsShortDescriptionRepresentationModel;
 import apicross.demoapp.storefront.domain.Competition;
-import apicross.demo.common.models.ModelTransformer;
+import apicross.demo.common.models.ModelConverter;
 
-public class SfCompetitionShortDescriptionViewAssembler implements ModelTransformer<Competition, SfCompetitionsShortDescriptionRepresentationModel> {
+public class SfCompetitionShortDescriptionViewAssembler implements ModelConverter<Competition, SfCompetitionsShortDescriptionRepresentationModel> {
     @Override
-    public SfCompetitionsShortDescriptionRepresentationModel transform(Competition source) {
+    public SfCompetitionsShortDescriptionRepresentationModel convert(Competition source) {
         // TODO: implement me!!
         throw new UnsupportedOperationException("not implemented yet");
     }
