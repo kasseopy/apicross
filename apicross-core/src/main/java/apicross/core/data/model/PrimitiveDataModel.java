@@ -41,7 +41,7 @@ public class PrimitiveDataModel extends DataModel {
         List<?> anEnum = getSource().getEnum();
         return anEnum == null ? null : anEnum.stream()
                 .map((Function<Object, String>) Object::toString)
-                .filter(Objects::isNull)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
     }
 

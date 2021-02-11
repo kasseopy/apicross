@@ -22,7 +22,12 @@ public class DataModelResolverHandlesSimpleCasesTests extends DataModelSchemaRes
         DataModel resolvedSchema = resolver.resolve(schema);
 
         assertTrue(resolvedSchema instanceof PrimitiveDataModel);
-        assertTrue(((PrimitiveDataModel) resolvedSchema).isString());
+        final PrimitiveDataModel primitiveDataModel = (PrimitiveDataModel) resolvedSchema;
+        assertTrue(primitiveDataModel.isString());
+        final Set<String> enumValues = primitiveDataModel.getEnumValues();
+        assertNotNull(enumValues);
+        assertTrue(enumValues.contains("A1"));
+        assertTrue(enumValues.contains("A2"));
     }
 
     @Test
