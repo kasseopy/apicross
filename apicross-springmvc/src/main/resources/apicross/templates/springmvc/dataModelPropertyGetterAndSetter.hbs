@@ -30,22 +30,26 @@
     return this.{{resolvedName}}.isPresent();
     }
 
+    {{#if nullable}}
     @JsonIgnore
     {{#if deprecated}}@Deprecated{{/if}}
     public boolean is{{capitalizeFirst resolvedName}}PresentAndNotNull() {
     return this.{{resolvedName}}.isPresent() && this.{{resolvedName}}.get() != null;
     }
+    {{/if}}
 
     public void if{{capitalizeFirst resolvedName}}Present(java.util.function.Consumer<{{#with type}}{{> type}}{{/with}}> consumer) {
     if(this.{{resolvedName}}.isPresent()) { consumer.accept(this.{{resolvedName}}.get()); }
     }
 
+    {{#if nullable}}
     public void if{{capitalizeFirst resolvedName}}PresentAndNotNull(java.util.function.Consumer<{{#with type}}{{> type}}{{/with}}> consumer) {
     if(this.{{resolvedName}}.isPresent()) {
     {{#with type}}{{> type}}{{/with}} value = this.{{resolvedName}}.get();
     if(value != null) { consumer.accept(value); }
     }
     }
+    {{/if}}
 {{else}}
     {{> documentation }}
     {{#if deprecated}}@Deprecated{{/if}}
