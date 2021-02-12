@@ -168,8 +168,9 @@ public class ObjectDataModel extends DataModel {
         }
     }
 
-    public void changeTypeName(String newTypeName) {
+    public void changeTypeToExternal(String newTypeName) {
         changeTypeName(newTypeName, true);
+        addCustomAttribute("externalType", Boolean.TRUE);
     }
 
     public boolean isContainingOptionalProperties() {

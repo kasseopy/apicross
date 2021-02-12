@@ -35,6 +35,6 @@ public class ObjectDataModelProperty extends NamedDatum {
 
     public void changeTypeToExternal(String newTypeName) {
         Preconditions.checkState(getType().isObject());
-        ((ObjectDataModel) this.getType()).changeTypeName(newTypeName);
+        ((ObjectDataModel) this.getType()).changeTypeToExternal(newTypeName);
     }
 }

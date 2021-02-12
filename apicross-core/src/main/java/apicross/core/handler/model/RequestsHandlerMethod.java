@@ -8,7 +8,6 @@ import apicross.core.data.model.ObjectDataModel;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 public class RequestsHandlerMethod extends HasCustomModelAttributes {
     private String httpMethod;
@@ -161,7 +160,7 @@ public class RequestsHandlerMethod extends HasCustomModelAttributes {
             DataModel content = contentModel.getContent();
             if (content instanceof ObjectDataModel) {
                 if (((ObjectDataModel) content).getTypeName().equals(internalSchemaName)) {
-                    ((ObjectDataModel) content).changeTypeName(externalTypesMap.get(internalSchemaName));
+                    ((ObjectDataModel) content).changeTypeToExternal(externalTypesMap.get(internalSchemaName));
                 }
             }
         }
