@@ -2,13 +2,13 @@ package apicross.java;
 
 import apicross.CodeGenerator;
 import apicross.CodeGeneratorException;
-import apicross.core.data.DataModelResolver;
 import apicross.core.data.InlineDataModelResolver;
+import apicross.core.data.PropertyNameResolver;
 import apicross.core.data.model.ArrayDataModel;
 import apicross.core.data.model.ObjectDataModel;
-import apicross.core.data.PropertyNameResolver;
-import apicross.core.handler.*;
-import apicross.core.handler.model.MediaTypeContentModel;
+import apicross.core.handler.ParameterNameResolver;
+import apicross.core.handler.RequestsHandlerMethodNameResolver;
+import apicross.core.handler.RequestsHandlerTypeNameResolver;
 import apicross.core.handler.model.RequestsHandler;
 import apicross.core.handler.model.RequestsHandlerMethod;
 import apicross.utils.PluginsHelper;
@@ -97,7 +97,7 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
 
         List<ObjectDataModel> result = new ArrayList<>();
 
-        resolveInlineModels(result, schemas);
+        resolveInlineModels(result, schemas, true);
         resolveInlineModels(result, handlers);
 
         if (this.dataModelsExternalTypesMap != null) {
@@ -126,26 +126,30 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         return result;
     }
 
-    private static void resolveInlineModels(List<ObjectDataModel> result, List<RequestsHandler> handlers) {
+    private void resolveInlineModels(List<ObjectDataModel> result, List<RequestsHandler> handlers) {
         for (RequestsHandler handler : handlers) {
             for (RequestsHandlerMethod method : handler.getMethods()) {
                 if (method.getRequestBody() != null && method.getRequestBody().getContent().isArray()) {
                     ArrayDataModel requestBodyModel = (ArrayDataModel) method.getRequestBody().getContent();
-                    List<ObjectDataModel> objectDataModels = InlineDataModelResolver.resolveInlineModels((typeName, propertyResolvedName) -> typeName + StringUtils.capitalize(propertyResolvedName), requestBodyModel);
-                    result.addAll(objectDataModels);
+                    List<ObjectDataModel> inlineModels = InlineDataModelResolver.resolveInlineModels((typeName, propertyResolvedName) -> typeName + StringUtils.capitalize(propertyResolvedName), requestBodyModel);
+                    inlineModels.forEach(setupGenerationAttributesConsumer);
+                    result.addAll(inlineModels);
                 }
             }
         }
     }
 
-    private static void resolveInlineModels(List<ObjectDataModel> result, Collection<ObjectDataModel> schemas) {
+    private void resolveInlineModels(List<ObjectDataModel> result, Collection<ObjectDataModel> schemas, boolean addFirst) {
         for (ObjectDataModel model : schemas) {
-            result.add(model);
+            if (addFirst) {
+                result.add(model);
+            }
             List<ObjectDataModel> inlineModels =
                     InlineDataModelResolver.resolveInlineModels((typeName, propertyName) -> typeName + StringUtils.capitalize(propertyName), model);
             if (!inlineModels.isEmpty()) {
+                inlineModels.forEach(setupGenerationAttributesConsumer);
                 result.addAll(inlineModels);
-                resolveInlineModels(result, inlineModels);
+                resolveInlineModels(result, inlineModels, false);
             }
         }
     }
@@ -172,7 +176,9 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         for (ObjectDataModel model : models) {
             String iface = dataModelsInterfacesMap.get(model.getTypeName());
             if (iface != null) {
-                model.addCustomAttribute("implementsInterfaces", Collections.singleton(iface));
+                List<String> ifaces = new ArrayList<>();
+                ifaces.add(iface);
+                model.addCustomAttribute("implementsInterfaces", ifaces);
             }
         }
     }

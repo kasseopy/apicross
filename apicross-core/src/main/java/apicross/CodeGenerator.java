@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 
 @Slf4j
 public abstract class CodeGenerator<T extends CodeGeneratorOptions> {
-    private final Consumer<HasCustomModelAttributes> setupGenerationAttributesConsumer  = objectDataModel -> {
+    protected final Consumer<HasCustomModelAttributes> setupGenerationAttributesConsumer  = objectDataModel -> {
         objectDataModel.addCustomAttribute("generatorClassName", CodeGenerator.this.getClass().getName());
         objectDataModel.addCustomAttribute("generationDate", new Date().toString());
     };
