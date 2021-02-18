@@ -12,6 +12,7 @@ import apicross.core.handler.RequestsHandlerTypeNameResolver;
 import apicross.core.handler.model.RequestsHandler;
 import apicross.core.handler.model.RequestsHandlerMethod;
 import apicross.utils.PluginsHelper;
+import apicross.utils.SourceCodeLineNumberUtil;
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
@@ -256,9 +257,10 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         String source = template.apply(model);
         String formattedSource;
         try {
-            formattedSource = formatter.formatSource(source);
+            formattedSource = this.formatter.formatSource(source);
         } catch (FormatterException e) {
-            log.error("Unable to format source:\n-------------------\n{}\n--------------------\n", source);
+            log.error("Unable to format source:\n-------------------\n{}\n--------------------\n",
+                    SourceCodeLineNumberUtil.addLineNumbers(source));
             throw new CodeGeneratorException(e);
         }
         out.println(formattedSource);
