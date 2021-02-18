@@ -1,9 +1,9 @@
 package apicross.demo.myspace.app;
 
 import apicross.demo.common.models.ModelConverter;
-import apicross.demo.common.utils.EntityWithTag;
+import apicross.demo.common.utils.EntityWithETag;
 import apicross.demo.common.utils.ValidationStages;
-import apicross.demo.myspace.app.dto.RpmWpPlaceWorkRequest;
+import apicross.demo.myspace.app.dto.IReadRpmWpPlaceWorkRequest;
 import apicross.demo.myspace.domain.*;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -39,14 +39,14 @@ public class ManageWorksService {
     }
 
     @Transactional
-    public EntityWithTag<Work> placeWork(@NonNull User user, @NonNull @Valid RpmWpPlaceWorkRequest command) {
+    public EntityWithETag<Work> placeWork(@NonNull User user, @NonNull @Valid IReadRpmWpPlaceWorkRequest command) {
         Work work = new Work(UUID.randomUUID().toString(), user, command.getAuthor(), command.getAuthorAge())
                 .setTitle(command.getTitle())
                 .setDescription(command.getDescription());
 
         workRepository.add(work);
 
-        return new EntityWithTag<>(work, work::etag);
+        return new EntityWithETag<>(work, work::etag);
     }
 
     @Transactional(readOnly = true)

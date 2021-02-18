@@ -72,7 +72,7 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         initHandlebarTemplates(handlebars);
 
         log.info("Writing sources...");
-        File writeSourcesTo = new File(getOptions().getWriteSourcesTo());
+        File writeSourcesTo = getWriteSourcesTo();
         File modelsPackageDir = new File(writeSourcesTo, toFilePath(apiModelPackage));
 
         if (!modelsPackageDir.exists()) {
@@ -115,6 +115,7 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
             log.info("Process data models name suffix...");
             addModelNameSuffix(modelNameSuffix, this.dataModelsExternalTypesMap, result);
         }
+
         String modelNamePrefix = getOptions().getModelClassNamePrefix();
         if (modelNamePrefix != null && !modelNamePrefix.isEmpty()) {
             log.info("Process data models name prefix...");

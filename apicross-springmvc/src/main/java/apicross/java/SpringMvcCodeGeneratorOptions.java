@@ -7,4 +7,6 @@ import lombok.Setter;
 @Setter
 public class SpringMvcCodeGeneratorOptions extends JavaCodeGeneratorOptions {
     private boolean enableApicrossJavaBeanValidationSupport;
+    private boolean enableDataModelReadInterfaces;
+    private String apiModelReadInterfacesPackage;
 }

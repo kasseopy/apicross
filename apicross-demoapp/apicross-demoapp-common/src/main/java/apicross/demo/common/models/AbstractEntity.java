@@ -1,5 +1,6 @@
 package apicross.demo.common.models;
 
+import apicross.demo.common.utils.HasETag;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.persistence.Id;
@@ -8,7 +9,7 @@ import javax.persistence.Version;
 import java.util.Objects;
 
 @MappedSuperclass
-public abstract class AbstractEntity {
+public abstract class AbstractEntity implements HasETag {
     @Id
     private String id;
     @Version
@@ -30,6 +31,7 @@ public abstract class AbstractEntity {
         return version;
     }
 
+    @Override
     public String etag() {
         return DigestUtils.md5Hex(id + Long.toHexString(10 * version));
     }

@@ -1,14 +1,14 @@
 package apicross.demo.myspace.ports.adapters.web;
 
-import apicross.demo.common.utils.EntityWithTag;
+import apicross.demo.common.utils.EntityWithETag;
 import apicross.demo.myspace.app.ManageWorksService;
-import apicross.demo.myspace.app.dto.RpmWpGetWorkResponse;
-import apicross.demo.myspace.app.dto.RpmWpListWorksResponse;
-import apicross.demo.myspace.app.dto.RpmWpPlaceWorkRequest;
 import apicross.demo.myspace.domain.Work;
 import apicross.demo.myspace.domain.WorkFileReference;
-import apicross.demo.myspace.ports.adapters.web.representation.GetWorkResponseViewAssembler;
-import apicross.demo.myspace.ports.adapters.web.representation.ListWorksResponseViewAssembler;
+import apicross.demo.myspace.ports.adapters.web.models.RpmWpGetWorkResponse;
+import apicross.demo.myspace.ports.adapters.web.models.RpmWpListWorksResponse;
+import apicross.demo.myspace.ports.adapters.web.models.RpmWpPlaceWorkRequest;
+import apicross.demo.myspace.ports.adapters.web.models.GetWorkResponseViewAssembler;
+import apicross.demo.myspace.ports.adapters.web.models.ListWorksResponseViewAssembler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -25,21 +25,21 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @RestController
-public class WorksRequestsHandlerAdapter implements WorksRequestsHandler {
+public class WorksRequestsController implements WorksRequestsHandler {
     private final ManageWorksService manageWorksService;
 
     @Autowired
-    public WorksRequestsHandlerAdapter(ManageWorksService manageWorksService) {
+    public WorksRequestsController(ManageWorksService manageWorksService) {
         this.manageWorksService = manageWorksService;
     }
 
     @Override
     public ResponseEntity<?> placeWorkConsumeVndDemoappV1Json(HttpHeaders headers, RpmWpPlaceWorkRequest requestEntity) {
-        final EntityWithTag<Work> placeWorkResult = manageWorksService.placeWork(currentUser(), requestEntity);
+        final EntityWithETag<Work> placeWorkResult = manageWorksService.placeWork(currentUser(), requestEntity);
         UriComponents location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(placeWorkResult.getEntity().getId());
         return ResponseEntity.created(location.toUri())
-                .eTag(placeWorkResult.getEntityTag())
+                .eTag(placeWorkResult.etag())
                 .build();
     }
 

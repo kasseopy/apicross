@@ -18,6 +18,7 @@ import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.media.Schema;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
@@ -31,6 +32,7 @@ public abstract class CodeGenerator<T extends CodeGeneratorOptions> {
 
     private String specUrl;
     private T options;
+    private File writeSourcesTo;
 
     public void setSpecUrl(String specUrl) {
         this.specUrl = specUrl;
@@ -38,17 +40,21 @@ public abstract class CodeGenerator<T extends CodeGeneratorOptions> {
 
     public void setOptions(T options) throws Exception {
         this.options = options;
+        this.writeSourcesTo = new File(options.getWriteSourcesTo());
     }
 
     protected T getOptions() {
         return options;
     }
 
+    protected File getWriteSourcesTo() {
+        return writeSourcesTo;
+    }
+
     public void generate() throws IOException {
         Preconditions.checkState(this.specUrl != null, "specification url was not defined");
         log.info("Reading API specification from {}...", specUrl);
         OpenAPI openAPI = OpenApiSpecificationParser.parse(specUrl);
-
         OpenApiComponentsIndex openAPIComponentsIndex = new OpenApiComponentsIndex(openAPI);
 
         log.info("Configuring resolvers...");

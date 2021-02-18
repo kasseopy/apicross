@@ -1,8 +1,6 @@
-package apicross.demo.myspace.ports.adapters.web.representation;
+package apicross.demo.myspace.ports.adapters.web.models;
 
 import apicross.demo.common.models.ModelConverter;
-import apicross.demo.myspace.app.dto.RpmCmGetCompetitionResponse;
-import apicross.demo.myspace.app.dto.RpmParticipantRequirements;
 import apicross.demo.myspace.domain.Competition;
 import apicross.demo.myspace.domain.CompetitionStatus;
 import apicross.demo.myspace.domain.CompetitionVotingType;

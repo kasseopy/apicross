@@ -122,11 +122,13 @@
                             <generatorClassName>apicross.java.SpringMvcCodeGenerator</generatorClassName>
                             <generatorOptions implementation="apicross.java.SpringMvcCodeGeneratorOptions">
                                 <apiHandlerPackage>apicross.demo.myspace.ports.adapters.web</apiHandlerPackage>
-                                <apiModelPackage>apicross.demo.myspace.app.dto</apiModelPackage>
+                                <apiModelPackage>apicross.demo.myspace.ports.adapters.web.models</apiModelPackage>
+                                <apiModelReadInterfacesPackage>apicross.demo.myspace.app.dto</apiModelReadInterfacesPackage>
                                 <modelClassNamePrefix>Rpm</modelClassNamePrefix> <!-- 'Rpm' means 'Representation model' -->
                                 <writeSourcesTo>${project.build.directory}/generated-sources/java</writeSourcesTo>
                                 <propertyNameResolverClassName>apicross.demo.common.utils.DemoAppApiModelPropertyNameResolver</propertyNameResolverClassName>
                                 <enableApicrossJavaBeanValidationSupport>true</enableApicrossJavaBeanValidationSupport>
+                                <enableDataModelReadInterfaces>true</enableDataModelReadInterfaces>
                                 <dataModelsInterfacesMap>
                                     <NfListNotificationsResponse>apicross.demo.common.models.PaginatedData&lt;RpmNfNotification&gt;</NfListNotificationsResponse>
                                     <CmListCompetitionsResponse>apicross.demo.common.models.PaginatedData&lt;RpmCmCompetitionShortDescription&gt;</CmListCompetitionsResponse>

@@ -6,21 +6,16 @@ import javax.annotation.Nonnull;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-public class EntityWithTag<T> {
+public class EntityWithETag<T> extends HasETagSupplier {
     private final T entity;
-    private final Supplier<String> etagSupplier;
 
-    public EntityWithTag(@NonNull T entity, @NonNull Supplier<String> etagSupplier) {
+    public EntityWithETag(@NonNull T entity, @NonNull Supplier<String> etagSupplier) {
+        super(etagSupplier);
         this.entity = Objects.requireNonNull(entity);
-        this.etagSupplier = Objects.requireNonNull(etagSupplier);
     }
 
     @Nonnull
     public T getEntity() {
         return entity;
-    }
-
-    public String getEntityTag() {
-        return etagSupplier.get();
     }
 }

@@ -1,8 +1,6 @@
-package apicross.demo.myspace.ports.adapters.web.representation;
+package apicross.demo.myspace.ports.adapters.web.models;
 
 import apicross.demo.common.models.ModelConverter;
-import apicross.demo.myspace.app.dto.RpmWorkSummary;
-import apicross.demo.myspace.app.dto.RpmWpListWorksResponse;
 import apicross.demo.myspace.domain.Work;
 
 import java.util.List;

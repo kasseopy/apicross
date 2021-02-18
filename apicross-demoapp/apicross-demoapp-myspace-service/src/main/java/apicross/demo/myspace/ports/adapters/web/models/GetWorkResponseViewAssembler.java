@@ -1,7 +1,6 @@
-package apicross.demo.myspace.ports.adapters.web.representation;
+package apicross.demo.myspace.ports.adapters.web.models;
 
 import apicross.demo.common.models.ModelConverter;
-import apicross.demo.myspace.app.dto.RpmWpGetWorkResponse;
 import apicross.demo.myspace.domain.Work;
 
 public class GetWorkResponseViewAssembler implements ModelConverter<Work, RpmWpGetWorkResponse> {

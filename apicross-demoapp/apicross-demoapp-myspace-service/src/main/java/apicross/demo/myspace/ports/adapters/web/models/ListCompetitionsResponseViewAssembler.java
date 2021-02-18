@@ -1,7 +1,6 @@
-package apicross.demo.myspace.ports.adapters.web.representation;
+package apicross.demo.myspace.ports.adapters.web.models;
 
 import apicross.demo.common.models.ModelConverter;
-import apicross.demo.myspace.app.dto.RpmCmListCompetitionsResponse;
 import apicross.demo.myspace.domain.Competition;
 
 import java.util.List;

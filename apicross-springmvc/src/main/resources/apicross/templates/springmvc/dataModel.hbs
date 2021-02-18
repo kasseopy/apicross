@@ -13,6 +13,10 @@ import java.util.*;
     import apicross.beanvalidation.*;
 {{/if}}
 
+{{#if customAttributes.apiModelReadInterfacesPackage}}
+    import {{{customAttributes.apiModelReadInterfacesPackage}}}.*;
+{{/if}}
+
 {{> documentation }}
 {{#if extraOpts.enableApicrossJavaBeanValidationSupport}}
     {{#if minProperties}}

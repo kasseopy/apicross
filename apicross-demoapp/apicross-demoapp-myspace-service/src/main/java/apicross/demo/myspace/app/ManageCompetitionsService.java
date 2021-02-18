@@ -2,10 +2,7 @@ package apicross.demo.myspace.app;
 
 import apicross.demo.common.utils.*;
 import apicross.demo.common.models.ModelConverter;
-import apicross.demo.myspace.app.dto.RpmCmOpenCompetitionRequest;
-import apicross.demo.myspace.app.dto.RpmCmRegisterCompetitionRequest;
-import apicross.demo.myspace.app.dto.RpmCmUpdateCompetitionRequest;
-import apicross.demo.myspace.app.dto.RpmParticipantRequirements;
+import apicross.demo.myspace.app.dto.*;
 import apicross.demo.myspace.domain.Competition;
 import apicross.demo.myspace.domain.CompetitionParticipantRequirements;
 import apicross.demo.myspace.domain.CompetitionRepository;
@@ -24,7 +21,6 @@ import java.util.UUID;
 @Service
 @Validated({ValidationStages.class})
 public class ManageCompetitionsService {
-    private final CompetitionFactory competitionFactory = new CompetitionFactory();
     private final CompetitionRepository competitionRepository;
 
     @Autowired
@@ -33,32 +29,34 @@ public class ManageCompetitionsService {
     }
 
     @Transactional
-    public EntityWithTag<Competition> registerNewCompetition(@NonNull User user,
-                                                             @NonNull @Valid RpmCmRegisterCompetitionRequest command) {
-        Competition competition = competitionFactory.create(command, user.getUsername());
+    public EntityWithETag<Competition> registerNewCompetition(@NonNull User user,
+                                                              @NonNull @Valid IReadRpmCmRegisterCompetitionRequest command) {
+        Competition competition = create(command, user.getUsername());
         competitionRepository.add(competition);
-        return new EntityWithTag<>(competition, competition::etag);
+        return new EntityWithETag<>(competition, competition::etag);
     }
 
     @Transactional
-    public ConditionalUpdateResult updateCompetition(@NonNull User user, @NonNull String competitionId,
-                                                     @NonNull @Valid RpmCmUpdateCompetitionRequest command, @NonNull IfETagMatchPolicy ifETagMatchPolicy) {
+    public HasETag updateCompetition(@NonNull User user, @NonNull String competitionId,
+                                     @NonNull @Valid IReadRpmCmUpdateCompetitionRequest command,
+                                     @NonNull IfETagMatchPolicy ifETagMatchPolicy) {
         Competition competition = competitionRepository.findForUser(competitionId, user);
-        ConditionalUpdateStatus conditionalUpdateStatus = new CompetitionPatcher(ifETagMatchPolicy, command).patchIfEtagMatch(competition);
-        return new ConditionalUpdateResult(conditionalUpdateStatus, competition::etag);
+        CompetitionPatch patch = new CompetitionPatch(ifETagMatchPolicy, command);
+        patch.apply(competition);
+        return new HasETagSupplier(competition::etag);
     }
 
     @Transactional(readOnly = true)
-    public <T> T listAllCompetitionsForCurrentUser(@NonNull User user, @NonNull ModelConverter<List<Competition>, T> resultTransformer) {
+    public <T> T listAllCompetitionsForCurrentUser(@NonNull User user, @NonNull ModelConverter<List<Competition>, T> modelConverter) {
         List<Competition> result = competitionRepository.findAllForUser(user);
-        return resultTransformer.convert(result);
+        return modelConverter.convert(result);
     }
 
     @Transactional(readOnly = true)
-    public <T> EntityWithTag<T> getCompetition(@NonNull User user, @NonNull String competitionId,
-                                               @NonNull ModelConverter<Competition, T> resultTransformer) {
+    public <T> EntityWithETag<T> getCompetition(@NonNull User user, @NonNull String competitionId,
+                                                @NonNull ModelConverter<Competition, T> modelConverter) {
         Competition competition = competitionRepository.findForUser(competitionId, user);
-        return new EntityWithTag<>(resultTransformer.convert(competition), competition::etag);
+        return new EntityWithETag<>(modelConverter.convert(competition), competition::etag);
     }
 
     @Transactional
@@ -68,7 +66,7 @@ public class ManageCompetitionsService {
 
     @Transactional
     public void openCompetition(@NonNull User user, @NonNull String competitionId,
-                                @NonNull @Valid RpmCmOpenCompetitionRequest command) {
+                                @NonNull @Valid IReadRpmCmOpenCompetitionRequest command) {
         Competition competition = competitionRepository.findForUser(competitionId, user);
         competition.open(command.getAcceptWorksTillDate(), command.getAcceptVotesTillDate());
     }
@@ -85,47 +83,38 @@ public class ManageCompetitionsService {
         competition.close();
     }
 
-    static class CompetitionPatcher extends EntityPatcher<Competition> {
-        private final RpmCmUpdateCompetitionRequest request;
+    static class CompetitionPatch extends ETagConditionalPatch<Competition> {
+        private final IReadRpmCmUpdateCompetitionRequest request;
 
-        CompetitionPatcher(@NonNull IfETagMatchPolicy ifETagMatchPolicy, @NonNull RpmCmUpdateCompetitionRequest request) {
+        CompetitionPatch(@NonNull IfETagMatchPolicy ifETagMatchPolicy, @NonNull IReadRpmCmUpdateCompetitionRequest request) {
             super(ifETagMatchPolicy);
             this.request = request;
         }
 
         @Override
         protected void doPatch(Competition entityToBeUpdated) {
-            request.ifTitlePresent(entityToBeUpdated::setTitle);
-            request.ifDescriptionPresent(entityToBeUpdated::setDescription);
-            request.ifParticipantReqsPresent(participantRequirements -> {
-                CompetitionParticipantRequirements originReqs = entityToBeUpdated.getParticipantRequirements();
-                if (originReqs == null) {
-                    originReqs = new CompetitionParticipantRequirements();
-                }
-                participantRequirements.ifMaxAgePresent(originReqs::setMaxAge);
-                participantRequirements.ifMinAgePresent(originReqs::setMinAge);
-                entityToBeUpdated.setParticipantRequirements(originReqs);
-            });
-            request.ifVotingTypePresent(votingTypeAsString ->
-                    entityToBeUpdated.setVotingType(VotingTypeFactory.detectVotingType(votingTypeAsString)));
+            entityToBeUpdated.setTitle(request.getTitleOrElse(null));
+            entityToBeUpdated.setDescription(request.getDescriptionOrElse(null));
+            if (request.isParticipantReqsPresent()) {
+                entityToBeUpdated.setParticipantRequirements(createParticipantRequirements(request.getParticipantReqs()));
+            }
+            entityToBeUpdated.setVotingType(VotingTypeFactory.detectVotingType(request.getVotingType()));
         }
     }
 
-    static class CompetitionFactory {
-        Competition create(RpmCmRegisterCompetitionRequest request, String userId) {
-            return new Competition(UUID.randomUUID().toString(), userId)
-                    .setTitle(request.getTitle())
-                    .setDescription(request.getDescription())
-                    .setVotingType(VotingTypeFactory.detectVotingType(request.getVotingType()))
-                    .setParticipantRequirements(createParticipantRequirements(request.getParticipantReqs()))
-                    .setRegisteredAt(ZonedDateTime.now());
+    private static Competition create(IReadRpmCmRegisterCompetitionRequest request, String userId) {
+        return new Competition(UUID.randomUUID().toString(), userId)
+                .setTitle(request.getTitle())
+                .setDescription(request.getDescription())
+                .setVotingType(VotingTypeFactory.detectVotingType(request.getVotingType()))
+                .setParticipantRequirements(createParticipantRequirements(request.getParticipantReqs()))
+                .setRegisteredAt(ZonedDateTime.now());
 
-        }
+    }
 
-        private CompetitionParticipantRequirements createParticipantRequirements(RpmParticipantRequirements participantReqs) {
-            return new CompetitionParticipantRequirements()
-                    .setMaxAge(participantReqs.isMaxAgePresent() ? participantReqs.getMaxAge() : null)
-                    .setMinAge(participantReqs.isMinAgePresent() ? participantReqs.getMinAge() : null);
-        }
+    private static CompetitionParticipantRequirements createParticipantRequirements(IReadRpmParticipantRequirements participantReqs) {
+        return new CompetitionParticipantRequirements()
+                .setMaxAge(participantReqs.getMaxAgeOrElse(null))
+                .setMinAge(participantReqs.getMinAgeOrElse(null));
     }
 }

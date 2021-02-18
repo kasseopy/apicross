@@ -15,17 +15,22 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
 public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGeneratorOptions> {
     private Template requestsHandlerQueryObjectTemplate;
+    private Template dataModelReadInterfaceTemplate;
     private boolean enableApicrossJavaBeanValidationSupport = false;
+    private boolean enableDataModelReadInterfaces = false;
+    private String apiModelReadInterfacesPackage;
 
     @Override
     protected void initHandlebarTemplates(Handlebars templatesEngine) throws IOException {
         super.initHandlebarTemplates(templatesEngine);
         this.requestsHandlerQueryObjectTemplate = templatesEngine.compile("requestsHandlerQueryStringParametersObject");
+        this.dataModelReadInterfaceTemplate = templatesEngine.compile("dataModelReadInterface");
         templatesEngine.setInfiniteLoops(true); // for recursion with type.hbs
     }
 
@@ -33,6 +38,11 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
     public void setOptions(SpringMvcCodeGeneratorOptions options) throws Exception {
         super.setOptions(options);
         this.enableApicrossJavaBeanValidationSupport = options.isEnableApicrossJavaBeanValidationSupport();
+        this.enableDataModelReadInterfaces = options.isEnableDataModelReadInterfaces();
+        this.apiModelReadInterfacesPackage = options.getApiModelReadInterfacesPackage();
+        if (this.apiModelReadInterfacesPackage == null) {
+            this.apiModelReadInterfacesPackage = super.apiModelPackage;
+        }
     }
 
     @Override
@@ -41,6 +51,30 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
         if (!getOptions().isGenerateOnlyModels()) {
             handleNeedToUseRequestBodyAnnotation(handlers);
         }
+    }
+
+    @Override
+    protected List<ObjectDataModel> prepareDataModelJavaClasses(Collection<ObjectDataModel> schemas, List<RequestsHandler> handlers) {
+        final List<ObjectDataModel> objectDataModels = super.prepareDataModelJavaClasses(schemas, handlers);
+        if (enableDataModelReadInterfaces) {
+            for (ObjectDataModel model : objectDataModels) {
+                Map<String, Object> customAttributes = model.getCustomAttributes();
+                List<String> ifaces = (List<String>) customAttributes.get("implementsInterfaces");
+
+                if (ifaces == null) {
+                    ifaces = new ArrayList<>();
+                    model.addCustomAttribute("implementsInterfaces", ifaces);
+                }
+
+                String iface = "IRead" + model.getTypeName();
+                ifaces.add(iface);
+
+                if (!apiModelReadInterfacesPackage.equals(super.apiModelPackage)) {
+                    model.addCustomAttribute("apiModelReadInterfacesPackage", apiModelReadInterfacesPackage);
+                }
+            }
+        }
+        return objectDataModels;
     }
 
     protected void handleNeedToUseRequestBodyAnnotation(List<RequestsHandler> handlers) {
@@ -68,10 +102,15 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
 
     @Override
     protected void writeModelsSources(File modelsPackageDir, List<ObjectDataModel> models) throws IOException {
+        if (enableDataModelReadInterfaces) {
+            File apiModelReadInterfacesDirectory = new File(getWriteSourcesTo(), toFilePath(apiModelReadInterfacesPackage));
+            apiModelReadInterfacesDirectory.mkdirs();
+            writeDataModelsReadInterfaceSourceFiles(models, apiModelReadInterfacesDirectory, model -> "IRead" + model.getTypeName() + ".java");
+        }
         writeDataModelsSourceFiles(models, modelsPackageDir, model -> model.getTypeName() + ".java");
     }
 
-    private void writeApiHandlerQueryObjectModels(List<RequestsHandler> handlers, File modelsPackageDir) throws IOException {
+    protected void writeApiHandlerQueryObjectModels(List<RequestsHandler> handlers, File modelsPackageDir) throws IOException {
         log.info("Writing QueryObject data models...");
 
         Set<String> handledOperations = new LinkedHashSet<>(); // 1 query object for operationId
@@ -103,6 +142,19 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
                     }
                     handledOperations.add(operationId);
                 }
+            }
+        }
+    }
+
+    protected void writeDataModelsReadInterfaceSourceFiles(List<ObjectDataModel> models, File modelsPackageDir, Function<ObjectDataModel, String> fileNameFactory) throws IOException {
+        log.info("Writing API data models read interfaces...");
+
+        for (ObjectDataModel model : models) {
+            File sourceFile = new File(modelsPackageDir, fileNameFactory.apply(model));
+            try (FileOutputStream out = new FileOutputStream(sourceFile)) {
+                PrintWriter sourcePrintWriter = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
+                Context context = buildTemplateContext(model, apiModelReadInterfacesPackage);
+                writeSource(context, dataModelReadInterfaceTemplate, sourcePrintWriter);
             }
         }
     }
