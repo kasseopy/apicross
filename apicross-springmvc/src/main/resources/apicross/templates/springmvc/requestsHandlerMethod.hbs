@@ -7,6 +7,9 @@ ResponseEntity<{{> requestsHandlerMethodResponseBodyType}}> {{methodName}}(
     {{capitalizeFirst operationId}}Query queryParameters,
 {{/if}}
 @RequestHeader HttpHeaders headers
+{{#if customAttributes.addAuthPrincipalArg}}
+    , @CurrentSecurityContext(expression = "authentication") Authentication authentication
+{{/if}}
 {{#if requestBody}}
     ,
     {{#if requestBody.customAttributes.avoidRequestBodyAnnotation}}

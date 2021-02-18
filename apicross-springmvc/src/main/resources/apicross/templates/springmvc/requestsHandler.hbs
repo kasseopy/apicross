@@ -8,6 +8,11 @@ import java.util.*;
     import {{this}};
 {{/each}}
 
+{{#if customAttributes.enableSpringSecurityAuthPrincipal}}
+    import org.springframework.security.core.annotation.CurrentSecurityContext;
+    import org.springframework.security.core.Authentication;
+{{/if}}
+
 {{> documentation }}
 @javax.annotation.Generated(value = "{{customAttributes.generatorClassName}}", date = "{{customAttributes.generationDate}}")
 public interface {{typeName}} {

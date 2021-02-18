@@ -146,6 +146,10 @@ public class RequestsHandlerMethod extends HasCustomModelAttributes {
         return queryParameters != null && queryParameters.stream().anyMatch(NamedDatum::isOptional);
     }
 
+    public boolean hasSecurityOptions() {
+        return operation.getSecurity() != null && !operation.getSecurity().isEmpty();
+    }
+
     public void replaceModelTypesByExternalTypesMap(Map<String, String> externalTypesMap) {
         if (requestBody != null) {
             replaceMediaTypeContentModelByExternalTypesMap(externalTypesMap, requestBody);

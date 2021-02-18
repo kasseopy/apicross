@@ -129,6 +129,7 @@
                                 <propertyNameResolverClassName>apicross.demo.common.utils.DemoAppApiModelPropertyNameResolver</propertyNameResolverClassName>
                                 <enableApicrossJavaBeanValidationSupport>true</enableApicrossJavaBeanValidationSupport>
                                 <enableDataModelReadInterfaces>true</enableDataModelReadInterfaces>
+                                <enableSpringSecurityAuthPrincipal>true</enableSpringSecurityAuthPrincipal>
                                 <dataModelsInterfacesMap>
                                     <NfListNotificationsResponse>apicross.demo.common.models.PaginatedData&lt;RpmNfNotification&gt;</NfListNotificationsResponse>
                                     <CmListCompetitionsResponse>apicross.demo.common.models.PaginatedData&lt;RpmCmCompetitionShortDescription&gt;</CmListCompetitionsResponse>

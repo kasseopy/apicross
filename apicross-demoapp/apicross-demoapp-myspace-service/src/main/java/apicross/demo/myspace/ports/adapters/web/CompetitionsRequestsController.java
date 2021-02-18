@@ -1,19 +1,17 @@
 package apicross.demo.myspace.ports.adapters.web;
 
 import apicross.demo.common.utils.ETagDoesntMatchException;
+import apicross.demo.common.utils.EntityWithETag;
 import apicross.demo.common.utils.HasETag;
 import apicross.demo.common.utils.HttpEtagIfETagMatchPolicy;
-import apicross.demo.common.utils.EntityWithETag;
 import apicross.demo.myspace.app.ManageCompetitionsService;
 import apicross.demo.myspace.domain.Competition;
 import apicross.demo.myspace.ports.adapters.web.models.*;
-import apicross.demo.myspace.ports.adapters.web.models.GetCompetitionResponseViewAssembler;
-import apicross.demo.myspace.ports.adapters.web.models.ListCompetitionsResponseViewAssembler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -30,8 +28,10 @@ public class CompetitionsRequestsController implements CompetitionsRequestsHandl
 
     @Override
     public ResponseEntity<?> registerNewCompetitionConsumeVndDemoappV1Json(HttpHeaders headers,
+                                                                           Authentication authentication,
                                                                            RpmCmRegisterCompetitionRequest requestEntity) {
-        EntityWithETag<Competition> registerCompetitionResult = manageCompetitionsService.registerNewCompetition(currentUser(), requestEntity);
+        EntityWithETag<Competition> registerCompetitionResult =
+                manageCompetitionsService.registerNewCompetition((User) authentication.getPrincipal(), requestEntity);
         UriComponents location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(registerCompetitionResult.getEntity().getId());
         return ResponseEntity.created(location.toUri())
@@ -40,20 +40,23 @@ public class CompetitionsRequestsController implements CompetitionsRequestsHandl
     }
 
     @Override
-    public ResponseEntity<RpmCmListCompetitionsResponse> listCompetitionsProduceVndDemoappV1Json(HttpHeaders headers) {
-        RpmCmListCompetitionsResponse response = manageCompetitionsService.listAllCompetitionsForCurrentUser(currentUser(), new ListCompetitionsResponseViewAssembler());
+    public ResponseEntity<RpmCmListCompetitionsResponse> listCompetitionsProduceVndDemoappV1Json(HttpHeaders headers,
+                                                                                                 Authentication authentication) {
+        RpmCmListCompetitionsResponse response = manageCompetitionsService.listAllCompetitionsForCurrentUser((User) authentication.getPrincipal(), new ListCompetitionsResponseViewAssembler());
         return ResponseEntity.ok(response);
     }
 
     @Override
-    public ResponseEntity<?> deleteCompetition(String competitionId, HttpHeaders headers) {
-        manageCompetitionsService.deleteCompetition(currentUser(), competitionId);
+    public ResponseEntity<?> deleteCompetition(String competitionId, HttpHeaders headers,
+                                               Authentication authentication) {
+        manageCompetitionsService.deleteCompetition((User) authentication.getPrincipal(), competitionId);
         return ResponseEntity.noContent().build();
     }
 
     @Override
-    public ResponseEntity<RpmCmGetCompetitionResponse> getCompetitionDescriptionProduceVndDemoappV1Json(String competitionId, HttpHeaders headers) {
-        EntityWithETag<RpmCmGetCompetitionResponse> outcome = manageCompetitionsService.getCompetition(currentUser(), competitionId, new GetCompetitionResponseViewAssembler());
+    public ResponseEntity<RpmCmGetCompetitionResponse> getCompetitionDescriptionProduceVndDemoappV1Json(String competitionId, HttpHeaders headers,
+                                                                                                        Authentication authentication) {
+        EntityWithETag<RpmCmGetCompetitionResponse> outcome = manageCompetitionsService.getCompetition((User) authentication.getPrincipal(), competitionId, new GetCompetitionResponseViewAssembler());
         return ResponseEntity.status(HttpStatus.OK)
                 .eTag(outcome.etag())
                 .body(outcome.getEntity());
@@ -61,9 +64,10 @@ public class CompetitionsRequestsController implements CompetitionsRequestsHandl
 
     @Override
     public ResponseEntity<?> updateCompetitionConsumeVndDemoappV1Json(String competitionId, HttpHeaders headers,
+                                                                      Authentication authentication,
                                                                       RpmCmUpdateCompetitionRequest requestEntity) {
         try {
-            HasETag outcome = manageCompetitionsService.updateCompetition(currentUser(), competitionId, requestEntity, new HttpEtagIfETagMatchPolicy(headers));
+            HasETag outcome = manageCompetitionsService.updateCompetition((User) authentication.getPrincipal(), competitionId, requestEntity, new HttpEtagIfETagMatchPolicy(headers));
             return ResponseEntity.noContent().eTag(outcome.etag()).build();
         } catch (ETagDoesntMatchException e) {
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
@@ -72,24 +76,23 @@ public class CompetitionsRequestsController implements CompetitionsRequestsHandl
 
     @Override
     public ResponseEntity<?> openCompetitionConsumeVndDemoappV1Json(String competitionId, HttpHeaders headers,
+                                                                    Authentication authentication,
                                                                     RpmCmOpenCompetitionRequest requestEntity) {
-        manageCompetitionsService.openCompetition(currentUser(), competitionId, requestEntity);
+        manageCompetitionsService.openCompetition((User) authentication.getPrincipal(), competitionId, requestEntity);
         return ResponseEntity.noContent().build();
     }
 
     @Override
-    public ResponseEntity<?> startCompetitionVoting(String competitionId, HttpHeaders headers) {
-        manageCompetitionsService.startVoting(currentUser(), competitionId);
+    public ResponseEntity<?> startCompetitionVoting(String competitionId, HttpHeaders headers,
+                                                    Authentication authentication) {
+        manageCompetitionsService.startVoting((User) authentication.getPrincipal(), competitionId);
         return ResponseEntity.noContent().build();
     }
 
     @Override
-    public ResponseEntity<?> closeCompetition(String competitionId, HttpHeaders headers) {
-        manageCompetitionsService.closeCompetition(currentUser(), competitionId);
+    public ResponseEntity<?> closeCompetition(String competitionId, HttpHeaders headers,
+                                              Authentication authentication) {
+        manageCompetitionsService.closeCompetition((User) authentication.getPrincipal(), competitionId);
         return ResponseEntity.noContent().build();
-    }
-
-    private User currentUser() {
-        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

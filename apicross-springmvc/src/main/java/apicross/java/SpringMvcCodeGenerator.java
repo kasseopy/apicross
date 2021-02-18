@@ -24,7 +24,20 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
     private Template dataModelReadInterfaceTemplate;
     private boolean enableApicrossJavaBeanValidationSupport = false;
     private boolean enableDataModelReadInterfaces = false;
+    private boolean enableSpringSecurityAuthPrincipal = false;
     private String apiModelReadInterfacesPackage;
+
+    @Override
+    public void setOptions(SpringMvcCodeGeneratorOptions options) throws Exception {
+        super.setOptions(options);
+        this.enableApicrossJavaBeanValidationSupport = options.isEnableApicrossJavaBeanValidationSupport();
+        this.enableDataModelReadInterfaces = options.isEnableDataModelReadInterfaces();
+        this.apiModelReadInterfacesPackage = options.getApiModelReadInterfacesPackage();
+        this.enableSpringSecurityAuthPrincipal = options.isEnableSpringSecurityAuthPrincipal();
+        if (this.apiModelReadInterfacesPackage == null) {
+            this.apiModelReadInterfacesPackage = super.apiModelPackage;
+        }
+    }
 
     @Override
     protected void initHandlebarTemplates(Handlebars templatesEngine) throws IOException {
@@ -35,21 +48,29 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
     }
 
     @Override
-    public void setOptions(SpringMvcCodeGeneratorOptions options) throws Exception {
-        super.setOptions(options);
-        this.enableApicrossJavaBeanValidationSupport = options.isEnableApicrossJavaBeanValidationSupport();
-        this.enableDataModelReadInterfaces = options.isEnableDataModelReadInterfaces();
-        this.apiModelReadInterfacesPackage = options.getApiModelReadInterfacesPackage();
-        if (this.apiModelReadInterfacesPackage == null) {
-            this.apiModelReadInterfacesPackage = super.apiModelPackage;
-        }
-    }
-
-    @Override
     protected void preProcess(Collection<ObjectDataModel> models, List<RequestsHandler> handlers) {
         super.preProcess(models, handlers);
         if (!getOptions().isGenerateOnlyModels()) {
             handleNeedToUseRequestBodyAnnotation(handlers);
+        }
+        if (enableSpringSecurityAuthPrincipal) {
+            processSpringSecurityAuthPrincipalFeature(handlers);
+        }
+    }
+
+    protected void processSpringSecurityAuthPrincipalFeature(List<RequestsHandler> handlers) {
+        for (RequestsHandler handler : handlers) {
+            List<RequestsHandlerMethod> methods = handler.getMethods();
+            boolean anySecurityOptionsForHandler = false;
+            for (RequestsHandlerMethod method : methods) {
+                if (method.hasSecurityOptions()) {
+                    method.addCustomAttribute("addAuthPrincipalArg", Boolean.TRUE);
+                    anySecurityOptionsForHandler = true;
+                }
+            }
+            if (anySecurityOptionsForHandler) {
+                handler.addCustomAttribute("enableSpringSecurityAuthPrincipal", Boolean.TRUE);
+            }
         }
     }
 
