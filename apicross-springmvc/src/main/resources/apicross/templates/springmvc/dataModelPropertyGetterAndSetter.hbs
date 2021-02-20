@@ -38,12 +38,12 @@
     }
     {{/if}}
 
-    public void if{{capitalizeFirst resolvedName}}Present(java.util.function.Consumer<{{#with type}}{{> type}}{{/with}}> consumer) {
+    public void if{{capitalizeFirst resolvedName}}Present(java.util.function.Consumer<{{#with type}}{{> typeWithoutListConstraints}}{{/with}}> consumer) {
     if(this.{{resolvedName}}.isPresent()) { consumer.accept(this.{{resolvedName}}.get()); }
     }
 
     {{#if nullable}}
-    public void if{{capitalizeFirst resolvedName}}PresentAndNotNull(java.util.function.Consumer<{{#with type}}{{> type}}{{/with}}> consumer) {
+    public void if{{capitalizeFirst resolvedName}}PresentAndNotNull(java.util.function.Consumer<{{#with type}}{{> typeWithoutListConstraints}}{{/with}}> consumer) {
     if(this.{{resolvedName}}.isPresent()) {
     {{#with type}}{{> type}}{{/with}} value = this.{{resolvedName}}.get();
     if(value != null) { consumer.accept(value); }
