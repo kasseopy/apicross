@@ -5,19 +5,20 @@ import javax.validation.constraints.*;
 import javax.validation.Valid;
 
 import java.util.*;
+import javax.annotation.*;
 
 @javax.annotation.Generated(value = "{{customAttributes.generatorClassName}}", date = "{{customAttributes.generationDate}}")
 public interface IRead{{typeName}} {{#if inheritanceParentTypeName}} extends IRead{{{inheritanceParentTypeName}}}{{/if}} {
 {{#each properties}}
     {{#if optional}}
         {{> documentation }}
-        {{#if nullable}}@javax.annotation.Nullable{{/if}}
+        {{#if nullable}}@Nullable{{/if}}
         {{#if deprecated}}@Deprecated{{/if}}
         {{#with type}}{{> typeReadInterface}}{{/with}} get{{capitalizeFirst resolvedName}}() throws NoSuchElementException;
 
         {{#if type.primitive}}
         {{> documentation }}
-        {{#if nullable}}@javax.annotation.Nullable{{/if}}
+        {{#if nullable}}@Nullable{{/if}}
         {{#if deprecated}}@Deprecated{{/if}}
         {{#with type}}{{> type}}{{/with}} get{{capitalizeFirst resolvedName}}OrElse({{#with type}}{{> type}}{{/with}} defaultValue);
         {{/if}}
@@ -32,7 +33,7 @@ public interface IRead{{typeName}} {{#if inheritanceParentTypeName}} extends IRe
     {{else}}
         {{> documentation }}
         {{#if deprecated}}@Deprecated{{/if}}
-        {{#if nullable}}@javax.annotation.Nullable{{/if}}
+        {{#if nullable}}@Nullable{{/if}}
         {{#with type}}{{> typeReadInterface}}{{/with}} get{{capitalizeFirst resolvedName}}();
     {{/if}}
 {{/each}}
