@@ -110,6 +110,9 @@
                                     <param>Storefront</param>
                                     <param>Votes</param>
                                 </generateOnlyTags>
+                                <alternativeTemplatesPath>
+                                    <item>${project.basedir}/src/main/resources/apicross/demoapp/storefront/alternative_templates</item>
+                                </alternativeTemplatesPath>
                             </generatorOptions>
                         </configuration>
                     </execution>

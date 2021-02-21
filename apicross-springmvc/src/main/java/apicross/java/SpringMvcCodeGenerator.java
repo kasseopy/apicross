@@ -9,6 +9,9 @@ import apicross.utils.HandlebarsFactory;
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
+import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
+import com.github.jknack.handlebars.io.FileTemplateLoader;
+import com.github.jknack.handlebars.io.TemplateLoader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -26,6 +29,7 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
     private boolean enableDataModelReadInterfaces = false;
     private boolean enableSpringSecurityAuthPrincipal = false;
     private String apiModelReadInterfacesPackage;
+    private List<String> alternativeTemplatesPath;
 
     @Override
     public void setOptions(SpringMvcCodeGeneratorOptions options) throws Exception {
@@ -37,6 +41,7 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
         if (this.apiModelReadInterfacesPackage == null) {
             this.apiModelReadInterfacesPackage = super.apiModelPackage;
         }
+        this.alternativeTemplatesPath = options.getAlternativeTemplatesPath();
     }
 
     @Override
@@ -112,7 +117,18 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
 
     @Override
     protected Handlebars setupHandlebars() {
-        return HandlebarsFactory.setupHandlebars("/apicross/templates/springmvc");
+        ClassPathTemplateLoader defaultTemplatesLoader = new ClassPathTemplateLoader("/apicross/templates/springmvc", ".hbs");
+
+        if (alternativeTemplatesPath != null && !alternativeTemplatesPath.isEmpty()) {
+            List<TemplateLoader> effectiveTemplatesClassPath = new ArrayList<>();
+            for (String path : alternativeTemplatesPath) {
+                effectiveTemplatesClassPath.add(new FileTemplateLoader(path, ".hbs"));
+            }
+            effectiveTemplatesClassPath.add(defaultTemplatesLoader);
+            return HandlebarsFactory.setupHandlebars(effectiveTemplatesClassPath);
+        } else {
+            return HandlebarsFactory.setupHandlebars(Collections.singletonList(defaultTemplatesLoader));
+        }
     }
 
     @Override
