@@ -25,9 +25,9 @@ import java.util.function.Consumer;
 
 @Slf4j
 public abstract class CodeGenerator<T extends CodeGeneratorOptions> {
-    protected final Consumer<HasCustomModelAttributes> setupGenerationAttributesConsumer  = objectDataModel -> {
-        objectDataModel.addCustomAttribute("generatorClassName", CodeGenerator.this.getClass().getName());
-        objectDataModel.addCustomAttribute("generationDate", new Date().toString());
+    protected final Consumer<HasCustomModelAttributes> setupGenerationAttributesConsumer  = model -> {
+        model.addCustomAttribute("generatorClassName", CodeGenerator.this.getClass().getName());
+        model.addCustomAttribute("generationDate", new Date().toString());
     };
 
     private String specUrl;
@@ -58,8 +58,8 @@ public abstract class CodeGenerator<T extends CodeGeneratorOptions> {
         OpenApiComponentsIndex openAPIComponentsIndex = new OpenApiComponentsIndex(openAPI);
 
         log.info("Configuring resolvers...");
-        DataModelResolver dataModelResolver = configureDataModelSchemaResolver(openAPIComponentsIndex);
-        RequestsHandlersResolver requestsHandlersResolver = configureRequestsHandlersResolver(openAPIComponentsIndex, dataModelResolver);
+        DataModelResolver dataModelResolver = setupDataModelSchemaResolver(openAPIComponentsIndex);
+        RequestsHandlersResolver requestsHandlersResolver = setupRequestsHandlersResolver(openAPIComponentsIndex, dataModelResolver);
 
         log.info("Resolving data models...");
         Collection<ObjectDataModel> models = resolveDataModels(dataModelResolver, openAPIComponentsIndex);
@@ -82,7 +82,7 @@ public abstract class CodeGenerator<T extends CodeGeneratorOptions> {
         log.info("Source generation completed!");
     }
 
-    protected void preProcess(Collection<ObjectDataModel> models, List<RequestsHandler> handlers) {
+    protected void preProcess(Iterable<ObjectDataModel> models, Iterable<RequestsHandler> handlers) {
         for (ObjectDataModel model : models) {
             Set<ObjectDataModelProperty> properties = model.getProperties();
             for (ObjectDataModelProperty property : properties) {
@@ -136,11 +136,11 @@ public abstract class CodeGenerator<T extends CodeGeneratorOptions> {
         return requestsHandlersResolver.resolve(paths);
     }
 
-    protected DataModelResolver configureDataModelSchemaResolver(OpenApiComponentsIndex openAPIComponentsIndex) {
+    protected DataModelResolver setupDataModelSchemaResolver(OpenApiComponentsIndex openAPIComponentsIndex) {
         return new DataModelResolver(openAPIComponentsIndex, setupPropertyNameResolver());
     }
 
-    protected RequestsHandlersResolver configureRequestsHandlersResolver(OpenApiComponentsIndex openApiComponentsIndex, DataModelResolver dataModelResolver) {
+    protected RequestsHandlersResolver setupRequestsHandlersResolver(OpenApiComponentsIndex openApiComponentsIndex, DataModelResolver dataModelResolver) {
         ParameterNameResolver parameterNameResolver = setupParameterNameResolver();
         return new RequestsHandlersResolver(
                 setupHttpOperationsGroupingStrategy(),

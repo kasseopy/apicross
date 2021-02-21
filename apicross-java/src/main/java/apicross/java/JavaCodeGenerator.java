@@ -24,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.Function;
 
 @Slf4j
 public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> extends CodeGenerator<T> {
@@ -50,8 +49,8 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
     }
 
     @Override
-    protected void generate(Collection<ObjectDataModel> models, List<RequestsHandler> handlers) throws IOException {
-        List<ObjectDataModel> modelsJavaClasses = prepareDataModelJavaClasses(models, handlers);
+    protected void preProcess(Iterable<ObjectDataModel> models, Iterable<RequestsHandler> handlers) {
+        super.preProcess(models, handlers);
 
         if (!getOptions().isGenerateOnlyModels()) {
             if (!this.apiHandlerPackage.equals(this.apiModelPackage)) {
@@ -66,11 +65,15 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
                 }
             }
         }
+    }
+
+    @Override
+    protected void generate(Collection<ObjectDataModel> models, List<RequestsHandler> handlers) throws IOException {
+        List<ObjectDataModel> modelsJavaClasses = prepareJavaClassDataModels(models, handlers);
 
         log.info("Setup source code templates...");
         Handlebars handlebars = setupHandlebars();
-
-        initHandlebarTemplates(handlebars);
+        initSourceCodeTemplates(handlebars);
 
         log.info("Writing sources...");
         File writeSourcesTo = getWriteSourcesTo();
@@ -93,70 +96,70 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         }
     }
 
-    protected List<ObjectDataModel> prepareDataModelJavaClasses(Collection<ObjectDataModel> schemas, List<RequestsHandler> handlers) {
+    protected List<ObjectDataModel> prepareJavaClassDataModels(Collection<ObjectDataModel> models, Collection<RequestsHandler> handlers) {
         log.info("Prepare data models java classes...");
 
-        List<ObjectDataModel> result = new ArrayList<>();
+        List<ObjectDataModel> preparedModels = new ArrayList<>(models);
 
-        resolveInlineModels(result, schemas, true);
-        resolveInlineModels(result, handlers);
+        resolveInlineModelsFrom(models, preparedModels);
+        resolveInlineModelsFromHandlers(handlers, preparedModels);
 
         if (this.dataModelsExternalTypesMap != null) {
             log.info("Process data models external types map...");
-            postprocessExternalTypesForDataModels(result, this.dataModelsExternalTypesMap);
+            postProcessExternalTypesForDataModels(preparedModels, this.dataModelsExternalTypesMap);
         }
 
         if (this.dataModelsInterfacesMap != null) {
             log.info("Process data models interfaces...");
-            postprocessInterfacesForDataModels(result, this.dataModelsInterfacesMap);
+            postProcessInterfacesForDataModels(preparedModels, this.dataModelsInterfacesMap);
         }
 
         String modelNameSuffix = getOptions().getModelClassNameSuffix();
         if (modelNameSuffix != null && !modelNameSuffix.isEmpty()) {
             log.info("Process data models name suffix...");
-            addModelNameSuffix(modelNameSuffix, this.dataModelsExternalTypesMap, result);
+            addModelNameSuffix(modelNameSuffix, this.dataModelsExternalTypesMap, preparedModels);
         }
 
         String modelNamePrefix = getOptions().getModelClassNamePrefix();
         if (modelNamePrefix != null && !modelNamePrefix.isEmpty()) {
             log.info("Process data models name prefix...");
-            addModelNamePrefix(modelNamePrefix, this.dataModelsExternalTypesMap, result);
+            addModelNamePrefix(modelNamePrefix, this.dataModelsExternalTypesMap, preparedModels);
         }
 
         log.info("Preparing data models java classes completed!");
 
-        return result;
+        return preparedModels;
     }
 
-    private void resolveInlineModels(List<ObjectDataModel> result, List<RequestsHandler> handlers) {
+    private void resolveInlineModelsFromHandlers(Iterable<RequestsHandler> handlers, List<ObjectDataModel> collectResolvedTo) {
         for (RequestsHandler handler : handlers) {
             for (RequestsHandlerMethod method : handler.getMethods()) {
                 if (method.getRequestBody() != null && method.getRequestBody().getContent().isArray()) {
                     ArrayDataModel requestBodyModel = (ArrayDataModel) method.getRequestBody().getContent();
-                    List<ObjectDataModel> inlineModels = InlineDataModelResolver.resolveInlineModels((typeName, propertyResolvedName) -> typeName + StringUtils.capitalize(propertyResolvedName), requestBodyModel);
+                    List<ObjectDataModel> inlineModels =
+                            InlineDataModelResolver.resolveInlineModels((typeName, propertyResolvedName) ->
+                                    typeName + StringUtils.capitalize(propertyResolvedName), requestBodyModel);
                     inlineModels.forEach(setupGenerationAttributesConsumer);
-                    result.addAll(inlineModels);
+                    collectResolvedTo.addAll(inlineModels);
                 }
             }
         }
     }
 
-    private void resolveInlineModels(List<ObjectDataModel> result, Collection<ObjectDataModel> schemas, boolean addFirst) {
-        for (ObjectDataModel model : schemas) {
-            if (addFirst) {
-                result.add(model);
-            }
+    private void resolveInlineModelsFrom(Iterable<ObjectDataModel> models, List<ObjectDataModel> collectResolvedTo) {
+        for (ObjectDataModel model : models) {
             List<ObjectDataModel> inlineModels =
-                    InlineDataModelResolver.resolveInlineModels((typeName, propertyName) -> typeName + StringUtils.capitalize(propertyName), model);
+                    InlineDataModelResolver.resolveInlineModels((typeName, propertyResolvedName) ->
+                            typeName + StringUtils.capitalize(propertyResolvedName), model);
             if (!inlineModels.isEmpty()) {
                 inlineModels.forEach(setupGenerationAttributesConsumer);
-                result.addAll(inlineModels);
-                resolveInlineModels(result, inlineModels, false);
+                collectResolvedTo.addAll(inlineModels);
+                resolveInlineModelsFrom(inlineModels, collectResolvedTo);
             }
         }
     }
 
-    protected void postprocessExternalTypesForDataModels(List<ObjectDataModel> models, Map<String, String> dataModelsExternalTypesMap) {
+    protected void postProcessExternalTypesForDataModels(Iterable<ObjectDataModel> models, Map<String, String> dataModelsExternalTypesMap) {
         Iterator<ObjectDataModel> dataModelIterator = models.iterator();
         while (dataModelIterator.hasNext()) {
             ObjectDataModel model = dataModelIterator.next();
@@ -174,7 +177,7 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         }
     }
 
-    protected void postprocessInterfacesForDataModels(List<ObjectDataModel> models, Map<String, String> dataModelsInterfacesMap) {
+    protected void postProcessInterfacesForDataModels(Iterable<ObjectDataModel> models, Map<String, String> dataModelsInterfacesMap) {
         for (ObjectDataModel model : models) {
             String iface = dataModelsInterfacesMap.get(model.getTypeName());
             if (iface != null) {
@@ -185,7 +188,7 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         }
     }
 
-    private void addModelNameSuffix(String modelNameSuffix, Map<String, String> dataModelsExternalTypesMap, Collection<ObjectDataModel> models) {
+    protected void addModelNameSuffix(String modelNameSuffix, Map<String, String> dataModelsExternalTypesMap, Iterable<ObjectDataModel> models) {
         for (ObjectDataModel model : models) {
             if (!dataModelsExternalTypesMap.containsKey(model.getTypeName())) {
                 model.changeTypeName(model.getTypeName() + modelNameSuffix, false);
@@ -193,7 +196,7 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         }
     }
 
-    private void addModelNamePrefix(String modelNamePrefix, Map<String, String> dataModelsExternalTypesMap, Collection<ObjectDataModel> models) {
+    protected void addModelNamePrefix(String modelNamePrefix, Map<String, String> dataModelsExternalTypesMap, Iterable<ObjectDataModel> models) {
         for (ObjectDataModel model : models) {
             if (!dataModelsExternalTypesMap.containsKey(model.getTypeName())) {
                 model.changeTypeName(modelNamePrefix + model.getTypeName(), false);
@@ -227,23 +230,43 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
 
     protected abstract Handlebars setupHandlebars();
 
-    protected void initHandlebarTemplates(Handlebars templatesEngine) throws IOException {
+    protected void initSourceCodeTemplates(Handlebars templatesEngine) throws IOException {
         this.requestsHandlerSourceCodeTemplate = templatesEngine.compile("requestsHandler");
         this.dataModelSourceCodeTemplate = templatesEngine.compile("dataModel");
     }
 
-    protected abstract void writeModelsSources(File modelsPackageDir, List<ObjectDataModel> models) throws IOException;
+    protected void writeModelsSources(File modelsPackageDir, List<ObjectDataModel> models) throws IOException {
+        log.info("Writing API data models...");
 
-    protected abstract void writeHandlersSources(File handlersPackageDir, File modelsPackageDir, List<RequestsHandler> handlers) throws IOException;
+        for (ObjectDataModel model : models) {
+            File sourceFile = new File(modelsPackageDir, model.getTypeName() + ".java");
+            try (FileOutputStream out = new FileOutputStream(sourceFile)) {
+                PrintWriter sourcePrintWriter = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
+                writeDataModel(model, sourcePrintWriter);
+            }
+        }
+    }
+
+    protected void writeHandlersSources(File handlersPackageDir, File modelsPackageDir, List<RequestsHandler> handlers) throws IOException {
+        log.info("Writing API handlers...");
+
+        for (RequestsHandler handler : handlers) {
+            File handlerInterfaceSourceFile = new File(handlersPackageDir, handler.getTypeName() + ".java");
+            try (FileOutputStream out = new FileOutputStream(handlerInterfaceSourceFile)) {
+                PrintWriter sourcePrintWriter = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
+                writeRequestsHandler(handler, sourcePrintWriter);
+            }
+        }
+    }
 
     protected void writeRequestsHandler(RequestsHandler requestsHandler, PrintWriter out) throws IOException {
         Context context = buildTemplateContext(requestsHandler, apiHandlerPackage);
-        writeSource(context, requestsHandlerSourceCodeTemplate, out);
+        writeSource(out, requestsHandlerSourceCodeTemplate.apply(context));
     }
 
     protected void writeDataModel(ObjectDataModel model, PrintWriter out) throws IOException {
         Context context = buildTemplateContext(model, apiModelPackage);
-        writeSource(context, dataModelSourceCodeTemplate, out);
+        writeSource(out, dataModelSourceCodeTemplate.apply(context));
     }
 
     protected Context buildTemplateContext(Object model, String packageName) {
@@ -253,8 +276,7 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
                 .build();
     }
 
-    protected void writeSource(Context model, Template template, PrintWriter out) throws IOException {
-        String source = template.apply(model);
+    protected void writeSource(PrintWriter out, String source) {
         String formattedSource;
         try {
             formattedSource = this.formatter.formatSource(source);
@@ -269,29 +291,5 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
 
     protected String toFilePath(String packagePath) {
         return packagePath.replaceAll("\\.", "//");
-    }
-
-    protected void writeRequestsHandlersSourceFiles(List<RequestsHandler> handlers, File handlersPackageDir, Function<RequestsHandler, String> fileNameFactory) throws IOException {
-        log.info("Writing API handlers...");
-
-        for (RequestsHandler handler : handlers) {
-            File handlerInterfaceSourceFile = new File(handlersPackageDir, fileNameFactory.apply(handler));
-            try (FileOutputStream out = new FileOutputStream(handlerInterfaceSourceFile)) {
-                PrintWriter sourcePrintWriter = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
-                writeRequestsHandler(handler, sourcePrintWriter);
-            }
-        }
-    }
-
-    protected void writeDataModelsSourceFiles(List<ObjectDataModel> models, File modelsPackageDir, Function<ObjectDataModel, String> fileNameFactory) throws IOException {
-        log.info("Writing API data models...");
-
-        for (ObjectDataModel model : models) {
-            File sourceFile = new File(modelsPackageDir, fileNameFactory.apply(model));
-            try (FileOutputStream out = new FileOutputStream(sourceFile)) {
-                PrintWriter sourcePrintWriter = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
-                writeDataModel(model, sourcePrintWriter);
-            }
-        }
     }
 }

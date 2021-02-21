@@ -45,15 +45,15 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
     }
 
     @Override
-    protected void initHandlebarTemplates(Handlebars templatesEngine) throws IOException {
-        super.initHandlebarTemplates(templatesEngine);
+    protected void initSourceCodeTemplates(Handlebars templatesEngine) throws IOException {
+        super.initSourceCodeTemplates(templatesEngine);
         this.requestsHandlerQueryObjectTemplate = templatesEngine.compile("requestsHandlerQueryStringParametersObject");
         this.dataModelReadInterfaceTemplate = templatesEngine.compile("dataModelReadInterface");
         templatesEngine.setInfiniteLoops(true); // for recursion with type.hbs
     }
 
     @Override
-    protected void preProcess(Collection<ObjectDataModel> models, List<RequestsHandler> handlers) {
+    protected void preProcess(Iterable<ObjectDataModel> models, Iterable<RequestsHandler> handlers) {
         super.preProcess(models, handlers);
         if (!getOptions().isGenerateOnlyModels()) {
             handleNeedToUseRequestBodyAnnotation(handlers);
@@ -63,7 +63,7 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
         }
     }
 
-    protected void processSpringSecurityAuthPrincipalFeature(List<RequestsHandler> handlers) {
+    protected void processSpringSecurityAuthPrincipalFeature(Iterable<RequestsHandler> handlers) {
         for (RequestsHandler handler : handlers) {
             List<RequestsHandlerMethod> methods = handler.getMethods();
             boolean anySecurityOptionsForHandler = false;
@@ -80,8 +80,9 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
     }
 
     @Override
-    protected List<ObjectDataModel> prepareDataModelJavaClasses(Collection<ObjectDataModel> schemas, List<RequestsHandler> handlers) {
-        final List<ObjectDataModel> objectDataModels = super.prepareDataModelJavaClasses(schemas, handlers);
+    protected List<ObjectDataModel> prepareJavaClassDataModels(Collection<ObjectDataModel> schemas, Collection<RequestsHandler> handlers) {
+        final List<ObjectDataModel> objectDataModels = super.prepareJavaClassDataModels(schemas, handlers);
+
         if (enableDataModelReadInterfaces) {
             for (ObjectDataModel model : objectDataModels) {
                 Map<String, Object> customAttributes = model.getCustomAttributes();
@@ -103,7 +104,7 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
         return objectDataModels;
     }
 
-    protected void handleNeedToUseRequestBodyAnnotation(List<RequestsHandler> handlers) {
+    protected void handleNeedToUseRequestBodyAnnotation(Iterable<RequestsHandler> handlers) {
         handlers.forEach(requestsHandler -> requestsHandler.getMethods().forEach(requestsHandlerMethod -> {
             MediaTypeContentModel requestBody = requestsHandlerMethod.getRequestBody();
             if (requestBody != null) {
@@ -133,18 +134,18 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
 
     @Override
     protected void writeHandlersSources(File handlersPackageDir, File modelsPackageDir, List<RequestsHandler> handlers) throws IOException {
-        writeRequestsHandlersSourceFiles(handlers, handlersPackageDir, handler -> handler.getTypeName() + ".java");
+        super.writeHandlersSources(handlersPackageDir, modelsPackageDir, handlers);
         writeApiHandlerQueryObjectModels(handlers, modelsPackageDir);
     }
 
     @Override
     protected void writeModelsSources(File modelsPackageDir, List<ObjectDataModel> models) throws IOException {
+        super.writeModelsSources(modelsPackageDir, models);
         if (enableDataModelReadInterfaces) {
             File apiModelReadInterfacesDirectory = new File(getWriteSourcesTo(), toFilePath(apiModelReadInterfacesPackage));
             apiModelReadInterfacesDirectory.mkdirs();
             writeDataModelsReadInterfaceSourceFiles(models, apiModelReadInterfacesDirectory, model -> "IRead" + model.getTypeName() + ".java");
         }
-        writeDataModelsSourceFiles(models, modelsPackageDir, model -> model.getTypeName() + ".java");
     }
 
     protected void writeApiHandlerQueryObjectModels(List<RequestsHandler> handlers, File modelsPackageDir) throws IOException {
@@ -175,7 +176,7 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
                                 .filter(RequestQueryParameter::isRequired)
                                 .map(RequestQueryParameter::getName)
                                 .collect(Collectors.toSet()));
-                        writeSource(context, requestsHandlerQueryObjectTemplate, sourcePrintWriter);
+                        writeSource(sourcePrintWriter, requestsHandlerQueryObjectTemplate.apply(context));
                     }
                     handledOperations.add(operationId);
                 }
@@ -191,7 +192,7 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
             try (FileOutputStream out = new FileOutputStream(sourceFile)) {
                 PrintWriter sourcePrintWriter = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
                 Context context = buildTemplateContext(model, apiModelReadInterfacesPackage);
-                writeSource(context, dataModelReadInterfaceTemplate, sourcePrintWriter);
+                writeSource(sourcePrintWriter, dataModelReadInterfaceTemplate.apply(context));
             }
         }
     }
@@ -202,4 +203,6 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
         return context.combine("extraOpts",
                 Collections.singletonMap("enableApicrossJavaBeanValidationSupport", this.enableApicrossJavaBeanValidationSupport));
     }
+
+
 }
