@@ -51,9 +51,16 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
     @Override
     protected void preProcess(Iterable<ObjectDataModel> models, Iterable<RequestsHandler> handlers) {
         super.preProcess(models, handlers);
+    }
 
+    @Override
+    protected void generate(Collection<ObjectDataModel> models, List<RequestsHandler> handlers) throws IOException {
+        List<ObjectDataModel> modelsJavaClasses = prepareJavaClassDataModels(models, handlers);
+
+        // TODO: following if section must be placed in the preProcess() step, but it influences model type names,
+        //  for example when some type replaced by a java.lang.String, then String source file will be written
         if (!getOptions().isGenerateOnlyModels()) {
-            if (!this.apiHandlerPackage.equals(this.apiModelPackage)) {
+            if (!this.apiHandlerPackage.equals(this.apiModelPackage) && modelsJavaClasses.size() > 0) {
                 for (RequestsHandler handler : handlers) {
                     handler.addCustomAttribute("imports", Collections.singleton(this.apiModelPackage + ".*"));
                 }
@@ -65,11 +72,6 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
                 }
             }
         }
-    }
-
-    @Override
-    protected void generate(Collection<ObjectDataModel> models, List<RequestsHandler> handlers) throws IOException {
-        List<ObjectDataModel> modelsJavaClasses = prepareJavaClassDataModels(models, handlers);
 
         log.info("Setup source code templates...");
         Handlebars handlebars = setupHandlebars();
