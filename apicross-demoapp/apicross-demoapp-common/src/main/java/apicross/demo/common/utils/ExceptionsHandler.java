@@ -40,7 +40,7 @@ public class ExceptionsHandler {
 
     @ExceptionHandler({HttpMessageNotReadableException.class})
     public ResponseEntity<ProblemDescription> handle(HttpMessageNotReadableException e, HttpServletRequest request) {
-        log.error(e.getMessage(), e);
+        log.warn(e.getMessage(), e);
         String problemMessage = ExceptionUtils.indexOfType(e, JsonProcessingException.class) >= 0 ? "Request body has unexpected format" : "Invalid or missed request body";
         ProblemDescription problem = new ProblemDescription()
                 .withType("https://api.myapp.com/problems/malformed-request-body")
@@ -63,9 +63,14 @@ public class ExceptionsHandler {
     }
 
     protected ResponseEntity<ProblemDescription> resourceNotFoundResponse(HttpServletRequest request) {
+        return resourceNotFoundResponse(request, null);
+    }
+
+    protected ResponseEntity<ProblemDescription> resourceNotFoundResponse(HttpServletRequest request, String message) {
         return toResponseEntity(new ProblemDescription()
                 .withType("https://api.myapp.com/problems/resource-not-found")
                 .withTitle("Resource not found")
+                .withMessage(message)
                 .withInstance(request.getRequestURI()), HttpStatus.NOT_FOUND);
     }
 

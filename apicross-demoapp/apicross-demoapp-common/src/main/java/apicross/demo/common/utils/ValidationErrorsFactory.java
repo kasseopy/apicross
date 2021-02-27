@@ -1,11 +1,15 @@
 package apicross.demo.common.utils;
 
+import apicross.beanvalidation.MaxProperties;
+import apicross.beanvalidation.MinProperties;
+import apicross.beanvalidation.RequiredProperties;
 import apicross.demo.common.models.QueryObjectMarker;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ElementKind;
 import javax.validation.Path;
+import java.lang.annotation.Annotation;
 import java.util.*;
 
 public class ValidationErrorsFactory {
@@ -37,10 +41,24 @@ public class ValidationErrorsFactory {
     private List<RequestBodyJsonFieldValidationError> collectRequestBodyValidationErrors(List<ConstraintViolation<?>> violations) {
         List<RequestBodyJsonFieldValidationError> result = new ArrayList<>();
         for (ConstraintViolation<?> violation : violations) {
-            result.add(new RequestBodyJsonFieldValidationError(prepareJsonPath(violation.getPropertyPath()),
+            String code = detectCode(violation);
+            result.add(new RequestBodyJsonFieldValidationError(code, prepareJsonPath(violation.getPropertyPath()),
                     violation.getInvalidValue(), violation.getMessage()));
         }
         return result;
+    }
+
+    private String detectCode(ConstraintViolation<?> violation) {
+        Class<? extends Annotation> annotationType = violation.getConstraintDescriptor().getAnnotation().annotationType();
+        if (annotationType.equals(RequiredProperties.class)) {
+            return "MissingRequiredFields";
+        } else if (annotationType.equals(MinProperties.class)) {
+            return "TooFewFields";
+        } else if (annotationType.equals(MaxProperties.class)) {
+            return "TooManyFields";
+        } else {
+            return "InvalidValue";
+        }
     }
 
     private List<QueryParameterValidationError> collectQueryParametersValidationErrors(List<ConstraintViolation<?>> violations) {
@@ -54,7 +72,7 @@ public class ValidationErrorsFactory {
 
     private String prepareJsonPath(Path jsr380propertyPath) {
         Iterator<Path.Node> pathNodes = jsr380propertyPath.iterator();
-        StringBuilder jsonPath = new StringBuilder("$.");
+        StringBuilder jsonPath = new StringBuilder("$");
         return collectPath(pathNodes, jsonPath);
     }
 
@@ -69,10 +87,7 @@ public class ValidationErrorsFactory {
         while (pathNodes.hasNext()) {
             Path.Node node = pathNodes.next();
             if (node.getKind() == ElementKind.PROPERTY) {
-                if (i++ > 0) {
-                    pathStringBuilder.append(".");
-                }
-                pathStringBuilder.append(node.toString());
+                pathStringBuilder.append(".").append(node.toString());
             }
         }
         return pathStringBuilder.toString();

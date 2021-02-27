@@ -143,7 +143,7 @@ paths:
       security:
         - Basic: [ ]
 
-  '/my/competition/{competitionId}/works':
+  '/my/competitions/{competitionId}/works':
     parameters:
       - $ref: 'common-models.yaml#/components/parameters/CompetitionIdPathParameter'
     post:

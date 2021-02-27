@@ -135,7 +135,7 @@ public class Competition extends AbstractEntity {
             throw new IllegalCompetitionStatusException("Competition must be open for works placement", getId(), getStatus());
         }
         if (!participantRequirements.isSatisfiedBy(workDescription)) {
-            throw new WorkDoesntMetCompetitionParticipantRequirementsException(this.getId(), participantRequirements, workDescription);
+            throw new WorkDoesntMeetCompetitionParticipantRequirementsException(this.getId(), participantRequirements, workDescription);
         }
         if (works == null) {
             works = new ArrayList<>();

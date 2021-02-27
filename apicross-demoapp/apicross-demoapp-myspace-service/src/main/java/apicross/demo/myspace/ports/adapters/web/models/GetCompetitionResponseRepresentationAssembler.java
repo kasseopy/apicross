@@ -2,7 +2,6 @@ package apicross.demo.myspace.ports.adapters.web.models;
 
 import apicross.demo.common.models.ModelConverter;
 import apicross.demo.myspace.domain.Competition;
-import apicross.demo.myspace.domain.CompetitionStatus;
 import apicross.demo.myspace.domain.CompetitionVotingType;
 
 public class GetCompetitionResponseRepresentationAssembler implements ModelConverter<Competition, RpmCmGetCompetitionResponse> {
@@ -15,25 +14,8 @@ public class GetCompetitionResponseRepresentationAssembler implements ModelConve
                 .withParticipantReqs(new RpmParticipantRequirements()
                         .withMaxAge(source.getParticipantRequirements().getMaxAge())
                         .withMinAge(source.getParticipantRequirements().getMinAge()))
-                .withStatus(encodeStatus(source.getStatus()))
+                .withStatus(CompetitionStatusEncoder.encodeStatus(source.getStatus()))
                 .withVotingType(encodeVotingType(source.getVotingType()));
-    }
-
-    private String encodeStatus(CompetitionStatus status) {
-        switch (status) {
-            case OPEN:
-                return "Open";
-            case CLOSED:
-                return "Closed";
-            case VOTING:
-                return "Voting";
-            case PENDING:
-                return "Pending";
-            case REJECTED:
-                return "Rejected";
-            default:
-                throw new IllegalArgumentException("Unsupported status: " + status);
-        }
     }
 
     private String encodeVotingType(CompetitionVotingType votingType) {

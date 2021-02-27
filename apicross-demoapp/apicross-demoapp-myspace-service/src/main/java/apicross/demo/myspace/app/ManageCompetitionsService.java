@@ -8,6 +8,7 @@ import apicross.demo.myspace.domain.CompetitionParticipantRequirements;
 import apicross.demo.myspace.domain.CompetitionRepository;
 import apicross.demo.myspace.domain.CompetitionVotingType;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import java.util.List;
 
+@Slf4j
 @Service
 @Validated({ValidationStages.class})
 public class ManageCompetitionsService {
@@ -30,7 +32,7 @@ public class ManageCompetitionsService {
     @Transactional
     public EntityWithETag<Competition> registerNewCompetition(@NonNull User competitionOrganizer,
                                                               @NonNull @Valid IReadRpmCmRegisterCompetitionRequest command) {
-
+        log.info("Registering new competition");
         IReadRpmParticipantRequirements participantReqs = command.getParticipantReqs();
 
         Competition competition = new Competition(
