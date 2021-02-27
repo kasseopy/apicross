@@ -1,13 +1,12 @@
 package apicross.demo.myspace.domain;
 
-import javax.annotation.Nonnull;
-import java.util.Objects;
+import lombok.NonNull;
 
 public class CompetitionNotFoundException extends RuntimeException {
-    private String competitionId;
+    private final String competitionId;
 
-    public CompetitionNotFoundException(@Nonnull String competitionId) {
-        this.competitionId = Objects.requireNonNull(competitionId);
+    public CompetitionNotFoundException(@NonNull String competitionId) {
+        this.competitionId = competitionId;
     }
 
     public String getCompetitionId() {

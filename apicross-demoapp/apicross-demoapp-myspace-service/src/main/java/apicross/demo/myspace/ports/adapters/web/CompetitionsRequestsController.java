@@ -3,7 +3,7 @@ package apicross.demo.myspace.ports.adapters.web;
 import apicross.demo.common.utils.ETagDoesntMatchException;
 import apicross.demo.common.utils.EntityWithETag;
 import apicross.demo.common.utils.HasETag;
-import apicross.demo.common.utils.HttpEtagIfETagMatchPolicy;
+import apicross.demo.common.utils.HttpEtagETagMatchPolicy;
 import apicross.demo.myspace.app.ManageCompetitionsService;
 import apicross.demo.myspace.domain.Competition;
 import apicross.demo.myspace.ports.adapters.web.models.*;
@@ -42,7 +42,9 @@ public class CompetitionsRequestsController implements CompetitionsRequestsHandl
     @Override
     public ResponseEntity<RpmCmListCompetitionsResponse> listCompetitionsProduceVndDemoappV1Json(HttpHeaders headers,
                                                                                                  Authentication authentication) {
-        RpmCmListCompetitionsResponse response = manageCompetitionsService.listAllCompetitionsForCurrentUser((User) authentication.getPrincipal(), new ListCompetitionsResponseViewAssembler());
+        RpmCmListCompetitionsResponse response =
+                manageCompetitionsService.listAllCompetitionsForCurrentUser((User) authentication.getPrincipal(),
+                        new ListCompetitionsResponseRepresentationAssembler());
         return ResponseEntity.ok(response);
     }
 
@@ -56,10 +58,12 @@ public class CompetitionsRequestsController implements CompetitionsRequestsHandl
     @Override
     public ResponseEntity<RpmCmGetCompetitionResponse> getCompetitionDescriptionProduceVndDemoappV1Json(String competitionId, HttpHeaders headers,
                                                                                                         Authentication authentication) {
-        EntityWithETag<RpmCmGetCompetitionResponse> outcome = manageCompetitionsService.getCompetition((User) authentication.getPrincipal(), competitionId, new GetCompetitionResponseViewAssembler());
+        EntityWithETag<RpmCmGetCompetitionResponse> response =
+                manageCompetitionsService.getCompetition((User) authentication.getPrincipal(), competitionId,
+                        new GetCompetitionResponseRepresentationAssembler());
         return ResponseEntity.status(HttpStatus.OK)
-                .eTag(outcome.etag())
-                .body(outcome.getEntity());
+                .eTag(response.etag())
+                .body(response.getEntity());
     }
 
     @Override
@@ -67,7 +71,8 @@ public class CompetitionsRequestsController implements CompetitionsRequestsHandl
                                                                       Authentication authentication,
                                                                       RpmCmUpdateCompetitionRequest requestEntity) {
         try {
-            HasETag outcome = manageCompetitionsService.updateCompetition((User) authentication.getPrincipal(), competitionId, requestEntity, new HttpEtagIfETagMatchPolicy(headers));
+            HasETag outcome = manageCompetitionsService.updateCompetition((User) authentication.getPrincipal(), competitionId,
+                    requestEntity, new HttpEtagETagMatchPolicy(headers));
             return ResponseEntity.noContent().eTag(outcome.etag()).build();
         } catch (ETagDoesntMatchException e) {
             return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();

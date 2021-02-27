@@ -24,11 +24,11 @@ class CompetitionRepositoryDbAdapter implements CompetitionRepository {
 
 
     @Override
-    public Competition findForUser(String competitionId, User user) {
+    public Competition findForUser(User user, String competitionId) {
         Optional<Competition> competitionOpt = competitionDao.findById(competitionId);
         if (competitionOpt.isPresent()) {
             Competition competition = competitionOpt.get();
-            if (competition.getOwnerId().equals(user.getUsername())) {
+            if (competition.getOrganizerUserId().equals(user.getUsername())) {
                 return competition;
             }
         }
@@ -41,8 +41,8 @@ class CompetitionRepositoryDbAdapter implements CompetitionRepository {
     }
 
     @Override
-    public void delete(String competitionId, User user) {
-        Competition competition = findForUser(competitionId, user);
+    public void delete(User user, String competitionId) {
+        Competition competition = findForUser(user, competitionId);
         competitionDao.delete(competition);
     }
 

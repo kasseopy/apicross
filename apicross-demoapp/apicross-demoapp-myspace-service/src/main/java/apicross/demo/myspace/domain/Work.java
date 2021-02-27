@@ -1,75 +1,61 @@
 package apicross.demo.myspace.domain;
 
 import apicross.demo.common.models.AbstractEntity;
+import apicross.demo.common.utils.IdGenerator;
 import lombok.NonNull;
 import org.springframework.security.core.userdetails.User;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "work")
 public class Work extends AbstractEntity {
-    @Column(name = "owner_id", length = 100)
-    private String owner;
-    @Column(name = "title", length = 100)
-    private String title;
-    @Column(name = "description", length = 2000)
-    private String description;
-    @Column(name = "author", length = 150)
-    private String author;
-    @Column(name = "author_age")
-    private int authorAge;
+    @Column(name = "user_id", length = 100)
+    private String userId;
+    @ManyToOne
+    private Competition competition;
+    @Embedded
+    private WorkDescription workDescription;
     @Column(name = "placed_at")
     private LocalDate placedAt;
     @Column(name = "status", length = 10)
     @Enumerated(EnumType.STRING)
     private WorkStatus status;
     @OneToMany
-    private Set<WorkFileReference> files = new HashSet<>();
+    private List<WorkFileReference> files;
 
-    public Work(@NonNull String id, @NonNull User owner, @NonNull String author, int authorAge) {
-        super(id, 0);
+    Work(@NonNull Competition competition, @NonNull User userId, @NonNull WorkDescription workDescription) {
+        super(IdGenerator.newId(), 0);
+        this.competition = competition;
         this.placedAt = LocalDate.now();
-        this.owner = owner.getUsername();
-        this.author = author;
-        this.authorAge = authorAge;
+        this.userId = userId.getUsername();
+        this.workDescription = workDescription;
     }
 
     protected Work() {
         super();
     }
 
-    public String getOwner() {
-        return owner;
+    public String getUserId() {
+        return userId;
     }
 
     public String getTitle() {
-        return title;
-    }
-
-    public Work setTitle(@NonNull String title) {
-        this.title = title;
-        return this;
+        return workDescription.getTitle();
     }
 
     public String getDescription() {
-        return description;
-    }
-
-    public Work setDescription(@NonNull String description) {
-        this.description = description;
-        return this;
+        return workDescription.getDescription();
     }
 
     public String getAuthor() {
-        return author;
+        return workDescription.getAuthor();
     }
 
     public int getAuthorAge() {
-        return authorAge;
+        return workDescription.getAuthorAge();
     }
 
     public LocalDate getPlacedAt() {
@@ -80,18 +66,23 @@ public class Work extends AbstractEntity {
         return status;
     }
 
-    public WorkFileReference addFileReference(String contentType) {
-        WorkFileReference workFileReference = new WorkFileReference(this, contentType);
+    public WorkFileReference addFile(String mediaType) {
+        if (competition.getStatus() != CompetitionStatus.OPEN) {
+            throw new IllegalCompetitionStatusException("Competition must be open", competition.getId(), competition.getStatus());
+        }
+        if(this.files == null) {
+            this.files = new ArrayList<>();
+        }
+        WorkFileReference workFileReference = new WorkFileReference(this, mediaType);
         this.files.add(workFileReference);
         return workFileReference;
     }
 
-    public void publishTo(Competition competition) {
-        if (competition.getStatus() == CompetitionStatus.OPEN) {
-            competition.checkRequirementsSatisfiedBy(this);
-            this.status = WorkStatus.PUBLISHED;
+    public Iterable<WorkFileReference> getFiles() {
+        if(this.files == null) {
+            return Collections.emptyList();
         } else {
-            throw new IllegalCompetitionStatusException(competition.getId(), competition.getStatus());
+            return Collections.unmodifiableList(this.files);
         }
     }
 }

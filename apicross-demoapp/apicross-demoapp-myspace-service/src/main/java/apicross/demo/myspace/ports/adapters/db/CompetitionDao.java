@@ -11,6 +11,6 @@ import java.util.List;
 
 @Repository
 interface CompetitionDao extends JpaRepository<Competition, String>, JpaSpecificationExecutor<Competition> {
-    @Query("SELECT c FROM Competition c WHERE c.ownerId = :userId")
+    @Query("SELECT c FROM Competition c WHERE c.organizerUserId = :userId")
     List<Competition> findAllForUserId(@Param("userId") String userId);
 }

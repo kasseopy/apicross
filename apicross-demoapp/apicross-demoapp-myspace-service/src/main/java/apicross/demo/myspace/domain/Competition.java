@@ -1,16 +1,22 @@
 package apicross.demo.myspace.domain;
 
 import apicross.demo.common.models.AbstractEntity;
+import apicross.demo.common.utils.IdGenerator;
+import lombok.NonNull;
+import org.springframework.security.core.userdetails.User;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Entity
 @Table(name = "competition")
 public class Competition extends AbstractEntity {
-    @Column(name = "owner_id", length = 100)
-    private String ownerId;
+    @Column(name = "organizer_user_id", length = 100)
+    private String organizerUserId;
     @Column(name = "title", length = 100)
     private String title;
     @Column(name = "description", length = 1000)
@@ -21,7 +27,7 @@ public class Competition extends AbstractEntity {
     @Enumerated(EnumType.STRING)
     private CompetitionVotingType votingType;
     @Column(name = "registered_at")
-    private ZonedDateTime registeredAt;
+    private LocalDateTime registeredAt;
     @Column(name = "status", length = 10)
     @Enumerated(EnumType.STRING)
     private CompetitionStatus status;
@@ -29,19 +35,30 @@ public class Competition extends AbstractEntity {
     private LocalDate acceptWorksTillDate;
     @Column(name = "accept_votes_till")
     private LocalDate acceptVotesTillDate;
+    @OneToMany
+    private List<Work> works;
 
-    public Competition(String id, String ownerId) {
-        super(id, 0);
-        this.ownerId = ownerId;
+    public Competition(@NonNull User competitionOrganizer, @NonNull String title,
+                       String description,
+                       @NonNull CompetitionParticipantRequirements participantRequirements,
+                       @NonNull CompetitionVotingType votingType) {
+        super(IdGenerator.newId(), 0);
+        this.organizerUserId = competitionOrganizer.getUsername();
         this.status = CompetitionStatus.PENDING;
+        this.registeredAt = LocalDateTime.now();
+        this.title = title;
+        this.description = description;
+        this.participantRequirements = participantRequirements;
+        this.votingType = votingType;
     }
 
     protected Competition() {
         super();
+        // infrastructure requirement
     }
 
-    public String getOwnerId() {
-        return ownerId;
+    public String getOrganizerUserId() {
+        return organizerUserId;
     }
 
     public String getTitle() {
@@ -80,13 +97,8 @@ public class Competition extends AbstractEntity {
         return this;
     }
 
-    public ZonedDateTime getRegisteredAt() {
+    public LocalDateTime getRegisteredAt() {
         return registeredAt;
-    }
-
-    public Competition setRegisteredAt(ZonedDateTime registeredAt) {
-        this.registeredAt = registeredAt;
-        return this;
     }
 
     public CompetitionStatus getStatus() {
@@ -101,33 +113,49 @@ public class Competition extends AbstractEntity {
         return acceptVotesTillDate;
     }
 
+    public Iterable<Work> getWorks() {
+        if (works == null) {
+            return Collections.emptyList();
+        } else {
+            return Collections.unmodifiableList(works);
+        }
+    }
+
     public void open(LocalDate acceptWorksTillDate, LocalDate acceptVotesTillDate) {
         if (status != CompetitionStatus.PENDING) {
-            throw new IllegalCompetitionStatusException(getId(), status);
+            throw new IllegalCompetitionStatusException("Unable to open competition", getId(), getStatus());
         }
         this.status = CompetitionStatus.OPEN;
         this.acceptWorksTillDate = acceptWorksTillDate;
         this.acceptVotesTillDate = acceptVotesTillDate;
     }
 
+    public Work addWork(User owner, WorkDescription workDescription) {
+        if (getStatus() != CompetitionStatus.OPEN) {
+            throw new IllegalCompetitionStatusException("Competition must be open for works placement", getId(), getStatus());
+        }
+        if (!participantRequirements.isSatisfiedBy(workDescription)) {
+            throw new WorkDoesntMetCompetitionParticipantRequirementsException(this.getId(), participantRequirements, workDescription);
+        }
+        if (works == null) {
+            works = new ArrayList<>();
+        }
+        Work work = new Work(this, owner, workDescription);
+        works.add(work);
+        return work;
+    }
+
     public void startVoting() {
         if (status != CompetitionStatus.OPEN) {
-            throw new IllegalCompetitionStatusException(getId(), status);
+            throw new IllegalCompetitionStatusException("Competition must be open first", getId(), getStatus());
         }
         this.status = CompetitionStatus.VOTING;
     }
 
     public void close() {
         if (status == CompetitionStatus.CLOSED) {
-            throw new IllegalCompetitionStatusException(getId(), status);
+            throw new IllegalCompetitionStatusException("Competition already closed", getId(), getStatus());
         }
         this.status = CompetitionStatus.CLOSED;
-    }
-
-    public void checkRequirementsSatisfiedBy(Work work) throws WorkDoesntMetCompetitionRequirements {
-        int authorAge = work.getAuthorAge();
-        if (!participantRequirements.isAuthorAgeSatisfied(authorAge)) {
-            throw new WorkDoesntMetCompetitionRequirements(this.getId(), work.getId());
-        }
     }
 }

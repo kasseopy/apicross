@@ -5,7 +5,7 @@ import apicross.demo.myspace.domain.Competition;
 
 import java.util.List;
 
-public class ListCompetitionsResponseViewAssembler implements ModelConverter<List<Competition>, RpmCmListCompetitionsResponse> {
+public class ListCompetitionsResponseRepresentationAssembler implements ModelConverter<List<Competition>, RpmCmListCompetitionsResponse> {
     @Override
     public RpmCmListCompetitionsResponse convert(List<Competition> source) {
         throw new UnsupportedOperationException("not implemented yet");

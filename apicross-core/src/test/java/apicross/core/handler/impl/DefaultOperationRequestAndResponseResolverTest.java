@@ -4,8 +4,8 @@ import apicross.utils.OpenApiComponentsIndex;
 import apicross.utils.OpenApiSpecificationParser;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,14 +13,15 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 public class DefaultOperationRequestAndResponseResolverTest {
     private OpenAPI openAPI;
     private DefaultOperationRequestAndResponseResolver splitter;
 
-    @Before
+    @BeforeEach
     public void loadOpenAPI() throws IOException {
         openAPI = OpenApiSpecificationParser.parse(getClass()
                 .getResourceAsStream("DefaultOperationInputOutputResolverTest.yaml"));

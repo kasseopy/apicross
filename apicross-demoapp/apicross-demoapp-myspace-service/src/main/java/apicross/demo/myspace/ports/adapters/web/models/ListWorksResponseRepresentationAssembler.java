@@ -6,7 +6,7 @@ import apicross.demo.myspace.domain.Work;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ListWorksResponseViewAssembler implements ModelConverter<List<Work>, RpmWpListWorksResponse> {
+public class ListWorksResponseRepresentationAssembler implements ModelConverter<List<Work>, RpmWpListWorksResponse> {
     @Override
     public RpmWpListWorksResponse convert(List<Work> source) {
         return new RpmWpListWorksResponse()

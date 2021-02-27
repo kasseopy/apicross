@@ -11,5 +11,5 @@ public interface WorkRepository {
 
     Work findForUser(User user, String workId) throws WorkNotFoundException;
 
-    void delete(String workId, User user) throws WorkNotFoundException;
+    void delete(User user, String workId) throws WorkNotFoundException;
 }

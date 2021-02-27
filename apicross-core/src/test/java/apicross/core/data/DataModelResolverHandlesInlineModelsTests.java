@@ -2,19 +2,17 @@ package apicross.core.data;
 
 import apicross.core.data.model.ObjectDataModel;
 import io.swagger.v3.oas.models.media.Schema;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@RunWith(MockitoJUnitRunner.class)
+
 public class DataModelResolverHandlesInlineModelsTests extends DataModelSchemaResolverTestsBase {
     @Test
     public void inlineModelResolved1() throws IOException {

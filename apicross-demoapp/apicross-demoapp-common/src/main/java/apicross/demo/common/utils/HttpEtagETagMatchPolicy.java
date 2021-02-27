@@ -9,15 +9,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class HttpEtagIfETagMatchPolicy implements IfETagMatchPolicy {
+public class HttpEtagETagMatchPolicy implements ETagMatchPolicy {
     private final Collection<String> requiredEtags;
 
-    public HttpEtagIfETagMatchPolicy(@NonNull HttpHeaders headers) {
+    public HttpEtagETagMatchPolicy(@NonNull HttpHeaders headers) {
         this.requiredEtags = prepareETags(headers.getIfMatch());
     }
 
     @Override
-    public boolean ifMatch(@NonNull String etag) {
+    public boolean matches(@NonNull String etag) {
         return requiredEtags.contains(etag);
     }
 

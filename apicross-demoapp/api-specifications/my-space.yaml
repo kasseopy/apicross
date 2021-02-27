@@ -143,7 +143,9 @@ paths:
       security:
         - Basic: [ ]
 
-  '/my/works':
+  '/my/competition/{competitionId}/works':
+    parameters:
+      - $ref: 'common-models.yaml#/components/parameters/CompetitionIdPathParameter'
     post:
       summary: Опубликовать конкурсную работу
       operationId: placeWork
@@ -156,6 +158,8 @@ paths:
           description: Работа размещена
       security:
         - Basic: [ ]
+
+  '/my/works':
     get:
       summary: Список конкурсных работ
       operationId: listWorks
@@ -199,22 +203,6 @@ paths:
       security:
         - Basic: [ ]
 
-  '/my/works/{workId}/publish/{competitionId}':
-    put:
-      summary: Опубликовать работу
-      description: Перед публикацией работа проходит модерацию. Это занимает некоторое время.
-      operationId: publishWork
-      tags:
-        - Works
-      parameters:
-        - $ref: 'common-models.yaml#/components/parameters/WorkIdPathParameter'
-        - $ref: 'common-models.yaml#/components/parameters/CompetitionIdPathParameter'
-      responses:
-        '204':
-          description: Работа опубликована
-      security:
-        - Basic: [ ]
-
   '/my/works/{workId}/files':
     parameters:
       - $ref: 'common-models.yaml#/components/parameters/WorkIdPathParameter'
@@ -243,7 +231,7 @@ paths:
       security:
         - Basic: [ ]
 
-  '/my/files/{fileId}':
+  '/my/work-files/{fileId}':
     parameters:
       - $ref: 'common-models.yaml#/components/parameters/MediaFileIdPathParameter'
     get:
@@ -456,24 +444,12 @@ components:
           format: date
         status:
           $ref: 'common-models.yaml#/components/schemas/WorkStatus'
-        votes:
-          $ref: 'common-models.yaml#/components/schemas/WorkVotesSummary'
-        _links:
-          type: object
-          properties:
-            self:
-              $ref: 'common-models.yaml#/components/schemas/HALLink'
-            'https://rels.demoapp.com/publish-work':
-              $ref: 'common-models.yaml#/components/schemas/HALLink'
-          required:
-            - self
       required:
         - title
         - description
         - author
         - datePlaced
         - status
-        - _links
 
     NfListNotificationsResponse:
       type: object

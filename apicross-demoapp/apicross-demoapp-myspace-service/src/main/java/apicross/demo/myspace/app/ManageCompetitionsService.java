@@ -6,6 +6,7 @@ import apicross.demo.myspace.app.dto.*;
 import apicross.demo.myspace.domain.Competition;
 import apicross.demo.myspace.domain.CompetitionParticipantRequirements;
 import apicross.demo.myspace.domain.CompetitionRepository;
+import apicross.demo.myspace.domain.CompetitionVotingType;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
@@ -14,9 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
-import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @Validated({ValidationStages.class})
@@ -29,19 +28,30 @@ public class ManageCompetitionsService {
     }
 
     @Transactional
-    public EntityWithETag<Competition> registerNewCompetition(@NonNull User user,
+    public EntityWithETag<Competition> registerNewCompetition(@NonNull User competitionOrganizer,
                                                               @NonNull @Valid IReadRpmCmRegisterCompetitionRequest command) {
-        Competition competition = create(command, user.getUsername());
+
+        IReadRpmParticipantRequirements participantReqs = command.getParticipantReqs();
+
+        Competition competition = new Competition(
+                competitionOrganizer, command.getTitle(), command.getDescription(),
+                new CompetitionParticipantRequirements(
+                        participantReqs.getMinAgeOrElse(null),
+                        participantReqs.getMaxAgeOrElse(null)),
+                VotingTypeFactory.detectVotingType(command.getVotingType())
+        );
+
         competitionRepository.add(competition);
+
         return new EntityWithETag<>(competition, competition::etag);
     }
 
     @Transactional
     public HasETag updateCompetition(@NonNull User user, @NonNull String competitionId,
                                      @NonNull @Valid IReadRpmCmUpdateCompetitionRequest command,
-                                     @NonNull IfETagMatchPolicy ifETagMatchPolicy) {
-        Competition competition = competitionRepository.findForUser(competitionId, user);
-        CompetitionPatch patch = new CompetitionPatch(ifETagMatchPolicy, command);
+                                     @NonNull ETagMatchPolicy ETagMatchPolicy) {
+        Competition competition = competitionRepository.findForUser(user, competitionId);
+        CompetitionPatch patch = new CompetitionPatch(ETagMatchPolicy, command);
         patch.apply(competition);
         return new HasETagSupplier(competition::etag);
     }
@@ -55,39 +65,39 @@ public class ManageCompetitionsService {
     @Transactional(readOnly = true)
     public <T> EntityWithETag<T> getCompetition(@NonNull User user, @NonNull String competitionId,
                                                 @NonNull ModelConverter<Competition, T> modelConverter) {
-        Competition competition = competitionRepository.findForUser(competitionId, user);
+        Competition competition = competitionRepository.findForUser(user, competitionId);
         return new EntityWithETag<>(modelConverter.convert(competition), competition::etag);
     }
 
     @Transactional
     public void deleteCompetition(@NonNull User user, @NonNull String competitionId) {
-        competitionRepository.delete(competitionId, user);
+        competitionRepository.delete(user, competitionId);
     }
 
     @Transactional
     public void openCompetition(@NonNull User user, @NonNull String competitionId,
                                 @NonNull @Valid IReadRpmCmOpenCompetitionRequest command) {
-        Competition competition = competitionRepository.findForUser(competitionId, user);
+        Competition competition = competitionRepository.findForUser(user, competitionId);
         competition.open(command.getAcceptWorksTillDate(), command.getAcceptVotesTillDate());
     }
 
     @Transactional
     public void startVoting(@NonNull User user, @NonNull String competitionId) {
-        Competition competition = competitionRepository.findForUser(competitionId, user);
+        Competition competition = competitionRepository.findForUser(user, competitionId);
         competition.startVoting();
     }
 
     @Transactional
     public void closeCompetition(@NonNull User user, @NonNull String competitionId) {
-        Competition competition = competitionRepository.findForUser(competitionId, user);
+        Competition competition = competitionRepository.findForUser(user, competitionId);
         competition.close();
     }
 
     static class CompetitionPatch extends ETagConditionalPatch<Competition> {
         private final IReadRpmCmUpdateCompetitionRequest request;
 
-        CompetitionPatch(@NonNull IfETagMatchPolicy ifETagMatchPolicy, @NonNull IReadRpmCmUpdateCompetitionRequest request) {
-            super(ifETagMatchPolicy);
+        CompetitionPatch(@NonNull ETagMatchPolicy ETagMatchPolicy, @NonNull IReadRpmCmUpdateCompetitionRequest request) {
+            super(ETagMatchPolicy);
             this.request = request;
         }
 
@@ -96,25 +106,24 @@ public class ManageCompetitionsService {
             entityToBeUpdated.setTitle(request.getTitleOrElse(null));
             entityToBeUpdated.setDescription(request.getDescriptionOrElse(null));
             if (request.isParticipantReqsPresent()) {
-                entityToBeUpdated.setParticipantRequirements(createParticipantRequirements(request.getParticipantReqs()));
+                IReadRpmParticipantRequirements participantReqs = request.getParticipantReqs();
+                entityToBeUpdated.setParticipantRequirements(new CompetitionParticipantRequirements(
+                        participantReqs.getMinAgeOrElse(null),
+                        participantReqs.getMaxAgeOrElse(null)));
             }
             entityToBeUpdated.setVotingType(VotingTypeFactory.detectVotingType(request.getVotingType()));
         }
     }
 
-    private static Competition create(IReadRpmCmRegisterCompetitionRequest request, String userId) {
-        return new Competition(UUID.randomUUID().toString(), userId)
-                .setTitle(request.getTitle())
-                .setDescription(request.getDescription())
-                .setVotingType(VotingTypeFactory.detectVotingType(request.getVotingType()))
-                .setParticipantRequirements(createParticipantRequirements(request.getParticipantReqs()))
-                .setRegisteredAt(ZonedDateTime.now());
-
-    }
-
-    private static CompetitionParticipantRequirements createParticipantRequirements(IReadRpmParticipantRequirements participantReqs) {
-        return new CompetitionParticipantRequirements()
-                .setMaxAge(participantReqs.getMaxAgeOrElse(null))
-                .setMinAge(participantReqs.getMinAgeOrElse(null));
+    static class VotingTypeFactory {
+        static CompetitionVotingType detectVotingType(String votingType) {
+            if ("ClapsVoting".equals(votingType)) {
+                return CompetitionVotingType.CLAPS_VOTING;
+            } else if ("PointsVoting".equals(votingType)) {
+                return CompetitionVotingType.POINTS_VOTING;
+            } else {
+                throw new IllegalArgumentException("Unknown voting type: " + votingType);
+            }
+        }
     }
 }

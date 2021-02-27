@@ -2,18 +2,15 @@ package apicross.core.data;
 
 import apicross.core.data.model.*;
 import io.swagger.v3.oas.models.media.Schema;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(MockitoJUnitRunner.class)
 public class DataModelResolverHandlesAnyObjectTypesTests extends DataModelSchemaResolverTestsBase {
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
         init("DataModelSchemaResolverTest.anyObjectLikeSchemaResolved.yaml");
     }

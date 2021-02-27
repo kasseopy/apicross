@@ -4,15 +4,13 @@ import apicross.core.data.model.ArrayDataModel;
 import apicross.core.data.model.ObjectDataModel;
 import apicross.core.data.model.PrimitiveDataModel;
 import io.swagger.v3.oas.models.media.Schema;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(MockitoJUnitRunner.class)
+
 public class DataModelResolverHandlesArraysTests extends DataModelSchemaResolverTestsBase {
     @Test
     public void simpleArrayResolved() throws IOException {

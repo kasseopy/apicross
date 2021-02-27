@@ -1,23 +1,23 @@
 package apicross.demo.myspace;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 public class MySpaceMicroserviceTests {
@@ -130,7 +130,7 @@ public class MySpaceMicroserviceTests {
 
     @Test
     public void conditionalRequestWithValidMatchGives204() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(post("/my/competitions").with(httpBasic("user1", "user1Pass"))
+        MvcResult registerCompetitionResult = mockMvc.perform(post("/my/competitions").with(httpBasic("user1", "user1Pass"))
                 .contentType("application/vnd.demoapp.v1+json")
                 .content("{" +
                         "\"title\":\"Demo Competition\"," +
@@ -147,16 +147,39 @@ public class MySpaceMicroserviceTests {
                 .andDo(print())
                 .andReturn();
 
-        String newResourceLocation = mvcResult.getResponse().getHeader("Location");
-        assertNotNull(newResourceLocation);
-        String eTag = mvcResult.getResponse().getHeader("ETag");
+        String newCompetitionResourceURI = registerCompetitionResult.getResponse().getHeader("Location");
+        assertNotNull(newCompetitionResourceURI);
+
+        String eTag = registerCompetitionResult.getResponse().getHeader("ETag");
         assertNotNull(eTag);
 
-        mockMvc.perform(patch(newResourceLocation).with(httpBasic("user1", "user1Pass"))
+        MvcResult patchCompetitionResult = mockMvc.perform(patch(newCompetitionResourceURI).with(httpBasic("user1", "user1Pass"))
                 .contentType("application/vnd.demoapp.v1+json")
                 .header("If-Match", eTag)
                 .content("{" +
                         "\"participantReqs\":{\"minAge\":5}" +
+                        "}"))
+                .andDo(print())
+                .andExpect(status().is(204))
+                .andReturn();
+
+        String eTagAfterPatch = patchCompetitionResult.getResponse().getHeader("ETag");
+        assertNotNull(eTag);
+
+        mockMvc.perform(patch(newCompetitionResourceURI).with(httpBasic("user1", "user1Pass"))
+                .contentType("application/vnd.demoapp.v1+json")
+                .header("If-Match", eTag)
+                .content("{" +
+                        "\"participantReqs\":{\"minAge\":15}" +
+                        "}"))
+                .andDo(print())
+                .andExpect(status().is(412));
+
+        mockMvc.perform(patch(newCompetitionResourceURI).with(httpBasic("user1", "user1Pass"))
+                .contentType("application/vnd.demoapp.v1+json")
+                .header("If-Match", eTagAfterPatch)
+                .content("{" +
+                        "\"participantReqs\":{\"minAge\":15}" +
                         "}"))
                 .andDo(print())
                 .andExpect(status().is(204));

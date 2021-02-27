@@ -10,25 +10,34 @@ public class CompetitionParticipantRequirements {
     @Column(name = "participant_req_max_age")
     private Integer maxAge;
 
-    public Integer getMinAge() {
-        return minAge;
+    public CompetitionParticipantRequirements(Integer minAge, Integer maxAge) {
+        if (minAge == null && maxAge == null) {
+            throw new IllegalArgumentException("'minAge' and 'maxAge' both must not be null");
+        }
+        if ((minAge != null && maxAge != null) && (maxAge < minAge)) {
+            throw new IllegalArgumentException("'maxAge' must not be less than 'minAge'");
+        }
+        this.minAge = minAge;
+        this.maxAge = maxAge;
     }
 
-    public CompetitionParticipantRequirements setMinAge(Integer minAge) {
-        this.minAge = minAge;
-        return this;
+    protected CompetitionParticipantRequirements() {
+        // infrastructure requirement
+    }
+
+    public Integer getMinAge() {
+        return minAge;
     }
 
     public Integer getMaxAge() {
         return maxAge;
     }
 
-    public CompetitionParticipantRequirements setMaxAge(Integer maxAge) {
-        this.maxAge = maxAge;
-        return this;
-    }
-
     public boolean isAuthorAgeSatisfied(int authorAge) {
         return ((minAge == null) || (authorAge >= minAge)) && ((maxAge == null) || (authorAge <= maxAge));
+    }
+
+    public boolean isSatisfiedBy(WorkDescription workDescription) {
+        return isAuthorAgeSatisfied(workDescription.getAuthorAge());
     }
 }

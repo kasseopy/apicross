@@ -7,11 +7,11 @@ import java.util.List;
 public interface CompetitionRepository {
     void add(Competition competition);
 
-    Competition findForUser(String competitionId, User user) throws CompetitionNotFoundException;
+    Competition findForUser(User user, String competitionId) throws CompetitionNotFoundException;
 
     List<Competition> findAllForUser(User user);
 
-    void delete(String competitionId, User user);
+    void delete(User user, String competitionId);
 
     Competition find(String competitionId);
 }

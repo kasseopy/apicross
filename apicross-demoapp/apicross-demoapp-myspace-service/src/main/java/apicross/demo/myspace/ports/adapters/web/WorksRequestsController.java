@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponents;
 
-import java.io.FileNotFoundException;
+import javax.activation.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -30,8 +30,20 @@ public class WorksRequestsController implements WorksRequestsHandler {
     }
 
     @Override
-    public ResponseEntity<?> placeWorkConsumeVndDemoappV1Json(HttpHeaders headers, Authentication authentication, RpmWpPlaceWorkRequest requestEntity) {
-        final EntityWithETag<Work> placeWorkResult = manageWorksService.placeWork((User) authentication.getPrincipal(), requestEntity);
+    public ResponseEntity<?> deleteWork(String workId, HttpHeaders headers, Authentication authentication) {
+        manageWorksService.deleteWork((User) authentication.getPrincipal(), workId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<RpmWpListWorksResponse> listWorksProduceVndDemoappV1Json(HttpHeaders headers, Authentication authentication) {
+        RpmWpListWorksResponse response = manageWorksService.listWorks((User) authentication.getPrincipal(), new ListWorksResponseRepresentationAssembler());
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<?> placeWorkConsumeVndDemoappV1Json(String competitionId, HttpHeaders headers, Authentication authentication, RpmWpPlaceWorkRequest requestBody) {
+        final EntityWithETag<Work> placeWorkResult = manageWorksService.placeWork(competitionId, (User) authentication.getPrincipal(), requestBody);
         UriComponents location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(placeWorkResult.getEntity().getId());
         return ResponseEntity.created(location.toUri())
@@ -40,28 +52,9 @@ public class WorksRequestsController implements WorksRequestsHandler {
     }
 
     @Override
-    public ResponseEntity<RpmWpListWorksResponse> listWorksProduceVndDemoappV1Json(HttpHeaders headers, Authentication authentication) {
-        RpmWpListWorksResponse response = manageWorksService.listWorks((User) authentication.getPrincipal(), new ListWorksResponseViewAssembler());
-        return ResponseEntity.ok(response);
-    }
-
-    @Override
-    public ResponseEntity<?> deleteWork(String workId, HttpHeaders headers, Authentication authentication) {
-        manageWorksService.deleteWork((User) authentication.getPrincipal(), workId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @Override
     public ResponseEntity<RpmWpGetWorkResponse> getWorkDescriptionProduceVndDemoappV1Json(String workId, HttpHeaders headers, Authentication authentication) {
-        RpmWpGetWorkResponse response = manageWorksService.getWork((User) authentication.getPrincipal(), workId, new GetWorkResponseViewAssembler());
+        RpmWpGetWorkResponse response = manageWorksService.getWork((User) authentication.getPrincipal(), workId, new GetWorkResponseRepresentationAssembler());
         return ResponseEntity.ok(response);
-    }
-
-    @Override
-    public ResponseEntity<?> publishWork(String workId, String competitionId, HttpHeaders headers,
-                                         Authentication authentication) {
-        manageWorksService.publishWork((User) authentication.getPrincipal(), competitionId, workId);
-        return ResponseEntity.noContent().build();
     }
 
     @Override
@@ -85,31 +78,31 @@ public class WorksRequestsController implements WorksRequestsHandler {
     @Override
     public ResponseEntity<?> deleteWorkFile(String fileId, HttpHeaders headers,
                                             Authentication authentication) {
-        manageWorksService.deleteWorkFile(fileId);
+        manageWorksService.deleteWorkFile((User) authentication.getPrincipal(), fileId);
         return ResponseEntity.noContent().build();
     }
 
     @Override
     public ResponseEntity<InputStreamResource> downloadWorkFileProduceImageJpeg(String fileId, HttpHeaders headers,
                                                                                 Authentication authentication) {
-        return downloadFile(fileId);
+        return downloadFile(fileId, "image/jpeg", authentication);
     }
 
     @Override
     public ResponseEntity<InputStreamResource> downloadWorkFileProduceAudioMp4(String fileId, HttpHeaders headers,
                                                                                Authentication authentication) {
-        return downloadFile(fileId);
+        return downloadFile(fileId, "audio/mp4", authentication);
     }
 
     @Override
     public ResponseEntity<InputStreamResource> downloadWorkFileProduceVideoMp4(String fileId, HttpHeaders headers,
                                                                                Authentication authentication) {
-        return downloadFile(fileId);
+        return downloadFile(fileId, "video/mp4", authentication);
     }
 
-    private ResponseEntity<?> addWorkFile(User principal, String workId, InputStream requestEntity, String s) throws IOException {
+    private ResponseEntity<?> addWorkFile(User principal, String workId, InputStream requestEntity, String mediaType) throws IOException {
         try {
-            WorkFileReference result = manageWorksService.addWorkFile(principal, workId, requestEntity, s);
+            WorkFileReference result = manageWorksService.addWorkFile(principal, workId, requestEntity, mediaType);
 
             UriComponents location = ServletUriComponentsBuilder.fromCurrentRequest().path("/my/files/{fileId}")
                     .buildAndExpand(result.getId());
@@ -121,12 +114,15 @@ public class WorksRequestsController implements WorksRequestsHandler {
         }
     }
 
-    private ResponseEntity<InputStreamResource> downloadFile(String fileId) {
+    private ResponseEntity<InputStreamResource> downloadFile(String fileId, String requiredMediaType, Authentication authentication) {
         try {
-            InputStreamResource inputStreamResource = new InputStreamResource(manageWorksService.fileContent(fileId));
-
-            return ResponseEntity.ok(inputStreamResource);
-        } catch (FileNotFoundException e) {
+            DataSource dataSource = manageWorksService.loadFileContent(authentication, fileId);
+            if (requiredMediaType.equals(dataSource.getContentType())) {
+                return ResponseEntity.ok(new InputStreamResource(dataSource.getInputStream()));
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+            }
+        } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }

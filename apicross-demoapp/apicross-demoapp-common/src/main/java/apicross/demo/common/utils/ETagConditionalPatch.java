@@ -3,14 +3,14 @@ package apicross.demo.common.utils;
 import apicross.demo.common.models.AbstractEntity;
 
 public abstract class ETagConditionalPatch<T extends AbstractEntity> {
-    private final IfETagMatchPolicy ifETagMatchPolicy;
+    private final ETagMatchPolicy eTagMatchPolicy;
 
-    public ETagConditionalPatch(IfETagMatchPolicy ifETagMatchPolicy) {
-        this.ifETagMatchPolicy = ifETagMatchPolicy;
+    public ETagConditionalPatch(ETagMatchPolicy eTagMatchPolicy) {
+        this.eTagMatchPolicy = eTagMatchPolicy;
     }
 
     public void apply(T entity) {
-        if (ifETagMatchPolicy.ifMatch(entity.etag())) {
+        if (eTagMatchPolicy.matches(entity.etag())) {
             doPatch(entity);
         } else {
             throw new ETagDoesntMatchException();

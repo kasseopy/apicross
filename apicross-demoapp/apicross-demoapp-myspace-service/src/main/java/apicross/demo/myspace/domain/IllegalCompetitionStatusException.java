@@ -5,10 +5,11 @@ import lombok.Getter;
 @Getter
 public class IllegalCompetitionStatusException extends RuntimeException {
     private final String competitionId;
-    private final CompetitionStatus status;
+    private final CompetitionStatus actualStatus;
 
-    public IllegalCompetitionStatusException(String competitionId, CompetitionStatus status) {
+    public IllegalCompetitionStatusException(String message, String competitionId, CompetitionStatus actualStatus) {
+        super(message);
         this.competitionId = competitionId;
-        this.status = status;
+        this.actualStatus = actualStatus;
     }
 }

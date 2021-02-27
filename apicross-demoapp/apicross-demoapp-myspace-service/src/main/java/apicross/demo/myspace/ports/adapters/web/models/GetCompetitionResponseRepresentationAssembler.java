@@ -5,7 +5,7 @@ import apicross.demo.myspace.domain.Competition;
 import apicross.demo.myspace.domain.CompetitionStatus;
 import apicross.demo.myspace.domain.CompetitionVotingType;
 
-public class GetCompetitionResponseViewAssembler implements ModelConverter<Competition, RpmCmGetCompetitionResponse> {
+public class GetCompetitionResponseRepresentationAssembler implements ModelConverter<Competition, RpmCmGetCompetitionResponse> {
     @Override
     public RpmCmGetCompetitionResponse convert(Competition source) {
         return new RpmCmGetCompetitionResponse()

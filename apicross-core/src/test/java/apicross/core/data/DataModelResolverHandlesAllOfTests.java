@@ -5,16 +5,13 @@ import apicross.core.data.model.ObjectDataModel;
 import apicross.core.data.model.ObjectDataModelProperty;
 import apicross.core.data.model.PrimitiveDataModel;
 import io.swagger.v3.oas.models.media.Schema;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RunWith(MockitoJUnitRunner.class)
 public class DataModelResolverHandlesAllOfTests extends DataModelSchemaResolverTestsBase {
     @Test
     public void allOfSchemaTypeResolved() throws IOException {
