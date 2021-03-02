@@ -3,9 +3,9 @@ package apicross.java;
 import apicross.CodeGeneratorException;
 import apicross.core.data.PropertyNameResolver;
 import apicross.core.handler.ParameterNameResolver;
-import com.github.jknack.handlebars.internal.lang3.CharUtils;
 import com.google.common.base.CaseFormat;
 import io.swagger.v3.oas.models.media.Schema;
+import org.apache.commons.lang3.CharUtils;
 
 import javax.annotation.Nonnull;
 
