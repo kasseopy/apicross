@@ -17,5 +17,10 @@
             <groupId>itroadlabs.toolkits</groupId>
             <artifactId>apicross-java</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-core</artifactId>
+            <version>2.1.7</version>
+        </dependency>
     </dependencies>
 </project>
