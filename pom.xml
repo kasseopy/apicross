@@ -22,7 +22,31 @@
 
     <packaging>pom</packaging>
 
-    <url>https://github.com/kasseopy/apicross</url>
+    <name>API Cross</name>
+    <description>Toolkit to build SDK from OpenAPI v.3 specification</description>
+    <url>https://github.com/itroadlabs/apicross</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/itroadlabs/apicross</url>
+        <connection>scm:git:git@github.com:itroadlabs/apicross.git</connection>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>owner</id>
+            <name>Victor Krapivin</name>
+            <email>victor-vk@yandex.ru</email>
+            <timezone>UTC+3</timezone>
+        </developer>
+    </developers>
 
     <modules>
         <module>apicross-core</module>

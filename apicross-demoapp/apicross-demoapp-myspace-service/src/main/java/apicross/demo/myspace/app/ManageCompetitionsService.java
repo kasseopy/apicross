@@ -1,14 +1,16 @@
 package apicross.demo.myspace.app;
 
-import apicross.demo.common.utils.*;
 import apicross.demo.common.models.ModelConverter;
-import apicross.demo.myspace.app.dto.*;
+import apicross.demo.common.utils.*;
+import apicross.demo.myspace.app.dto.IReadCmOpenCompetitionRequest;
+import apicross.demo.myspace.app.dto.IReadCmRegisterCompetitionRequest;
+import apicross.demo.myspace.app.dto.IReadCmUpdateCompetitionRequest;
+import apicross.demo.myspace.app.dto.IReadParticipantRequirements;
 import apicross.demo.myspace.domain.Competition;
 import apicross.demo.myspace.domain.CompetitionParticipantRequirements;
 import apicross.demo.myspace.domain.CompetitionRepository;
 import apicross.demo.myspace.domain.CompetitionVotingType;
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
@@ -18,7 +20,6 @@ import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import java.util.List;
 
-@Slf4j
 @Service
 @Validated({ValidationStages.class})
 public class ManageCompetitionsService {
@@ -30,13 +31,12 @@ public class ManageCompetitionsService {
     }
 
     @Transactional
-    public EntityWithETag<Competition> registerNewCompetition(@NonNull User competitionOrganizer,
-                                                              @NonNull @Valid IReadRpmCmRegisterCompetitionRequest command) {
-        log.info("Registering new competition");
-        IReadRpmParticipantRequirements participantReqs = command.getParticipantReqs();
+    public EntityWithETag<Competition> registerNewCompetition(@NonNull User requestee,
+                                                              @NonNull @Valid IReadCmRegisterCompetitionRequest command) {
+        IReadParticipantRequirements participantReqs = command.getParticipantReqs();
 
         Competition competition = new Competition(
-                competitionOrganizer, command.getTitle(), command.getDescription(),
+                requestee, command.getTitle(), command.getDescription(),
                 new CompetitionParticipantRequirements(
                         participantReqs.getMinAgeOrElse(null),
                         participantReqs.getMaxAgeOrElse(null)),
@@ -49,56 +49,56 @@ public class ManageCompetitionsService {
     }
 
     @Transactional
-    public HasETag updateCompetition(@NonNull User user, @NonNull String competitionId,
-                                     @NonNull @Valid IReadRpmCmUpdateCompetitionRequest command,
+    public HasETag updateCompetition(@NonNull User requestee, @NonNull String competitionId,
+                                     @NonNull @Valid IReadCmUpdateCompetitionRequest command,
                                      @NonNull ETagMatchPolicy ETagMatchPolicy) {
-        Competition competition = competitionRepository.findForUser(user, competitionId);
+        Competition competition = competitionRepository.findForUser(requestee, competitionId);
         CompetitionPatch patch = new CompetitionPatch(ETagMatchPolicy, command);
         patch.apply(competition);
         return new HasETagSupplier(competition::etag);
     }
 
     @Transactional(readOnly = true)
-    public <T> T listAllCompetitionsForCurrentUser(@NonNull User user, @NonNull ModelConverter<List<Competition>, T> modelConverter) {
-        List<Competition> result = competitionRepository.findAllForUser(user);
+    public <T> T listAllCompetitions(@NonNull User requestee, @NonNull ModelConverter<List<Competition>, T> modelConverter) {
+        List<Competition> result = competitionRepository.findAllForUser(requestee);
         return modelConverter.convert(result);
     }
 
     @Transactional(readOnly = true)
-    public <T> EntityWithETag<T> getCompetition(@NonNull User user, @NonNull String competitionId,
+    public <T> EntityWithETag<T> getCompetition(@NonNull User requestee, @NonNull String competitionId,
                                                 @NonNull ModelConverter<Competition, T> modelConverter) {
-        Competition competition = competitionRepository.findForUser(user, competitionId);
+        Competition competition = competitionRepository.findForUser(requestee, competitionId);
         return new EntityWithETag<>(modelConverter.convert(competition), competition::etag);
     }
 
     @Transactional
-    public void deleteCompetition(@NonNull User user, @NonNull String competitionId) {
-        competitionRepository.delete(user, competitionId);
+    public void deleteCompetition(@NonNull User requestee, @NonNull String competitionId) {
+        competitionRepository.delete(requestee, competitionId);
     }
 
     @Transactional
-    public void openCompetition(@NonNull User user, @NonNull String competitionId,
-                                @NonNull @Valid IReadRpmCmOpenCompetitionRequest command) {
-        Competition competition = competitionRepository.findForUser(user, competitionId);
+    public void openCompetition(@NonNull User requestee, @NonNull String competitionId,
+                                @NonNull @Valid IReadCmOpenCompetitionRequest command) {
+        Competition competition = competitionRepository.findForUser(requestee, competitionId);
         competition.open(command.getAcceptWorksTillDate(), command.getAcceptVotesTillDate());
     }
 
     @Transactional
-    public void startVoting(@NonNull User user, @NonNull String competitionId) {
-        Competition competition = competitionRepository.findForUser(user, competitionId);
+    public void startVoting(@NonNull User requestee, @NonNull String competitionId) {
+        Competition competition = competitionRepository.findForUser(requestee, competitionId);
         competition.startVoting();
     }
 
     @Transactional
-    public void closeCompetition(@NonNull User user, @NonNull String competitionId) {
-        Competition competition = competitionRepository.findForUser(user, competitionId);
+    public void closeCompetition(@NonNull User requestee, @NonNull String competitionId) {
+        Competition competition = competitionRepository.findForUser(requestee, competitionId);
         competition.close();
     }
 
     static class CompetitionPatch extends ETagConditionalPatch<Competition> {
-        private final IReadRpmCmUpdateCompetitionRequest request;
+        private final IReadCmUpdateCompetitionRequest request;
 
-        CompetitionPatch(@NonNull ETagMatchPolicy ETagMatchPolicy, @NonNull IReadRpmCmUpdateCompetitionRequest request) {
+        CompetitionPatch(@NonNull ETagMatchPolicy ETagMatchPolicy, @NonNull IReadCmUpdateCompetitionRequest request) {
             super(ETagMatchPolicy);
             this.request = request;
         }
@@ -108,7 +108,7 @@ public class ManageCompetitionsService {
             entityToBeUpdated.setTitle(request.getTitleOrElse(null));
             entityToBeUpdated.setDescription(request.getDescriptionOrElse(null));
             if (request.isParticipantReqsPresent()) {
-                IReadRpmParticipantRequirements participantReqs = request.getParticipantReqs();
+                IReadParticipantRequirements participantReqs = request.getParticipantReqs();
                 entityToBeUpdated.setParticipantRequirements(new CompetitionParticipantRequirements(
                         participantReqs.getMinAgeOrElse(null),
                         participantReqs.getMaxAgeOrElse(null)));

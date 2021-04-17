@@ -43,7 +43,7 @@ public class CompetitionsRequestsController implements CompetitionsRequestsHandl
     public ResponseEntity<RpmCmListCompetitionsResponse> listCompetitionsProduceVndDemoappV1Json(HttpHeaders headers,
                                                                                                  Authentication authentication) {
         RpmCmListCompetitionsResponse response =
-                manageCompetitionsService.listAllCompetitionsForCurrentUser((User) authentication.getPrincipal(),
+                manageCompetitionsService.listAllCompetitions((User) authentication.getPrincipal(),
                         new ListCompetitionsResponseRepresentationAssembler());
         return ResponseEntity.ok(response);
     }

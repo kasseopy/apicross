@@ -3,7 +3,7 @@ package apicross.demo.myspace.app;
 import apicross.demo.common.models.ModelConverter;
 import apicross.demo.common.utils.EntityWithETag;
 import apicross.demo.common.utils.ValidationStages;
-import apicross.demo.myspace.app.dto.IReadRpmWpPlaceWorkRequest;
+import apicross.demo.myspace.app.dto.IReadWpPlaceWorkRequest;
 import apicross.demo.myspace.domain.*;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import javax.activation.FileDataSource;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,7 +40,7 @@ public class ManageWorksService {
 
     @Transactional
     public EntityWithETag<Work> placeWork(@NonNull String competitionId, @NonNull User user,
-                                          @NonNull @Valid IReadRpmWpPlaceWorkRequest command) {
+                                          @NonNull @Valid IReadWpPlaceWorkRequest command) {
         Competition competition = competitionRepository.find(competitionId);
 
         WorkDescription workDescription =

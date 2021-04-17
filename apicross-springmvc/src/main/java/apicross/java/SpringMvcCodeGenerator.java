@@ -93,10 +93,10 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
                     model.addCustomAttribute("implementsInterfaces", ifaces);
                 }
 
-                String iface = "IRead" + model.getTypeName();
+                String iface = "IRead" + model.getOriginalTypeName();
                 ifaces.add(iface);
 
-                if (!apiModelReadInterfacesPackage.equals(super.apiModelPackage)) {
+                if (!super.apiModelPackage.equals(apiModelReadInterfacesPackage)) {
                     model.addCustomAttribute("apiModelReadInterfacesPackage", apiModelReadInterfacesPackage);
                 }
             }
@@ -144,7 +144,7 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
         if (enableDataModelReadInterfaces) {
             File apiModelReadInterfacesDirectory = new File(getWriteSourcesTo(), toFilePath(apiModelReadInterfacesPackage));
             apiModelReadInterfacesDirectory.mkdirs();
-            writeDataModelsReadInterfaceSourceFiles(models, apiModelReadInterfacesDirectory, model -> "IRead" + model.getTypeName() + ".java");
+            writeDataModelsReadInterfaceSourceFiles(models, apiModelReadInterfacesDirectory, model -> "IRead" + model.getOriginalTypeName() + ".java");
         }
     }
 

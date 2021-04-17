@@ -8,7 +8,7 @@ import java.util.*;
 import javax.annotation.*;
 
 @javax.annotation.Generated(value = "{{customAttributes.generatorClassName}}", date = "{{customAttributes.generationDate}}")
-public interface IRead{{typeName}} {{#if inheritanceParentTypeName}} extends IRead{{{inheritanceParentTypeName}}}{{/if}} {
+public interface IRead{{originalTypeName}} {{#if inheritanceParentOriginalTypeName}} extends IRead{{{inheritanceParentOriginalTypeName}}}{{/if}} {
 {{#each properties}}
     {{#if optional}}
         {{> documentation }}

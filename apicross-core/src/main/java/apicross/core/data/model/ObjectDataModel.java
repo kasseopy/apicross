@@ -8,6 +8,7 @@ import java.util.*;
 
 public class ObjectDataModel extends DataModel {
     private String typeName;
+    private final String originalTypeName;
     private Map<String, ObjectDataModelProperty> propertiesMap = new HashMap<>();
 
     private Map<String, ObjectDataModel> inheritanceChildModels;
@@ -21,6 +22,7 @@ public class ObjectDataModel extends DataModel {
     ObjectDataModel(String typeName, Schema<?> source) {
         super(source);
         this.typeName = typeName;
+        this.originalTypeName = typeName;
     }
 
     ObjectDataModel(String typeName, Schema<?> source, Set<ObjectDataModelProperty> properties, DataModel additionalPropertiesDataModel) {
@@ -91,6 +93,10 @@ public class ObjectDataModel extends DataModel {
 
     public void setTypeName(String typeName) {
         this.typeName = typeName;
+    }
+
+    public String getOriginalTypeName() {
+        return originalTypeName;
     }
 
     private void initPropertiesFrom(Collection<ObjectDataModelProperty> properties) {
@@ -210,6 +216,11 @@ public class ObjectDataModel extends DataModel {
     public String getInheritanceParentTypeName() {
         return inheritanceParent != null ? inheritanceParent.getTypeName() : null;
     }
+
+    public String getInheritanceParentOriginalTypeName() {
+        return inheritanceParent != null ? inheritanceParent.getOriginalTypeName() : null;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (!(object instanceof ObjectDataModel)) {
