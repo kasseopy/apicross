@@ -1,36 +1,18 @@
 package apicross.java;
 
 import apicross.CodeGeneratorException;
-import apicross.core.data.PropertyNameResolver;
-import apicross.core.handler.ParameterNameResolver;
 import com.google.common.base.CaseFormat;
-import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.CharUtils;
 
 import javax.annotation.Nonnull;
 
-public class DefaultJavaPropertyAndParameterNameResolver implements PropertyNameResolver, ParameterNameResolver {
-    public DefaultJavaPropertyAndParameterNameResolver() {
-    }
-
-    @Override
-    @Nonnull
-    public String resolvePropertyName(@Nonnull Schema<?> propertySchema, @Nonnull String apiPropertyName) {
-        return doResolve(apiPropertyName);
-    }
-
-    @Nonnull
-    @Override
-    public String resolveParameterName(@Nonnull Schema<?> parameterSchema, @Nonnull String apiParameterName) {
-        return doResolve(apiParameterName);
-    }
-
-    private String doResolve(@Nonnull String apiPropertyName) {
+public class StringToJavaIdentifierUtil {
+    public static String resolve(@Nonnull String apiPropertyName) {
         String javaIdentifier = removeNonJavaSymbols(apiPropertyName);
         return javaIdentifier.contains("_") ? CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, javaIdentifier) : javaIdentifier;
     }
 
-    private String removeNonJavaSymbols(@Nonnull String apiPropertyName) {
+    public static String removeNonJavaSymbols(@Nonnull String apiPropertyName) {
         StringBuilder buff = new StringBuilder();
 
         for (int i = 0; i < apiPropertyName.length(); i++) {

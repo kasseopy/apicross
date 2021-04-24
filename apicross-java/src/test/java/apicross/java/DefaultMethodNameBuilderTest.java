@@ -15,7 +15,7 @@ public class DefaultMethodNameBuilderTest {
     }
 
     @Test
-    public void whenOperationProducesContent_thenMethodNameIsOperationIdAndProduceMadiaType() {
+    public void whenOperationProducesContent_thenMethodNameIsOperationIdAndProduceMediaType() {
         String methodName = new DefaultMethodNameBuilder()
                 .operationId("getResource")
                 .producingMediaType("text/plain")
@@ -45,7 +45,7 @@ public class DefaultMethodNameBuilderTest {
     }
 
     @Test
-    public void whenOperationConsumesAndProducesContent_thenMethodNameIsOperationIdAndConsumeProduceMadiaType() {
+    public void whenOperationConsumesAndProducesContent_thenMethodNameIsOperationIdAndConsumeProduceMediaType() {
         String methodName = new DefaultMethodNameBuilder()
                 .operationId("search")
                 .consumingsMediaType("application/x.query.v1+json")

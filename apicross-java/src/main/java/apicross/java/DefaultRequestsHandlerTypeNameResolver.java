@@ -4,7 +4,7 @@ import apicross.core.handler.model.HttpOperationsGroup;
 import apicross.core.handler.RequestsHandlerTypeNameResolver;
 import org.apache.commons.lang3.StringUtils;
 
-public class DefaultJavaRequestsHandlerTypeNameResolver implements RequestsHandlerTypeNameResolver {
+public class DefaultRequestsHandlerTypeNameResolver implements RequestsHandlerTypeNameResolver {
     @Override
     public String resolve(HttpOperationsGroup httpOperationsGroup) {
         return StringUtils.capitalize(toJavaIdentifier(httpOperationsGroup.getName())) + "RequestsHandler";

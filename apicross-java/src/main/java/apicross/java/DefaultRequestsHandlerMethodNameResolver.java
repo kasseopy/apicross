@@ -5,7 +5,7 @@ import apicross.core.handler.RequestsHandlerMethodNameResolver;
 
 import javax.annotation.Nonnull;
 
-public class DefaultJavaRequestsHandlerMethodNameResolver implements RequestsHandlerMethodNameResolver {
+public class DefaultRequestsHandlerMethodNameResolver implements RequestsHandlerMethodNameResolver {
     @Nonnull
     @Override
     public String resolve(@Nonnull Operation operation, @Nonnull String uriPath,

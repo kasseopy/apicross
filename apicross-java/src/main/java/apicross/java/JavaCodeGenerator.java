@@ -49,11 +49,6 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
     }
 
     @Override
-    protected void preProcess(Iterable<ObjectDataModel> models, Iterable<RequestsHandler> handlers) {
-        super.preProcess(models, handlers);
-    }
-
-    @Override
     protected void generate(Collection<ObjectDataModel> models, List<RequestsHandler> handlers) throws IOException {
         List<ObjectDataModel> modelsJavaClasses = prepareJavaClassDataModels(models, handlers);
 
@@ -209,25 +204,25 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
     @Override
     protected PropertyNameResolver setupPropertyNameResolver() {
         return PluginsHelper.instantiatePlugin(getOptions().getPropertyNameResolverClassName(),
-                DefaultJavaPropertyAndParameterNameResolver::new);
+                DefaultPropertyAndParameterNameResolver::new);
     }
 
     @Override
     protected RequestsHandlerMethodNameResolver setupRequestsHandlerMethodNameResolver() {
         return PluginsHelper.instantiatePlugin(getOptions().getRequestsHandlerMethodNameResolverClassName(),
-                DefaultJavaRequestsHandlerMethodNameResolver::new);
+                DefaultRequestsHandlerMethodNameResolver::new);
     }
 
     @Override
     protected RequestsHandlerTypeNameResolver setupRequestsHandlerTypeNameResolver() {
         return PluginsHelper.instantiatePlugin(getOptions().getRequestsHandlerTypeNameResolverClassName(),
-                DefaultJavaRequestsHandlerTypeNameResolver::new);
+                DefaultRequestsHandlerTypeNameResolver::new);
     }
 
     @Override
     protected ParameterNameResolver setupParameterNameResolver() {
         return PluginsHelper.instantiatePlugin(getOptions().getParameterNameResolverClassName(),
-                DefaultJavaPropertyAndParameterNameResolver::new);
+                DefaultPropertyAndParameterNameResolver::new);
     }
 
     protected abstract Handlebars setupHandlebars();

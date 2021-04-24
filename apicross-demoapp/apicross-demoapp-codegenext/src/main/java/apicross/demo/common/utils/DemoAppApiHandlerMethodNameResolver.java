@@ -1,11 +1,11 @@
 package apicross.demo.common.utils;
 
-import apicross.java.DefaultJavaRequestsHandlerMethodNameResolver;
+import apicross.java.DefaultRequestsHandlerMethodNameResolver;
 import io.swagger.v3.oas.models.Operation;
 
 import javax.annotation.Nonnull;
 
-public class DemoAppApiHandlerMethodNameResolver extends DefaultJavaRequestsHandlerMethodNameResolver {
+public class DemoAppApiHandlerMethodNameResolver extends DefaultRequestsHandlerMethodNameResolver {
     @Nonnull
     @Override
     public String resolve(@Nonnull Operation operation, @Nonnull String uriPath, String consumesMediaType, String producesMediaType) {

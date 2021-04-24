@@ -1,12 +1,12 @@
 package apicross.demo.common.utils;
 
-import apicross.java.DefaultJavaPropertyAndParameterNameResolver;
+import apicross.java.DefaultPropertyAndParameterNameResolver;
 import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
 
-public class DemoAppApiModelPropertyNameResolver extends DefaultJavaPropertyAndParameterNameResolver {
+public class DemoAppApiModelPropertyNameResolver extends DefaultPropertyAndParameterNameResolver {
     @Nonnull
     @Override
     public String resolvePropertyName(@Nonnull Schema<?> propertySchema, @Nonnull String apiPropertyName) {

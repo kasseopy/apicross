@@ -7,12 +7,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class DefaultJavaPropertyAndParameterNameResolverTest {
-    private DefaultJavaPropertyAndParameterNameResolver resolver;
+public class DefaultPropertyAndParameterNameResolverTest {
+    private DefaultPropertyAndParameterNameResolver resolver;
 
     @BeforeEach
     public void setup() {
-        resolver = new DefaultJavaPropertyAndParameterNameResolver();
+        resolver = new DefaultPropertyAndParameterNameResolver();
     }
 
     @Test
