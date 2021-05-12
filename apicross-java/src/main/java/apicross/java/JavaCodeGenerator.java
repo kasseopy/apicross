@@ -16,6 +16,7 @@ import apicross.utils.SourceCodeLineNumberUtil;
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
+import com.github.jknack.handlebars.helper.ConditionalHelpers;
 import com.google.googlejavaformat.java.Formatter;
 import com.google.googlejavaformat.java.FormatterException;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,7 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
     protected Map<String, String> dataModelsExternalTypesMap;
     protected Map<String, String> queryObjectsInterfacesMap;
     protected Set<String> globalQueryObjectsInterfaces;
+    protected boolean useJsonNullable;
 
     @Override
     public void setOptions(T options) throws Exception {
@@ -46,6 +48,7 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         this.dataModelsExternalTypesMap = Collections.unmodifiableMap(options.getDataModelsExternalTypesMap());
         this.queryObjectsInterfacesMap = Collections.unmodifiableMap(options.getQueryObjectsInterfacesMap());
         this.globalQueryObjectsInterfaces = Collections.unmodifiableSet(options.getGlobalQueryObjectsInterfaces());
+        this.useJsonNullable = options.isUseJsonNullable();
     }
 
     @Override
@@ -266,10 +269,17 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         writeSource(out, dataModelSourceCodeTemplate.apply(context));
     }
 
+    protected Map<String, Object> buildTemplateExtraOpts() {
+        HashMap<String, Object> extraOpts = new HashMap<>();
+        extraOpts.put("useJsonNullable", useJsonNullable);
+        return extraOpts;
+    }
+
     protected Context buildTemplateContext(Object model, String packageName) {
         return Context
                 .newBuilder(model)
                 .combine("package", packageName)
+                .combine("extraOpts", buildTemplateExtraOpts())
                 .build();
     }
 

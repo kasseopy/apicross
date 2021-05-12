@@ -17,6 +17,7 @@ public class HandlebarsFactory {
         handlebars.registerHelper("lower", StringHelpers.lower);
         handlebars.registerHelper("eq", ConditionalHelpers.eq);
         handlebars.registerHelper("or", ConditionalHelpers.or);
+        handlebars.registerHelper("and", ConditionalHelpers.and);
         handlebars.registerHelper("javaBackSlashEscape",
                 (value, options) -> value.toString().replace("\\", "\\\\"));
 

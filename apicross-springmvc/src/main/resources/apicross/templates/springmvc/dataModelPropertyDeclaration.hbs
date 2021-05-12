@@ -1,7 +1,7 @@
 {{!-- ObjectDataModelProperty --}}
 {{> documentation }}
 {{#with type}}{{> dataModelPropertyConstraints}}{{/with}}
-{{#if optional}}
+{{#if (and optional extraOpts.useJsonNullable)}}
     {{#with type}}
         private JsonNullable< {{> type}} > {{../resolvedName}} {{> dataModelPropertyDefaultValueOptional}};
     {{/with}}

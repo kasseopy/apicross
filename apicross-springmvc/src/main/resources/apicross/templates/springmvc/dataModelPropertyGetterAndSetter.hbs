@@ -1,5 +1,5 @@
 {{!-- ObjectDataModelProperty --}}
-{{#if optional}}
+{{#if (and optional extraOpts.useJsonNullable)}}
     {{#unless writeOnly}}
         {{#if deprecated}}@Deprecated{{/if}}
         @JsonGetter("{{{name}}}")
@@ -82,13 +82,13 @@
 {{/if}}
 public void set{{capitalizeFirst resolvedName}}({{#unless nullable}}@Nonnull{{/unless}} {{#with type}}{{> typeWithoutListConstraints}}{{/with}} value) {
 this.$specifiedProperties.add("{{name}}");
-this.{{resolvedName}} = {{#if optional}}JsonNullable.of(value){{else}}value{{/if}};
+this.{{resolvedName}} = {{#if (and optional extraOpts.useJsonNullable)}}JsonNullable.of(value){{else}}value{{/if}};
 }
 
 {{#if deprecated}}@Deprecated{{/if}}
 public {{../typeName}} with{{capitalizeFirst resolvedName}}({{#unless nullable}}@Nonnull{{/unless}} {{#with type}}{{> typeWithoutListConstraints}}{{/with}} value) {
 this.$specifiedProperties.add("{{name}}");
-this.{{resolvedName}} = {{#if optional}}JsonNullable.of(value){{else}}value{{/if}};
+this.{{resolvedName}} = {{#if (and optional extraOpts.useJsonNullable)}}JsonNullable.of(value){{else}}value{{/if}};
 return this;
 }
 
@@ -105,7 +105,7 @@ return with{{capitalizeFirst resolvedName}}(value);
     public  {{../typeName}} with{{capitalizeFirst resolvedName}}IfNotNull({{#with type}}{{> typeWithoutListConstraints}}{{/with}} value) {
     if(value != null) {
     this.$specifiedProperties.add("{{name}}");
-    this.{{resolvedName}} = {{#if optional}}JsonNullable.of(value){{else}}value{{/if}};
+    this.{{resolvedName}} = {{#if (and optional extraOpts.useJsonNullable)}}JsonNullable.of(value){{else}}value{{/if}};
     }
     return this;
     }
