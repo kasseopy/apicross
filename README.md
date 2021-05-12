@@ -224,6 +224,7 @@ public interface IReadCreateMyResourceRepresentation {
 ```java
 package com.myapp.ports.adapters.web;
 ...
+@javax.annotation.Generated(value = "apicross.java.SpringMvcCodeGenerator")
 public interface MyApiHandler {
     @RequestMapping(path = "/my-resource", method = RequestMethod.POST, consumes = "application/json")
     ResponseEntity<?> createMyResource(@RequestBody(required = true) CreateMyResourceRepresentation model,
