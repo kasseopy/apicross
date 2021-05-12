@@ -258,6 +258,18 @@ public class MyService {
 }
 ```
 
+To enable this feature use following configuration:
+```xml
+    <generatorOptions implementation="apicross.java.SpringMvcCodeGeneratorOptions">
+        ...
+        <apiHandlerPackage>com.myapp.ports.adapters.web</apiHandlerPackage>
+        <apiModelPackage>com.myapp.ports.adapters.web</apiModelPackage>
+        <enableDataModelReadInterfaces>true</enableDataModelReadInterfaces>
+        <apiModelReadInterfacesPackage>com.myapp.application</apiModelReadInterfacesPackage>
+        ...
+    </generatorOptions>
+```
+
 ## API handler
 API Handler is an object handling API requests. For SpringWebMVC - handlers are `@Controller`s.
 APICROSS generated Java interfaces with spring MVC metadata. So application's `@Controller`s have to implement these interfaces.
