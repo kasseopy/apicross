@@ -5,13 +5,12 @@ APICROSS is a tool to generate source code from OpenAPI 3.0 API specification.
 
 # Features
 - Generates API Models
-- Generates API Requests Handlers (SpringMVC, SpringCloud Feign)
+- Generates API Requests Handlers (SpringMVC)
 - Maven plugin
 
 # Dependencies
 * [OpenAPI model](https://github.com/swagger-api/swagger-core/tree/master/modules/swagger-models/src/main/java/io/swagger/v3/oas/models)
 * Spring MVC
-* Spring Cloud Feign
 * Jackson JSON
 * [JsonNullable Jackson module](https://github.com/OpenAPITools/jackson-databind-nullable)
 
@@ -25,7 +24,7 @@ APICROSS is a tool to generate source code from OpenAPI 3.0 API specification.
                 <version>${project.version}</version>
                 <executions>
                     <execution>
-                        <id>generate-storefront-api-classes</id>
+                        <id>generate-api-classes</id>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>generate-code</goal>
@@ -55,7 +54,7 @@ APICROSS is a tool to generate source code from OpenAPI 3.0 API specification.
 
 # OpenAPI Specification processing features
 ## Optional fields in data model
-By default OpenAPI specification states all model fields are not nullable (`nullable: false`). 
+By default, OpenAPI specification states all model fields are not nullable (`nullable: false`). 
 Required fields are fields must be present in a valid JSON  document representing API data models (request/response payloads).
 So field may be not required to be in JSON document, but it's value must not be null. For example, consider following schema
 ```yaml
@@ -82,7 +81,7 @@ And following JSON is valid:
 ```
 
 Optional fields (which are not required) become `JsonNullable<Type>` fields for internal data model and Jackson serialization/deserialization.
-But for public getters code generator creates two methods: to get value and to check value was presnt in JSON representation. For example, for the schema above generated Java class will be:
+For example, for the schema above generated Java class will be:
 ```java
 public class MyModel {
     private JsonNullable<String> a = JsonNullable.undefined();
@@ -91,12 +90,6 @@ public class MyModel {
     public String getA() throws NoSuchElementException {
         return this.a.get();
     }
-   
-    @JsonIgnore
-    public boolean isAPresent() {
-        return this.a.isPresent();
-    }
-
 
     @JsonGetter("a")
     protected JsonNullable<String> aJson() {
@@ -109,6 +102,73 @@ public class MyModel {
     }
 }
 ```
+
+It is possible to disable `JsonNullable` usage by maven plugin configuration option:
+```xml
+    <generatorOptions implementation="apicross.java.SpringMvcCodeGeneratorOptions">
+        ...
+        <useJsonNullable>false</useJsonNullable>
+        ...
+    </generatorOptions>
+```
+
+## Min/Max/Required properties validation
+Validating such features within java code is tricky because JSON and Java are different.
+OpenAPI specification states:
+- minProperties - minimum number of fields must present in JSON document,
+- maxProperties - maximum number of fields must present in JSON document,
+- required - such fields must present in JSON document (it doesn't matter what value fields have, nulls or not).
+
+After JSON deserialization into Java object there is no information about field's presence in the JSON document.
+APICROSS by default represents optional schema fields as `JsonNullable`. 
+To validate such data models there is a simple JSR-380 toolkit. 
+Take a look at the `apicross.beanvalidation.*` classes within `apicross-support` module.
+
+Here is an example of generated code below:
+```java
+@MinProperties(
+        value = 2,
+        groups = {BeanPropertiesValidationGroup.class})
+@MaxProperties(
+        value = 3,
+        groups = {BeanPropertiesValidationGroup.class})
+@RequiredProperties(
+        value = {"a"},
+        groups = {BeanPropertiesValidationGroup.class})
+public class MyModel implements HasPopulatedProperties {
+    private final Set<String> $populatedProperties = new HashSet<>();
+
+    private JsonNullable<String> a = JsonNullable.undefined();
+    private JsonNullable<String> b = JsonNullable.undefined();
+    private JsonNullable<String> c = JsonNullable.undefined();
+    private JsonNullable<String> d = JsonNullable.undefined();
+    ...
+
+    @JsonSetter("a")
+    public void setA(String a) {
+        this.$populatedProperties.add("a");
+        this.a = JsonNullable.of(a);
+    }
+    
+    ...
+    
+    @Override
+    public Set<String> get$populatedProperties() {
+        return Collections.unmodifiableSet(this.$populatedProperties);
+    }
+}
+```
+Validation group above can be used for validation sequence needs.
+
+To enable/disable this feature use following configuration option:
+```xml
+    <generatorOptions implementation="apicross.java.SpringMvcCodeGeneratorOptions">
+        ...
+        <enableApicrossJavaBeanValidationSupport>true</enableApicrossJavaBeanValidationSupport>
+        ...
+    </generatorOptions>
+```
+By default this feature is enabled.
 
 ## Additional properties
 Take a look at following schema:
@@ -134,39 +194,69 @@ public class MyModel {
     }
 }
 ```
-## Min/Max/Required properties validation
-Validating such features within java code is tricky because JSON and Java are different.
-OpenAPI specification states:
-- minProperties - minimum number of fields must present in JSON document,
-- maxProperties - maximun number of fields must present in JSON document,
-- required - such fields must present in JSON document (it doesn't matter what value fields have, nulls or not).
+## IRead* interfaces feature
+This feature is for Hexagonal architecture purists.
 
-But after JSON deserialization into Java object there is no information about field's presence in the JSON document.
-APICROSS has simple toolkit to handle that. Every generated Java class has a setters those keep populated fields 
-into collection. For example:
+Generated java classes for API models (mainly request/response models) actually belong to adapters. 
+It is not possible to use such models inside application "core", because adapters can use ports from application "core", 
+but not vise-versa.
+
+With APICROSS it is possible to generate interface (a-la `IRead*` interface) for API models, 
+and locate these interfaces inside application "core" packages. Take a look at example:
 ```java
-public class MyModel implements HasPopulatedProperties {
-    private final Set<String> $populatedProperties = new HashSet<>();
+package com.myapp.ports.adapters.web;
 
-    private JsonNullable<String> a = JsonNullable.undefined();
+...
+@javax.annotation.Generated(value = "apicross.java.SpringMvcCodeGenerator")
+public class CreateMyResourceRepresentation implements IReadCreateMyResourceRepresentation {
+    ...
+}
+```
+```java
+package com.myapp.application;
+...
+@javax.annotation.Generated(value = "apicross.java.SpringMvcCodeGenerator")
+public interface IReadCreateMyResourceRepresentation {
+    String getSomeProperty();
+    ...
+}
+```
+```java
+package com.myapp.ports.adapters.web;
+...
+public interface MyApiHandler {
+    @RequestMapping(path = "/my-resource", method = RequestMethod.POST, consumes = "application/json")
+    ResponseEntity<?> createMyResource(@RequestBody(required = true) CreateMyResourceRepresentation model,
+                             @RequestHeader HttpHeaders headers) throws Exception;
+}
+```
 
-    //...
-
-    @JsonSetter("a")
-    public void setA(String a) {
-        this.$populatedProperties.add("a");
-        this.a = JsonNullable.of(a);
-    }
-    
+```java
+package com.myapp.ports.adapters.web;
+...
+@RestController
+public class MyApiHandlerController implements MyApyHandler {
+    private final MyService myService;
+    ...
     @Override
-    public Set<String> get$populatedProperties() {
-        return Collections.unmodifiableSet(this.$populatedProperties);
+    public ResponseEntity<?> createMyResource(CreateMyResourceRepresentation model, HttpHeaders headers) throws Exception {
+        myService.create(model);
+        return ResponseEntity.status(204).build();
     }
 }
 ```
-So it can be used to perform validation of objects of such class (min/maxProperties/required). 
-APICROSS toolkit has JSR380 validators to handle that. Take a look at the `apicross.beanvalidation.*` 
-classes within `apicross-support` module.
+
+```java
+package com.myapp.application;
+...
+@Service
+@Validated
+public class MyService {
+    public void create(@Valid IReadCreateMyResourceRepresentation model) {
+        ...
+    }
+}
+```
 
 ## API handler
 API Handler is an object handling API requests. For SpringWebMVC - handlers are `@Controller`s.
@@ -239,4 +329,40 @@ public class MyApiHandlerController implements MyApiHandler {
         return ResponseEntity.ok(MyModelRepresentationFactory.create(model));
     }
 }
+```
+### Spring Security Authentication
+When API operation definition contains security option, then it is possible to add `Authentication` parameter to the 
+API Handler interface. For example, take a look at following specification:
+```yaml
+  '/my-resource':
+    patch:
+      operationId: updateMyResource
+      requestBody:
+        required: true
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/MyModel'
+      security:
+        - Basic: [ ]
+```
+Then API Handler interface will look like:
+```java
+  ...
+  @RequestMapping(
+      method = RequestMethod.PATCH,
+      path = "/my-resource",
+      consumes = "application/json")
+  ResponseEntity<?> updateMyResource(
+      @RequestHeader HttpHeaders headers,
+      @CurrentSecurityContext(expression = "authentication") Authentication authentication,
+      @RequestBody(required = true) MyModel requestBody) throws Exception;
+```
+To enable this option use following configuration option:
+```xml
+    <generatorOptions implementation="apicross.java.SpringMvcCodeGeneratorOptions">
+        ...
+        <enableSpringSecurityAuthPrincipal>true</enableSpringSecurityAuthPrincipal>
+        ...
+    </generatorOptions>
 ```

@@ -8,9 +8,9 @@ import java.util.List;
 @Getter
 @Setter
 public class SpringMvcCodeGeneratorOptions extends JavaCodeGeneratorOptions {
-    private boolean enableApicrossJavaBeanValidationSupport;
-    private boolean enableDataModelReadInterfaces;
-    private boolean enableSpringSecurityAuthPrincipal;
+    private boolean enableApicrossJavaBeanValidationSupport = false;
+    private boolean enableDataModelReadInterfaces = false;
+    private boolean enableSpringSecurityAuthPrincipal = false;
     private String apiModelReadInterfacesPackage;
     private List<String> alternativeTemplatesPath;
 }
