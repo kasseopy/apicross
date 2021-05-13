@@ -7,10 +7,10 @@ import javax.validation.Valid;
 import java.util.*;
 import javax.annotation.*;
 
-@javax.annotation.Generated(value = "{{customAttributes.generatorClassName}}", date = "{{customAttributes.generationDate}}")
+@javax.annotation.Generated(value = "{{generatorOpts.generatorClassName}}", date = "{{generatorOpts.generationDate}}")
 public interface IRead{{originalTypeName}} {{#if inheritanceParentOriginalTypeName}} extends IRead{{{inheritanceParentOriginalTypeName}}}{{/if}} {
 {{#each properties}}
-    {{#if (and optional extraOpts.useJsonNullable)}}
+    {{#if (and optional generatorOpts.useJsonNullable)}}
         {{> documentation }}
         {{#if nullable}}@Nullable{{/if}}
         {{#if deprecated}}@Deprecated{{/if}}

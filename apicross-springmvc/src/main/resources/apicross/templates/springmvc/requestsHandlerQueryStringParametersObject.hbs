@@ -10,11 +10,11 @@ import javax.annotation.*;
     import java.util.Optional;
 {{/if}}
 
-{{#if extraOpts.enableApicrossJavaBeanValidationSupport}}
+{{#if generatorOpts.enableApicrossJavaBeanValidationSupport}}
     import apicross.beanvalidation.*;
 {{/if}}
 
-{{#if extraOpts.enableApicrossJavaBeanValidationSupport}}
+{{#if generatorOpts.enableApicrossJavaBeanValidationSupport}}
     {{#if queryObjectRequiredProperties}}
         @RequiredProperties(value = {
         {{#each requiredProperties}}
@@ -24,10 +24,11 @@ import javax.annotation.*;
         }, groups = {BeanPropertiesValidationGroup.class})
     {{/if}}
 {{/if}}
+@javax.annotation.Generated(value = "{{generatorOpts.generatorClassName}}", date = "{{generatorOpts.generationDate}}")
 public class {{capitalizeFirst operationId}}Query
-{{#if extraOpts.enableApicrossJavaBeanValidationSupport}}implements HasSpecifiedProperties{{/if}}
+{{#if generatorOpts.enableApicrossJavaBeanValidationSupport}}implements HasSpecifiedProperties{{/if}}
 {{#if queryObjectTypeInterfaces}}
-    {{#if extraOpts.enableApicrossJavaBeanValidationSupport}},{{else}} implements {{/if}}
+    {{#if generatorOpts.enableApicrossJavaBeanValidationSupport}},{{else}} implements {{/if}}
     {{#each queryObjectTypeInterfaces}}
         {{this}}
         {{#unless @last}},{{/unless}}
@@ -66,7 +67,7 @@ private final Set< String > $specifiedProperties = new HashSet();
     return this;
     }
 {{/each}}
-{{#if extraOpts.enableApicrossJavaBeanValidationSupport}}
+{{#if generatorOpts.enableApicrossJavaBeanValidationSupport}}
     @Override public Set< String > $specifiedProperties() {
     return Collections.unmodifiableSet(this.$specifiedProperties);
     }

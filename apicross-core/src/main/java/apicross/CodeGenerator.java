@@ -25,11 +25,6 @@ import java.util.function.Consumer;
 
 @Slf4j
 public abstract class CodeGenerator<T extends CodeGeneratorOptions> {
-    protected final Consumer<HasCustomModelAttributes> setupGenerationAttributesConsumer  = model -> {
-        model.addCustomAttribute("generatorClassName", CodeGenerator.this.getClass().getName());
-        model.addCustomAttribute("generationDate", new Date().toString());
-    };
-
     private String specUrl;
     private T options;
     private File writeSourcesTo;
@@ -63,11 +58,9 @@ public abstract class CodeGenerator<T extends CodeGeneratorOptions> {
 
         log.info("Resolving data models...");
         Collection<ObjectDataModel> models = resolveDataModels(dataModelResolver, openAPIComponentsIndex);
-        models.forEach(setupGenerationAttributesConsumer);
 
         log.info("Resolving handlers...");
         List<RequestsHandler> handlers = resolveRequestsHandlers(requestsHandlersResolver, openAPI.getPaths());
-        handlers.forEach(setupGenerationAttributesConsumer);
 
         if (!getOptions().isGenerateOnlyModels()) {
             log.info("Cleaning unused schemas...");

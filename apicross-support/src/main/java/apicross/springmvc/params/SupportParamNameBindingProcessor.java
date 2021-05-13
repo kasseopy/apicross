@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+// See also https://github.com/spring-projects/spring-framework/issues/23618
 public class SupportParamNameBindingProcessor extends ServletModelAttributeMethodProcessor {
 
     private final Map<Class<?>, Map<String, String>> renameCache = new ConcurrentHashMap<>();

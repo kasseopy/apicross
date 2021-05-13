@@ -12,7 +12,7 @@ import java.util.function.*;
     import org.openapitools.jackson.nullable.JsonNullable;
 {{/if}}
 
-{{#if extraOpts.enableApicrossJavaBeanValidationSupport}}
+{{#if generatorOpts.enableApicrossJavaBeanValidationSupport}}
     import apicross.beanvalidation.*;
 {{/if}}
 
@@ -21,7 +21,7 @@ import java.util.function.*;
 {{/if}}
 
 {{> documentation }}
-{{#if extraOpts.enableApicrossJavaBeanValidationSupport}}
+{{#if generatorOpts.enableApicrossJavaBeanValidationSupport}}
     {{#if minProperties}}
         @MinProperties(value = {{minProperties}}, groups = {BeanPropertiesValidationGroup.class})
     {{/if}}
@@ -49,12 +49,12 @@ import java.util.function.*;
     {{/each}}
     })
 {{/if}}
-@javax.annotation.Generated(value = "{{customAttributes.generatorClassName}}", date = "{{customAttributes.generationDate}}")
+@javax.annotation.Generated(value = "{{generatorOpts.generatorClassName}}", date = "{{generatorOpts.generationDate}}")
 public {{#if inheritanceChildModels}}abstract{{/if}} class {{typeName}}
 {{#if inheritanceParentTypeName}} extends {{{inheritanceParentTypeName}}}{{/if}}
-{{#if extraOpts.enableApicrossJavaBeanValidationSupport}}implements HasSpecifiedProperties{{/if}}
+{{#if generatorOpts.enableApicrossJavaBeanValidationSupport}}implements HasSpecifiedProperties{{/if}}
 {{#with customAttributes.implementsInterfaces}}
-    {{#if extraOpts.enableApicrossJavaBeanValidationSupport}},{{else}} implements {{/if}}
+    {{#if generatorOpts.enableApicrossJavaBeanValidationSupport}},{{else}} implements {{/if}}
     {{{join this ','}}}
 {{/with}}
 {
@@ -77,7 +77,7 @@ public {{typeName}}() {}
 {{/each}}
 
 {{#unless inheritanceChild}}
-    {{#if extraOpts.enableApicrossJavaBeanValidationSupport}}
+    {{#if generatorOpts.enableApicrossJavaBeanValidationSupport}}
         @Override
     {{/if}}
     @JsonIgnore

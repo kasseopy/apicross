@@ -138,7 +138,6 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
                     List<ObjectDataModel> inlineModels =
                             InlineDataModelResolver.resolveInlineModels((typeName, propertyResolvedName) ->
                                     typeName + StringUtils.capitalize(propertyResolvedName), requestBodyModel);
-                    inlineModels.forEach(setupGenerationAttributesConsumer);
                     collectResolvedTo.addAll(inlineModels);
                 }
             }
@@ -151,7 +150,6 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
                     InlineDataModelResolver.resolveInlineModels((typeName, propertyResolvedName) ->
                             typeName + StringUtils.capitalize(propertyResolvedName), model);
             if (!inlineModels.isEmpty()) {
-                inlineModels.forEach(setupGenerationAttributesConsumer);
                 collectResolvedTo.addAll(inlineModels);
                 resolveInlineModelsFrom(inlineModels, collectResolvedTo);
             }
@@ -268,17 +266,19 @@ public abstract class JavaCodeGenerator<T extends JavaCodeGeneratorOptions> exte
         writeSource(out, dataModelSourceCodeTemplate.apply(context));
     }
 
-    protected Map<String, Object> buildTemplateExtraOpts() {
-        HashMap<String, Object> extraOpts = new HashMap<>();
-        extraOpts.put("useJsonNullable", useJsonNullable);
-        return extraOpts;
+    protected Map<String, Object> buildGeneratorOpts() {
+        HashMap<String, Object> generatorOpts = new HashMap<>();
+        generatorOpts.put("useJsonNullable", useJsonNullable);
+        generatorOpts.put("generatorClassName", this.getClass().getName());
+        generatorOpts.put("generationDate", new Date());
+        return generatorOpts;
     }
 
     protected Context buildTemplateContext(Object model, String packageName) {
         return Context
                 .newBuilder(model)
                 .combine("package", packageName)
-                .combine("extraOpts", buildTemplateExtraOpts())
+                .combine("generatorOpts", buildGeneratorOpts())
                 .build();
     }
 

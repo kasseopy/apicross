@@ -198,9 +198,9 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
     }
 
     @Override
-    protected Map<String, Object> buildTemplateExtraOpts() {
-        Map<String, Object> extraOpts = super.buildTemplateExtraOpts();
-        extraOpts.put("enableApicrossJavaBeanValidationSupport", this.enableApicrossJavaBeanValidationSupport);
-        return extraOpts;
+    protected Map<String, Object> buildGeneratorOpts() {
+        Map<String, Object> generatorOpts = super.buildGeneratorOpts();
+        generatorOpts.put("enableApicrossJavaBeanValidationSupport", this.enableApicrossJavaBeanValidationSupport);
+        return generatorOpts;
     }
 }
