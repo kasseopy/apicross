@@ -1,10 +1,15 @@
+
 {{> documentation }}
 {{> requestsHandlerMethodHttpMapping}}
 ResponseEntity<{{> requestsHandlerMethodResponseBodyType}}> {{methodName}}(
 {{> requestsHandlerMethodPathVars}}
 {{#if pathParameters}},{{/if}}
-{{#if queryParameters}}
-    {{capitalizeFirst operationId}}Query queryParameters,
+{{#if generatorOpts.useQueryStringParametersObject}}
+    {{#if queryParameters}}
+        {{capitalizeFirst operationId}}Query queryParameters,
+    {{/if}}
+{{else}}
+    {{> requestsHandlerMethodQueryStringParameters}}
 {{/if}}
 @RequestHeader HttpHeaders headers
 {{#if customAttributes.addAuthPrincipalArg}}

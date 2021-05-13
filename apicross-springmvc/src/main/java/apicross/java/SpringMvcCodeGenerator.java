@@ -28,6 +28,7 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
     private boolean enableApicrossJavaBeanValidationSupport = false;
     private boolean enableDataModelReadInterfaces = false;
     private boolean enableSpringSecurityAuthPrincipal = false;
+    private boolean useQueryStringParametersObject = true;
     private String apiModelReadInterfacesPackage;
     private List<String> alternativeTemplatesPath;
 
@@ -42,6 +43,7 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
             this.apiModelReadInterfacesPackage = super.apiModelPackage;
         }
         this.alternativeTemplatesPath = options.getAlternativeTemplatesPath();
+        this.useQueryStringParametersObject = options.isUseQueryStringParametersObject();
     }
 
     @Override
@@ -201,6 +203,7 @@ public class SpringMvcCodeGenerator extends JavaCodeGenerator<SpringMvcCodeGener
     protected Map<String, Object> buildGeneratorOpts() {
         Map<String, Object> generatorOpts = super.buildGeneratorOpts();
         generatorOpts.put("enableApicrossJavaBeanValidationSupport", this.enableApicrossJavaBeanValidationSupport);
+        generatorOpts.put("useQueryStringParametersObject", this.useQueryStringParametersObject);
         return generatorOpts;
     }
 }
