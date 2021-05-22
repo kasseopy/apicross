@@ -16,7 +16,7 @@ APICROSS is a tool to generate source code from OpenAPI 3.0 API specification.
 - Files upload/download support  
 - HATEOAS/Hypermedia support (Planned)  
 - Customization:
-  * Customize API handler method names (Content-Type negotiation support)
+  * Customize API handler method names (See [here](docs/APIHandlerMethodName.md))
   * Customize Java class property name for model fields 
   * Grouping operations into API Handlers  
 
@@ -65,6 +65,10 @@ APICROSS is a tool to generate source code from OpenAPI 3.0 API specification.
 | apiModelPackage | String | Java package name for API models (request/response) |
 | modelClassNameSuffix | String | Suffix for API model Java class name |
 | modelClassNamePrefix | String | Prefix for API model Java class name  |
+| requestsHandlerMethodNameResolverClassName | String | |
+| requestsHandlerTypeNameResolverClassName | String | |
+| propertyNameResolverClassName | String | |
+| parameterNameResolverClassName | String | |
 | dataModelsExternalTypesMap | Map | TBD... |
 | dataModelsInterfacesMap | Map | TBD...  |
 | queryObjectsInterfacesMap | Map | TBD...  |
