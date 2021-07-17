@@ -28,7 +28,7 @@ Then API Handler interface will look like:
 ```
 To enable this option use following configuration option:
 ```xml
-    <generatorOptions implementation="apicross.java.SpringMvcCodeGeneratorOptions">
+    <generatorOptions implementation="com.github.itroadlabs.oas.apicross.springmvc.SpringMvcCodeGeneratorOptions">
         ...
         <enableSpringSecurityAuthPrincipal>true</enableSpringSecurityAuthPrincipal>
         ...

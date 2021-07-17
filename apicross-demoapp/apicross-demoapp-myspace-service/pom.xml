@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>itroadlabs.toolkits</groupId>
+        <groupId>com.github.itroadlabs.oas</groupId>
         <artifactId>apicross-demoapp</artifactId>
         <version>1.0.1-SNAPSHOT</version>
     </parent>
@@ -14,11 +14,11 @@
 
     <dependencies>
         <dependency>
-            <groupId>itroadlabs.toolkits</groupId>
+            <groupId>com.github.itroadlabs.oas</groupId>
             <artifactId>apicross-demoapp-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>itroadlabs.toolkits</groupId>
+            <groupId>com.github.itroadlabs.oas</groupId>
             <artifactId>apicross-support</artifactId>
         </dependency>
 
@@ -142,7 +142,7 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>itroadlabs.toolkits</groupId>
+                <groupId>com.github.itroadlabs.oas</groupId>
                 <artifactId>apicross-maven-plugin</artifactId>
                 <version>${project.version}</version>
 
@@ -155,8 +155,8 @@
                         </goals>
                         <configuration>
                             <specUrl>file:///${project.basedir}/../api-specifications/my-space.yaml</specUrl>
-                            <generatorClassName>apicross.java.SpringMvcCodeGenerator</generatorClassName>
-                            <generatorOptions implementation="apicross.java.SpringMvcCodeGeneratorOptions">
+                            <generatorClassName>com.github.itroadlabs.oas.apicross.springmvc.SpringMvcCodeGenerator</generatorClassName>
+                            <generatorOptions implementation="com.github.itroadlabs.oas.apicross.springmvc.SpringMvcCodeGeneratorOptions">
                                 <apiHandlerPackage>apicross.demo.myspace.ports.adapters.web</apiHandlerPackage>
                                 <apiModelPackage>apicross.demo.myspace.ports.adapters.web.models</apiModelPackage>
                                 <apiModelReadInterfacesPackage>apicross.demo.myspace.app.dto</apiModelReadInterfacesPackage>
@@ -182,12 +182,12 @@
                 </executions>
                 <dependencies>
                     <dependency>
-                        <groupId>itroadlabs.toolkits</groupId>
+                        <groupId>com.github.itroadlabs.oas</groupId>
                         <artifactId>apicross-demoapp-codegenext</artifactId>
                         <version>${project.version}</version>
                     </dependency>
                     <dependency>
-                        <groupId>itroadlabs.toolkits</groupId>
+                        <groupId>com.github.itroadlabs.oas</groupId>
                         <artifactId>apicross-springmvc</artifactId>
                         <version>${project.version}</version>
                     </dependency>

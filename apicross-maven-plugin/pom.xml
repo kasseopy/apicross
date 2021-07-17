@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>itroadlabs.toolkits</groupId>
+        <groupId>com.github.itroadlabs.oas</groupId>
         <artifactId>apicross</artifactId>
         <version>1.0.1-SNAPSHOT</version>
     </parent>
@@ -16,11 +16,11 @@
 
     <dependencies>
         <dependency>
-            <groupId>itroadlabs.toolkits</groupId>
+            <groupId>com.github.itroadlabs.oas</groupId>
             <artifactId>apicross-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>itroadlabs.toolkits</groupId>
+            <groupId>com.github.itroadlabs.oas</groupId>
             <artifactId>apicross-springmvc</artifactId>
         </dependency>
 

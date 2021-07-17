@@ -50,7 +50,7 @@ public class MyModel {
 
 It is possible to disable `JsonNullable` usage by maven plugin configuration option:
 ```xml
-    <generatorOptions implementation="apicross.java.SpringMvcCodeGeneratorOptions">
+    <generatorOptions implementation="com.github.itroadlabs.oas.apicross.springmvc.SpringMvcCodeGeneratorOptions">
         ...
         <useJsonNullable>false</useJsonNullable>
         ...
